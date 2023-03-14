@@ -1,0 +1,1 @@
+import{FSharpRef}from"./Types.js";export function tryParse(r,t){return r.match(/^\s*true\s*$/i)?(t.contents=!0,!0):!!r.match(/^\s*false\s*$/i)&&(t.contents=!1,!0)}export function parse(r){const t=new FSharpRef(!1);if(tryParse(r,t))return t.contents;throw new Error(`String '${r}' was not recognized as a valid Boolean.`)}

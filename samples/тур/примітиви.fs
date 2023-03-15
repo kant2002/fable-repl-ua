@@ -1,64 +1,65 @@
 module Tour.Primitives
 
-// From https://docs.microsoft.com/en-us/dotnet/fsharp/tour
-// Visit the link above for more information on each topic
-// You can also find more learning resources at https://fsharp.org/
+// Із https://docs.microsoft.com/en-us/dotnet/fsharp/tour
+// Щоб дізнатися більше про кожну тему, перейдіть за посиланням вище
+// Ви також можете знайти більше навчальних ресурсів за адресою https://fsharp.org/
+// (лише англійською)
 
-module IntegersAndNumbers =
+module ЦіліТаЧисла =
 
-    /// This is a sample integer.
-    let sampleInteger = 176
+    /// Це зразок цілого числа.
+    let зразокЦілого = 176
 
-    /// This is a sample floating point number.
-    let sampleDouble = 4.1
+    /// Це зразок числа з плаваючою комою.
+    let зразокДабл = 4.1
 
-    /// This computed a new number by some arithmetic.  Numeric types are converted using
-    /// functions 'int', 'double' and so on.
-    let sampleInteger2 = (sampleInteger/4 + 5 - 7) * 4 + int sampleDouble
+    /// Це обчислює нове число за допомогою певної арифметики.  Числові типи перетворюються 
+    /// за допомогою функцій 'int', 'double' і так далі.
+    let зразокЦілого2 = (зразокЦілого/4 + 5 - 7) * 4 + int зразокДабл
 
-    /// This is a list of the numbers from 0 to 99.
-    let sampleNumbers = [ 0 .. 99 ]
+    /// Це список чисел від 0 до 99.
+    let зразокЧисел = [ 0 .. 99 ]
 
-    /// This is a list of all tuples containing all the numbers from 0 to 99 and their squares.
-    let sampleTableOfSquares = [ for i in 0 .. 99 -> (i, i*i) ]
+    /// Це список усіх кортежів, що містять усі числа від 0 до 99 та їхніх квадратів.
+    let зразокТаблиціКвадратів = [ for i in 0 .. 99 -> (i, i*i) ]
 
-    // The next line prints a list that includes tuples, using '%A' for generic printing.
-    printfn $"The table of squares from 0 to 99 is:\n{sampleTableOfSquares}"
-
-
-module Booleans =
-
-    /// Booleans values are 'true' and 'false'.
-    let boolean1 = true
-    let boolean2 = false
-
-    /// Operators on booleans are 'not', '&&' and '||'.
-    let boolean3 = not boolean1 && (boolean2 || false)
-
-    // This line uses '%b'to print a boolean value.  This is type-safe.
-    printfn $"The expression 'not boolean1 && (boolean2 || false)' is %b{boolean3}"
+    // Наступний рядок друкує список, який включає кортежі, використовуючи '%A' для загального друку.
+    printfn $"Таблиця квадратів від 0 до 99:\n{зразокТаблиціКвадратів}"
 
 
-module StringManipulation =
+module ЛогічніЗначення =
 
-    /// Strings use double quotes.
-    let string1 = "Hello"
-    let string2  = "world"
+    /// Логічними значеннями є 'істина' і 'ложь'.
+    let логічне1 = true
+    let логічне2 = false
 
-    /// Strings can also use @ to create a verbatim string literal.
-    /// This will ignore escape characters such as '\', '\n', '\t', etc.
-    let string3 = @"C:\Program Files\"
+    /// Оператори на логічні значення 'not', '&&' і '||'.
+    let логічне3 = not логічне1 && (логічне2 || false)
 
-    /// String literals can also use triple-quotes.
-    let string4 = """The computer said "hello world" when I told it to!"""
+    // Цей рядок використовує '%b' для друку логічного значення.  Це типо-безпечно.
+    printfn $"Вираз 'not логічне1 && (логічне2 || false)' дорівнює %b{логічне3}"
 
-    /// String concatenation is normally done with the '+' operator.
-    let helloWorld = string1 + " " + string2
 
-    // This line uses '%s' to print a string value.  This is type-safe.
-    printfn "%s" helloWorld
+module МаніпуляціїСтрок =
 
-    /// Substrings use the indexer notation.  This line extracts the first 7 characters as a substring.
-    /// Note that like many languages, Strings are zero-indexed in F#.
-    let substring = helloWorld.[0..6]
-    printfn "%s" substring
+    /// Строки використовують подвійні лапки.
+    let строка1 = "Привіт"
+    let строка2  = "світ"
+
+    /// Рядки також можуть використовувати @ для створення дослівного рядкового літералу.
+    /// Це ігноруватиме екрановані символи, такі як '\', '\n', '\t', тощо.
+    let строка3 = @"C:\Program Files\"
+
+    /// Рядкові літерали також можуть використовувати потрійні лапки.
+    let строка4 = """Комп’ютер сказав "Привіт світ", коли я йому сказав!"""
+
+    /// Об’єднання рядків зазвичай виконується за допомогою оператора '+'.
+    let добриденьМир = строка1 + " " + строка2
+
+    // Цей рядок використовує '%s' для друку значення строки.  Це типо-безпечно.
+    printfn "%s" добриденьМир
+
+    /// Підрядки використовують нотацію індексатора.  Цей рядок виділяє перші 7 символів як підстроку.
+    /// Зауважте, що, як і в багатьох мовах, строки мають нульовий індекс у Ф#.
+    let підстрока = добриденьМир.[0..6]
+    printfn "%s" підстрока

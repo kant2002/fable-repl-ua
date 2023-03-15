@@ -1,21 +1,21 @@
 [
     {
         "type": "category",
-        "label": "Samples",
+        "label": "Приклади",
         "children": [
             {
                 "type": "sub-category",
-                "label": "UI",
+                "label": "ІК",
                 "children": [
                     {
                         "type": "menu-item",
-                        "label": "Spreadsheet",
+                        "label": "Таблиця",
                         "fsharpCode": "ui/spreadsheet.fs",
                         "htmlCode": "ui/spreadsheet.html"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Web Component",
+                        "label": "Веб Компонент",
                         "fsharpCode": "ui/webcomponent.fs",
                         "htmlCode": "ui/webcomponent.html"
                     }
@@ -23,35 +23,35 @@
             },
             {
                 "type": "sub-category",
-                "label": "Fun and Games",
+                "label": "Розваги та ігри",
                 "children": [
                     {
                         "type": "menu-item",
-                        "label": "Undertone - Programmable music",
+                        "label": "Півтон - Програмуєма музика",
                         "fsharpCode": "games/undertone.fs",
                         "htmlCode": "games/undertone.html"
                     },
                     {
                         "type": "menu-item",
-                        "label": "F# Ant Colony Fable Edition",
+                        "label": "Ф# Колонія мурах. Редакція Фабле",
                         "fsharpCode": "games/ants.fs",
                         "htmlCode": "games/ants.html"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Super Fable Mario",
+                        "label": "Супер Фабле Маріо",
                         "fsharpCode": "games/mario.fs",
                         "htmlCode": "games/mario.html"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Ozmo Game",
+                        "label": "Гра Озмо",
                         "fsharpCode": "games/ozmo.fs",
                         "htmlCode": "games/ozmo.html"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Pacman",
+                        "label": "Пакман",
                         "fsharpCode": "games/pacman.fs",
                         "htmlCode": "games/pacman.html"
                     }
@@ -59,41 +59,41 @@
             },
             {
                 "type": "sub-category",
-                "label": "Visualizations",
+                "label": "Візуалізація",
                 "children": [
                     {
                         "type": "menu-item",
-                        "label": "Basic canvas",
+                        "label": "Базовий холст",
                         "fsharpCode": "visual/basic-canvas.fs",
                         "htmlCode": "visual/basic-canvas.html"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Mandelbrot",
+                        "label": "Мандельброт",
                         "fsharpCode": "visual/mandelbrot.fs",
                         "htmlCode": "visual/mandelbrot.html"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Ray Tracer",
+                        "label": "Трасування лучів",
                         "fsharpCode": "visual/raytracer.fs",
                         "htmlCode": "visual/raytracer.html"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Hokusai",
+                        "label": "Хокусай",
                         "fsharpCode": "visual/hokusai.fs",
                         "htmlCode": "visual/hokusai.html"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Color Fountain",
+                        "label": "Фонтан кольорів",
                         "fsharpCode": "visual/color-fountain.fs",
                         "htmlCode": "visual/color-fountain.html"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Fractal",
+                        "label": "Фрактал",
                         "fsharpCode": "visual/fractal.fs",
                         "htmlCode": "visual/fractal.html"
                     }
@@ -103,46 +103,46 @@
     },
     {
         "type": "category",
-        "label": "Learn",
+        "label": "Навчання",
         "children": [
             {
                 "type": "sub-category",
-                "label": "Tour of F#",
+                "label": "Тур по Ф#",
                 "children": [
                     {
                         "type": "menu-item",
-                        "label": "Functions",
-                        "fsharpCode": "tour/functions.fs"
+                        "label": "Функції",
+                        "fsharpCode": "тур/функції.fs"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Primitive Types",
-                        "fsharpCode": "tour/primitives.fs"
+                        "label": "Примитивні типи",
+                        "fsharpCode": "тур/примітиви.fs"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Collections",
-                        "fsharpCode": "tour/collections.fs"
+                        "label": "Колекції",
+                        "fsharpCode": "тур/колекції.fs"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Tuples and Records",
-                        "fsharpCode": "tour/records.fs"
+                        "label": "Кортежі та Записи",
+                        "fsharpCode": "тур/записи.fs"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Union Types",
-                        "fsharpCode": "tour/unions.fs"
+                        "label": "Об'еднані типи",
+                        "fsharpCode": "тур/об_еднання.fs"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Units of Measure",
-                        "fsharpCode": "tour/units.fs"
+                        "label": "Одиниці вимірювання",
+                        "fsharpCode": "тур/одиниці.fs"
                     },
                     {
                         "type": "menu-item",
-                        "label": "Defining Classes",
-                        "fsharpCode": "tour/classes.fs"
+                        "label": "Декларування класів",
+                        "fsharpCode": "тур/класи.fs"
                     }
                 ]
             }

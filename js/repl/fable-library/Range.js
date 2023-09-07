@@ -1,1 +1,55 @@
-import{compare}from"./Util.js";import{unfold,delay}from"./Seq.js";import{op_Addition,fromZero}from"./BigInt.js";import{op_Addition as op_Addition_1,fromParts}from"./Decimal.js";import{op_Addition as op_Addition_2,fromBits}from"./Long.js";export function makeRangeStepFunction(o,n,t,r){const e=0|compare(o,t);if(0===e)throw new Error("The step of a range cannot be zero");const i=e>0;return t=>{const e=0|compare(t,n);return i&&e<=0||!i&&e>=0?[t,r(t,o)]:void 0}}export function integralRangeStep(o,n,t,r,e){const i=makeRangeStepFunction(n,t,r,e);return delay((()=>unfold(i,o)))}export function rangeBigInt(o,n,t){return integralRangeStep(o,n,t,fromZero(),op_Addition)}export function rangeDecimal(o,n,t){return integralRangeStep(o,n,t,fromParts(0,0,0,!1,0),op_Addition_1)}export function rangeDouble(o,n,t){return integralRangeStep(o,n,t,0,((o,n)=>o+n))}export function rangeInt64(o,n,t){return integralRangeStep(o,n,t,fromBits(0,0,!1),op_Addition_2)}export function rangeUInt64(o,n,t){return integralRangeStep(o,n,t,fromBits(0,0,!0),op_Addition_2)}export function rangeChar(o,n){const t=0|n.charCodeAt(0);return delay((()=>unfold((o=>o<=t?[String.fromCharCode(o),o+1]:void 0),o.charCodeAt(0))))}
+import { compare } from "./Util.js";
+import { unfold, delay } from "./Seq.js";
+import { op_Addition, fromZero } from "./BigInt.js";
+import { op_Addition as op_Addition_1, fromParts } from "./Decimal.js";
+import { op_Addition as op_Addition_2, fromBits } from "./Long.js";
+
+export function makeRangeStepFunction(step, stop, zero, add) {
+    const stepComparedWithZero = compare(step, zero) | 0;
+    if (stepComparedWithZero === 0) {
+        throw new Error("The step of a range cannot be zero");
+    }
+    const stepGreaterThanZero = stepComparedWithZero > 0;
+    return (x) => {
+        const comparedWithLast = compare(x, stop) | 0;
+        return ((stepGreaterThanZero && (comparedWithLast <= 0)) ? true : ((!stepGreaterThanZero) && (comparedWithLast >= 0))) ? [x, add(x, step)] : (void 0);
+    };
+}
+
+export function integralRangeStep(start, step, stop, zero, add) {
+    const stepFn = makeRangeStepFunction(step, stop, zero, add);
+    return delay(() => unfold(stepFn, start));
+}
+
+export function rangeBigInt(start, step, stop) {
+    return integralRangeStep(start, step, stop, fromZero(), op_Addition);
+}
+
+export function rangeDecimal(start, step, stop) {
+    return integralRangeStep(start, step, stop, fromParts(0, 0, 0, false, 0), op_Addition_1);
+}
+
+export function rangeDouble(start, step, stop) {
+    return integralRangeStep(start, step, stop, 0, (x, y) => (x + y));
+}
+
+export function rangeInt64(start, step, stop) {
+    return integralRangeStep(start, step, stop, fromBits(0, 0, false), op_Addition_2);
+}
+
+export function rangeUInt64(start, step, stop) {
+    return integralRangeStep(start, step, stop, fromBits(0, 0, true), op_Addition_2);
+}
+
+export function rangeChar(start, stop) {
+    const intStop = stop.charCodeAt(0) | 0;
+    return delay(() => unfold((c) => {
+        if (c <= intStop) {
+            return [String.fromCharCode(c), c + 1];
+        }
+        else {
+            return void 0;
+        }
+    }, start.charCodeAt(0)));
+}
+

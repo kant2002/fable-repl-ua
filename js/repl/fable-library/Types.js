@@ -1,1 +1,209 @@
-import{combineHashCodes,compare,compareArrays,equalArrays,equals,sameConstructor,numberHash,structuralHash}from"./Util.js";export function seqToString(t){let r=0,e="[";for(const o of t){if(0===r)e+=toString(o);else{if(100===r){e+="; ...";break}e+="; "+toString(o)}r++}return e+"]"}export function toString(t,r=0){var e,o;if(null!=t&&"object"==typeof t){if("function"==typeof t.toString)return t.toString();if(Symbol.iterator in t)return seqToString(t);{const n=null===(e=Object.getPrototypeOf(t))||void 0===e?void 0:e.constructor;return n===Object&&r<10?"{ "+Object.entries(t).map((([t,e])=>t+" = "+toString(e,r+1))).join("\n  ")+" }":null!==(o=null==n?void 0:n.name)&&void 0!==o?o:""}}return String(t)}export function unionToString(t,r){if(0===r.length)return t;{let e,o=!0;return 1===r.length?(e=toString(r[0]),o=e.indexOf(" ")>=0):e=r.map((t=>toString(t))).join(", "),t+(o?" (":" ")+e+(o?")":"")}}export class Union{get name(){return this.cases()[this.tag]}toJSON(){return 0===this.fields.length?this.name:[this.name].concat(this.fields)}toString(){return unionToString(this.name,this.fields)}GetHashCode(){const t=this.fields.map((t=>structuralHash(t)));return t.splice(0,0,numberHash(this.tag)),combineHashCodes(t)}Equals(t){return this===t||!!sameConstructor(this,t)&&this.tag===t.tag&&equalArrays(this.fields,t.fields)}CompareTo(t){return this===t?0:sameConstructor(this,t)?this.tag===t.tag?compareArrays(this.fields,t.fields):this.tag<t.tag?-1:1:-1}}function recordToJSON(t){const r={},e=Object.keys(t);for(let o=0;o<e.length;o++)r[e[o]]=t[e[o]];return r}function recordToString(t){return"{ "+Object.entries(t).map((([t,r])=>t+" = "+toString(r))).join("\n  ")+" }"}function recordGetHashCode(t){const r=Object.values(t).map((t=>structuralHash(t)));return combineHashCodes(r)}function recordEquals(t,r){if(t===r)return!0;if(sameConstructor(t,r)){const e=Object.keys(t);for(let o=0;o<e.length;o++)if(!equals(t[e[o]],r[e[o]]))return!1;return!0}return!1}function recordCompareTo(t,r){if(t===r)return 0;if(sameConstructor(t,r)){const e=Object.keys(t);for(let o=0;o<e.length;o++){const n=compare(t[e[o]],r[e[o]]);if(0!==n)return n}return 0}return-1}export class Record{toJSON(){return recordToJSON(this)}toString(){return recordToString(this)}GetHashCode(){return recordGetHashCode(this)}Equals(t){return recordEquals(this,t)}CompareTo(t){return recordCompareTo(this,t)}}export class FSharpRef{get contents(){return this.getter()}set contents(t){this.setter(t)}constructor(t,r){"function"==typeof r?(this.getter=t,this.setter=r):(this.getter=()=>t,this.setter=r=>{t=r})}}export class Exception{constructor(t){this.message=t}}export function isException(t){return t instanceof Exception||t instanceof Error}export function isPromise(t){return t instanceof Promise}export function ensureErrorOrException(t){return isException(t)||isPromise(t)?t:new Error(String(t))}export class FSharpException extends Exception{toJSON(){return recordToJSON(this)}toString(){return recordToString(this)}GetHashCode(){return recordGetHashCode(this)}Equals(t){return recordEquals(this,t)}CompareTo(t){return recordCompareTo(this,t)}}export class MatchFailureException extends FSharpException{constructor(t,r,e){super(),this.arg1=t,this.arg2=0|r,this.arg3=0|e,this.message="The match cases were incomplete"}}export class Attribute{}
+import { combineHashCodes, compare, compareArrays, equalArrays, equals, sameConstructor, numberHash, structuralHash } from "./Util.js";
+export function seqToString(self) {
+    let count = 0;
+    let str = "[";
+    for (const x of self) {
+        if (count === 0) {
+            str += toString(x);
+        }
+        else if (count === 100) {
+            str += "; ...";
+            break;
+        }
+        else {
+            str += "; " + toString(x);
+        }
+        count++;
+    }
+    return str + "]";
+}
+export function toString(x, callStack = 0) {
+    var _a, _b;
+    if (x != null && typeof x === "object") {
+        if (typeof x.toString === "function") {
+            return x.toString();
+        }
+        else if (Symbol.iterator in x) {
+            return seqToString(x);
+        }
+        else { // TODO: Date?
+            const cons = (_a = Object.getPrototypeOf(x)) === null || _a === void 0 ? void 0 : _a.constructor;
+            return cons === Object && callStack < 10
+                // Same format as recordToString
+                ? "{ " + Object.entries(x).map(([k, v]) => k + " = " + toString(v, callStack + 1)).join("\n  ") + " }"
+                : (_b = cons === null || cons === void 0 ? void 0 : cons.name) !== null && _b !== void 0 ? _b : "";
+        }
+    }
+    return String(x);
+}
+export function unionToString(name, fields) {
+    if (fields.length === 0) {
+        return name;
+    }
+    else {
+        let fieldStr;
+        let withParens = true;
+        if (fields.length === 1) {
+            fieldStr = toString(fields[0]);
+            withParens = fieldStr.indexOf(" ") >= 0;
+        }
+        else {
+            fieldStr = fields.map((x) => toString(x)).join(", ");
+        }
+        return name + (withParens ? " (" : " ") + fieldStr + (withParens ? ")" : "");
+    }
+}
+export class Union {
+    get name() {
+        return this.cases()[this.tag];
+    }
+    toJSON() {
+        return this.fields.length === 0 ? this.name : [this.name].concat(this.fields);
+    }
+    toString() {
+        return unionToString(this.name, this.fields);
+    }
+    GetHashCode() {
+        const hashes = this.fields.map((x) => structuralHash(x));
+        hashes.splice(0, 0, numberHash(this.tag));
+        return combineHashCodes(hashes);
+    }
+    Equals(other) {
+        if (this === other) {
+            return true;
+        }
+        else if (!sameConstructor(this, other)) {
+            return false;
+        }
+        else if (this.tag === other.tag) {
+            return equalArrays(this.fields, other.fields);
+        }
+        else {
+            return false;
+        }
+    }
+    CompareTo(other) {
+        if (this === other) {
+            return 0;
+        }
+        else if (!sameConstructor(this, other)) {
+            return -1;
+        }
+        else if (this.tag === other.tag) {
+            return compareArrays(this.fields, other.fields);
+        }
+        else {
+            return this.tag < other.tag ? -1 : 1;
+        }
+    }
+}
+function recordToJSON(self) {
+    const o = {};
+    const keys = Object.keys(self);
+    for (let i = 0; i < keys.length; i++) {
+        o[keys[i]] = self[keys[i]];
+    }
+    return o;
+}
+function recordToString(self) {
+    return "{ " + Object.entries(self).map(([k, v]) => k + " = " + toString(v)).join("\n  ") + " }";
+}
+function recordGetHashCode(self) {
+    const hashes = Object.values(self).map((v) => structuralHash(v));
+    return combineHashCodes(hashes);
+}
+function recordEquals(self, other) {
+    if (self === other) {
+        return true;
+    }
+    else if (!sameConstructor(self, other)) {
+        return false;
+    }
+    else {
+        const thisNames = Object.keys(self);
+        for (let i = 0; i < thisNames.length; i++) {
+            if (!equals(self[thisNames[i]], other[thisNames[i]])) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+function recordCompareTo(self, other) {
+    if (self === other) {
+        return 0;
+    }
+    else if (!sameConstructor(self, other)) {
+        return -1;
+    }
+    else {
+        const thisNames = Object.keys(self);
+        for (let i = 0; i < thisNames.length; i++) {
+            const result = compare(self[thisNames[i]], other[thisNames[i]]);
+            if (result !== 0) {
+                return result;
+            }
+        }
+        return 0;
+    }
+}
+export class Record {
+    toJSON() { return recordToJSON(this); }
+    toString() { return recordToString(this); }
+    GetHashCode() { return recordGetHashCode(this); }
+    Equals(other) { return recordEquals(this, other); }
+    CompareTo(other) { return recordCompareTo(this, other); }
+}
+export class FSharpRef {
+    get contents() {
+        return this.getter();
+    }
+    set contents(v) {
+        this.setter(v);
+    }
+    constructor(contentsOrGetter, setter) {
+        if (typeof setter === "function") {
+            this.getter = contentsOrGetter;
+            this.setter = setter;
+        }
+        else {
+            this.getter = () => contentsOrGetter;
+            this.setter = (v) => { contentsOrGetter = v; };
+        }
+    }
+}
+// EXCEPTIONS
+// Exception is intentionally not derived from Error, for performance reasons (see #2160)
+export class Exception {
+    constructor(message) {
+        this.message = message;
+    }
+}
+export function isException(x) {
+    return x instanceof Exception || x instanceof Error;
+}
+export function isPromise(x) {
+    return x instanceof Promise;
+}
+export function ensureErrorOrException(e) {
+    // Exceptionally admitting promises as errors for compatibility with React.suspense (see #3298)
+    return (isException(e) || isPromise(e)) ? e : new Error(String(e));
+}
+export class FSharpException extends Exception {
+    toJSON() { return recordToJSON(this); }
+    toString() { return recordToString(this); }
+    GetHashCode() { return recordGetHashCode(this); }
+    Equals(other) { return recordEquals(this, other); }
+    CompareTo(other) { return recordCompareTo(this, other); }
+}
+export class MatchFailureException extends FSharpException {
+    constructor(arg1, arg2, arg3) {
+        super();
+        this.arg1 = arg1;
+        this.arg2 = arg2 | 0;
+        this.arg3 = arg3 | 0;
+        this.message = "The match cases were incomplete";
+    }
+}
+export class Attribute {
+}

@@ -1,1 +1,63 @@
-import{compare,equals,structuralHash}from"./Util.js";export class Some{constructor(u){this.value=u}toJSON(){return this.value}toString(){return String(this.value)}GetHashCode(){return structuralHash(this.value)}Equals(u){return null!=u&&equals(this.value,u instanceof Some?u.value:u)}CompareTo(u){return null==u?1:compare(this.value,u instanceof Some?u.value:u)}}export function some(u){return null==u||u instanceof Some?new Some(u):u}export function value(u){if(null==u)throw new Error("Option has no value");return u instanceof Some?u.value:u}export function ofNullable(u){return null==u?void 0:u}export function toNullable(u){return null==u?null:value(u)}export function flatten(u){return null==u?void 0:value(u)}export function toArray(u){return null==u?[]:[value(u)]}export function defaultArg(u,e){return null!=u?value(u):e}export function defaultArgWith(u,e){return null!=u?value(u):e()}export function orElse(u,e){return null==u?e:u}export function orElseWith(u,e){return null==u?e():u}export function filter(u,e){return null!=e?u(value(e))?e:void 0:e}export function map(u,e){return null!=e?some(u(value(e))):void 0}export function map2(u,e,n){return null!=e&&null!=n?u(value(e),value(n)):void 0}export function map3(u,e,n,t){return null!=e&&null!=n&&null!=t?u(value(e),value(n),value(t)):void 0}export function bind(u,e){return null!=e?u(value(e)):void 0}export function tryOp(u,e){try{return some(u(e))}catch(u){return}}
+import { Some, value } from "./Util.js";
+export { Some, value };
+// Options are erased in runtime by Fable, but we have
+// the `Some` type below to wrap values that would evaluate
+// to `undefined` in runtime. These two rules must be followed:
+// 1- `None` is always `undefined` in runtime, a non-strict null check
+//    (`x == null`) is enough to check the case of an option.
+// 2- To get the value of an option the `value` helper
+//    below must **always** be used.
+// Note: We use non-strict null check for backwards compatibility with
+// code that use F# options to represent values that could be null in JS
+export function some(x) {
+    return x == null || x instanceof Some ? new Some(x) : x;
+}
+export function ofNullable(x) {
+    // This will fail with unit probably, an alternative would be:
+    // return x === null ? undefined : (x === undefined ? new Some(x) : x);
+    return x == null ? undefined : x;
+}
+export function toNullable(x) {
+    return x == null ? null : value(x);
+}
+export function flatten(x) {
+    return x == null ? undefined : value(x);
+}
+export function toArray(opt) {
+    return (opt == null) ? [] : [value(opt)];
+}
+export function defaultArg(opt, defaultValue) {
+    return (opt != null) ? value(opt) : defaultValue;
+}
+export function defaultArgWith(opt, defThunk) {
+    return (opt != null) ? value(opt) : defThunk();
+}
+export function orElse(opt, ifNone) {
+    return opt == null ? ifNone : opt;
+}
+export function orElseWith(opt, ifNoneThunk) {
+    return opt == null ? ifNoneThunk() : opt;
+}
+export function filter(predicate, opt) {
+    return (opt != null) ? (predicate(value(opt)) ? opt : undefined) : opt;
+}
+export function map(mapping, opt) {
+    return (opt != null) ? some(mapping(value(opt))) : undefined;
+}
+export function map2(mapping, opt1, opt2) {
+    return (opt1 != null && opt2 != null) ? mapping(value(opt1), value(opt2)) : undefined;
+}
+export function map3(mapping, opt1, opt2, opt3) {
+    return (opt1 != null && opt2 != null && opt3 != null) ? mapping(value(opt1), value(opt2), value(opt3)) : undefined;
+}
+export function bind(binder, opt) {
+    return opt != null ? binder(value(opt)) : undefined;
+}
+export function tryOp(op, arg) {
+    try {
+        return some(op(arg));
+    }
+    catch (_a) {
+        return undefined;
+    }
+}

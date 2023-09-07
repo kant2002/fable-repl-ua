@@ -1,1 +1,1447 @@
-import{Record}from"../Types.js";import{record_type,array_type,int32_type}from"../Reflection.js";import{op_LeftShift,op_BitwiseAnd,op_Addition,compare,op_Subtraction,op_Division,equals,fromInteger,op_Multiply,op_Modulus,toInt,fromBits}from"../Long.js";import{copy,initialize,map,fill}from"../Array.js";import{toArray,empty,head,tail,isEmpty,cons}from"../List.js";import{int32ToString}from"../Util.js";import{isNullOrEmpty,join}from"../String.js";export class BigNat extends Record{constructor(t,o){super(),this.bound=0|t,this.digits=o}}export function BigNat$reflection(){return record_type("BigInt.BigNat",[],BigNat,(()=>[["bound",int32_type],["digits",array_type(int32_type)]]))}export function BigNatModule_FFT_pow32(t,o){for(;;){const e=t,i=o;if(0===i)return 1;if(i%2!=0)return e*BigNatModule_FFT_pow32(e*e,~~(i/2))|0;t=e*e,o=~~(i/2)}}export function BigNatModule_FFT_leastBounding2Power(t){return((t,o,e)=>{for(;;){if(t<=o)return[o,e];o*=2,e+=1}})(t,1,0)}export const BigNatModule_FFT_p=fromBits(2013265921,0,!1);export const BigNatModule_FFT_patternInput$004075=[27,15,31,440564289];export const BigNatModule_FFT_w=BigNatModule_FFT_patternInput$004075[3];export const BigNatModule_FFT_m=BigNatModule_FFT_patternInput$004075[1];export const BigNatModule_FFT_k=BigNatModule_FFT_patternInput$004075[0];export const BigNatModule_FFT_g=BigNatModule_FFT_patternInput$004075[2];export const BigNatModule_FFT_primeP=BigNatModule_FFT_p;export const BigNatModule_FFT_maxBitsInsideFp=30;export const BigNatModule_FFT_Fp_p=2013265921;export const BigNatModule_FFT_Fp_p64=fromBits(2013265921,0,!0);export function BigNatModule_FFT_Fp_toInt(t){return~~t}export function BigNatModule_FFT_Fp_ofInt32(t){return t>>>0}export const BigNatModule_FFT_Fp_mzero=0;export const BigNatModule_FFT_Fp_mone=1;export const BigNatModule_FFT_Fp_mtwo=2;export function BigNatModule_FFT_Fp_mpow(t,o){for(;;){const e=t,i=o;if(0===i)return BigNatModule_FFT_Fp_mone;if(i%2!=0){const t=BigNatModule_FFT_Fp_mpow(toInt(op_Modulus(op_Multiply(fromInteger(e,!0,6),fromInteger(e,!0,6)),BigNatModule_FFT_Fp_p64))>>>0,~~(i/2));return toInt(op_Modulus(op_Multiply(fromInteger(e,!0,6),fromInteger(t,!0,6)),BigNatModule_FFT_Fp_p64))>>>0}t=toInt(op_Modulus(op_Multiply(fromInteger(e,!0,6),fromInteger(e,!0,6)),BigNatModule_FFT_Fp_p64))>>>0,o=~~(i/2)}}export function BigNatModule_FFT_Fp_mpowL(t,o){for(;;){const e=t,i=o;if(equals(i,fromBits(0,0,!1)))return BigNatModule_FFT_Fp_mone;if(!equals(op_Modulus(i,fromBits(2,0,!1)),fromBits(0,0,!1))){const t=BigNatModule_FFT_Fp_mpowL(toInt(op_Modulus(op_Multiply(fromInteger(e,!0,6),fromInteger(e,!0,6)),BigNatModule_FFT_Fp_p64))>>>0,op_Division(i,fromBits(2,0,!1)));return toInt(op_Modulus(op_Multiply(fromInteger(e,!0,6),fromInteger(t,!0,6)),BigNatModule_FFT_Fp_p64))>>>0}t=toInt(op_Modulus(op_Multiply(fromInteger(e,!0,6),fromInteger(e,!0,6)),BigNatModule_FFT_Fp_p64))>>>0,o=op_Division(i,fromBits(2,0,!1))}}export function BigNatModule_FFT_Fp_m2PowNthRoot(t){return BigNatModule_FFT_Fp_mpow(BigNatModule_FFT_w>>>0,BigNatModule_FFT_pow32(2,BigNatModule_FFT_k-t))}export function BigNatModule_FFT_Fp_minv(t){return BigNatModule_FFT_Fp_mpowL(t,op_Subtraction(BigNatModule_FFT_primeP,fromBits(2,0,!1)))}export function BigNatModule_FFT_computeFFT(t,o,e,i,u,n,r){let d,a,l;if(1===e)n[r]=u[o];else{const _=0|~~(e/2),g=toInt(op_Modulus(op_Multiply(fromInteger(i,!0,6),fromInteger(i,!0,6)),BigNatModule_FFT_Fp_p64))>>>0,B=r+_|0;BigNatModule_FFT_computeFFT(2*t,o,_,g,u,n,r),BigNatModule_FFT_computeFFT(2*t,t+o,_,g,u,n,B);let N=BigNatModule_FFT_Fp_mone;for(let t=0;t<=_-1;t++){const o=n[r+t],e=n[B+t];n[r+t]=(o+(d=N,toInt(op_Modulus(op_Multiply(fromInteger(d,!0,6),fromInteger(e,!0,6)),BigNatModule_FFT_Fp_p64))>>>0))%BigNatModule_FFT_Fp_p,n[B+t]=(o+BigNatModule_FFT_Fp_p-(a=N,toInt(op_Modulus(op_Multiply(fromInteger(a,!0,6),fromInteger(e,!0,6)),BigNatModule_FFT_Fp_p64))>>>0))%BigNatModule_FFT_Fp_p,l=N,N=toInt(op_Modulus(op_Multiply(fromInteger(i,!0,6),fromInteger(l,!0,6)),BigNatModule_FFT_Fp_p64))>>>0}}}export function BigNatModule_FFT_computFftInPlace(t,o,e){const i=fill(new Uint32Array(t),0,t,BigNatModule_FFT_Fp_mzero);return BigNatModule_FFT_computeFFT(1,0,t,o,e,i,0),i}export function BigNatModule_FFT_computeInverseFftInPlace(t,o,e){const i=BigNatModule_FFT_Fp_minv(t>>>0);return map((t=>toInt(op_Modulus(op_Multiply(fromInteger(i,!0,6),fromInteger(t,!0,6)),BigNatModule_FFT_Fp_p64))>>>0),BigNatModule_FFT_computFftInPlace(t,BigNatModule_FFT_Fp_minv(o),e),Uint32Array)}export const BigNatModule_FFT_maxTwoPower=29;export const BigNatModule_FFT_twoPowerTable=initialize(28,(t=>BigNatModule_FFT_pow32(2,t)),Int32Array);export function BigNatModule_FFT_computeFftPaddedPolynomialProduct(t,o,e,i){const u=BigNatModule_FFT_Fp_m2PowNthRoot(o),n=0|t,r=BigNatModule_FFT_computFftInPlace(n,u,e),d=BigNatModule_FFT_computFftInPlace(n,u,i);return BigNatModule_FFT_computeInverseFftInPlace(n,u,initialize(n,(t=>{const o=r[t],e=d[t];return toInt(op_Modulus(op_Multiply(fromInteger(o,!0,6),fromInteger(e,!0,6)),BigNatModule_FFT_Fp_p64))>>>0}),Uint32Array))}export function BigNatModule_FFT_padTo(t,o){const e=0|o.length;return initialize(t,(t=>t<e?BigNatModule_FFT_Fp_ofInt32(o[t]):BigNatModule_FFT_Fp_mzero),Uint32Array)}export function BigNatModule_FFT_computeFftPolynomialProduct(t,o,e,i){const u=BigNatModule_FFT_leastBounding2Power(t+e+1),n=0|u[0],r=BigNatModule_FFT_Fp_m2PowNthRoot(u[1]),d=BigNatModule_FFT_padTo(n,o),a=BigNatModule_FFT_padTo(n,i),l=0|n,_=BigNatModule_FFT_computFftInPlace(l,r,d),g=BigNatModule_FFT_computFftInPlace(l,r,a);return map(BigNatModule_FFT_Fp_toInt,BigNatModule_FFT_computeInverseFftInPlace(l,r,initialize(l,(t=>{const o=_[t],e=g[t];return toInt(op_Modulus(op_Multiply(fromInteger(o,!0,6),fromInteger(e,!0,6)),BigNatModule_FFT_Fp_p64))>>>0}),Uint32Array)),Int32Array)}export const BigNatModule_FFT_mzero=BigNatModule_FFT_Fp_mzero;export const BigNatModule_FFT_mone=BigNatModule_FFT_Fp_mone;export const BigNatModule_FFT_maxFp=(BigNatModule_FFT_Fp_p+BigNatModule_FFT_Fp_p-BigNatModule_FFT_mone)%BigNatModule_FFT_Fp_p;export function BigNatModule_bound(t){return t.bound}export function BigNatModule_setBound(t,o){t.bound=0|o}export function BigNatModule_coeff(t,o){return t.digits[o]}export function BigNatModule_coeff64(t,o){return fromInteger(BigNatModule_coeff(t,o),!1,2)}export function BigNatModule_setCoeff(t,o,e){t.digits[o]=0|e}export function BigNatModule_pow64(t,o){for(;;){const e=t,i=o;if(0===i)return fromBits(1,0,!1);if(i%2!=0)return op_Multiply(e,BigNatModule_pow64(op_Multiply(e,e),~~(i/2)));t=op_Multiply(e,e),o=~~(i/2)}}export function BigNatModule_pow32(t,o){for(;;){const e=t,i=o;if(0===i)return 1;if(i%2!=0)return e*BigNatModule_pow32(e*e,~~(i/2))|0;t=e*e,o=~~(i/2)}}export function BigNatModule_hash(t){let o=0;for(let e=0;e<=t.bound-1;e++)o=t.digits[e]+(o<<3)|0;return 0|o}export function BigNatModule_maxInt(t,o){return t<o?0|o:0|t}export function BigNatModule_minInt(t,o){return t<o?0|t:0|o}export const BigNatModule_baseBits=24;export const BigNatModule_baseN=16777216;export const BigNatModule_baseMask=16777215;export const BigNatModule_baseNi64=fromBits(16777216,0,!1);export const BigNatModule_baseMaski64=fromBits(16777215,0,!1);export const BigNatModule_baseMaskU=fromBits(16777215,0,!0);export const BigNatModule_baseMask32A=16777215;export const BigNatModule_baseMask32B=255;export const BigNatModule_baseShift32B=24;export const BigNatModule_baseMask64A=16777215;export const BigNatModule_baseMask64B=16777215;export const BigNatModule_baseMask64C=65535;export const BigNatModule_baseShift64B=24;export const BigNatModule_baseShift64C=48;export function BigNatModule_divbase(t){return~~(t>>>0>>>BigNatModule_baseBits)}export function BigNatModule_modbase(t){return t&BigNatModule_baseMask}export function BigNatModule_createN(t){return new BigNat(t,new Int32Array(t))}export function BigNatModule_copyN(t){return new BigNat(t.bound,copy(t.digits))}export function BigNatModule_normN(t){const o=0|((t,o)=>{for(;;){const e=t,i=o;if(-1===i||0!==e[i])return i+1|0;t=e,o=i-1}})(t.digits,t.bound-1);return t.bound=0|o,t}export const BigNatModule_boundInt=2;export const BigNatModule_boundInt64=3;export const BigNatModule_boundBase=1;export function BigNatModule_embed(t){const o=0|(t<0?0:t);if(o<BigNatModule_baseN){const t=BigNatModule_createN(1);return t.digits[0]=0|o,BigNatModule_normN(t)}{const t=BigNatModule_createN(BigNatModule_boundInt);for(let e=0;e<=BigNatModule_boundInt-1;e++)t.digits[e]=~~(o/BigNatModule_pow32(BigNatModule_baseN,e))%BigNatModule_baseN|0;return BigNatModule_normN(t)}}export function BigNatModule_embed64(t){const o=compare(t,fromBits(0,0,!1))<0?fromBits(0,0,!1):t,e=BigNatModule_createN(BigNatModule_boundInt64);for(let t=0;t<=BigNatModule_boundInt64-1;t++)e.digits[t]=0|~~toInt(op_Modulus(op_Division(o,BigNatModule_pow64(BigNatModule_baseNi64,t)),BigNatModule_baseNi64));return BigNatModule_normN(e)}export function BigNatModule_eval32(t){if(1===t.bound)return 0|t.digits[0];{let o=0;for(let e=t.bound-1;e>=0;e--)o=t.digits[e]+BigNatModule_baseN*o|0;return 0|o}}export function BigNatModule_eval64(t){if(1===t.bound)return fromInteger(t.digits[0],!1,2);{let o=fromBits(0,0,!1);for(let e=t.bound-1;e>=0;e--)o=op_Addition(fromInteger(t.digits[e],!1,2),op_Multiply(BigNatModule_baseNi64,o));return o}}export const BigNatModule_one=BigNatModule_embed(1);export const BigNatModule_zero=BigNatModule_embed(0);export function BigNatModule_restrictTo(t,o){return new BigNat(BigNatModule_minInt(t,o.bound),o.digits)}export function BigNatModule_shiftUp(t,o){const e=BigNatModule_createN(o.bound+t);for(let i=0;i<=o.bound-1;i++)e.digits[i+t]=0|o.digits[i];return e}export function BigNatModule_shiftDown(t,o){if(o.bound-t<=0)return BigNatModule_zero;{const e=BigNatModule_createN(o.bound-t);for(let i=0;i<=e.bound-1;i++)e.digits[i]=0|o.digits[i+t];return e}}export function BigNatModule_degree(t){return t.bound-1}export function BigNatModule_addP(t,o,e,i,u,n){let r,d,a,l;for(;;){const _=t,g=o,B=e,N=i,M=u,s=n;if(!(_<g))break;{const p=0|(r=N,d=0|_,(d<r.bound?r.digits[d]:0)+(a=M,l=0|_,l<a.bound?a.digits[l]:0)+B);s.digits[_]=0|BigNatModule_modbase(p),t=_+1,o=g,e=BigNatModule_divbase(p),i=N,u=M,n=s}}}export function BigNatModule_add(t,o){const e=1+BigNatModule_maxInt(t.bound,o.bound)|0,i=BigNatModule_createN(e);return BigNatModule_addP(0,e,0,t,o,i),BigNatModule_normN(i)}export function BigNatModule_subP(t,o,e,i,u,n){let r,d,a,l;t:for(;;){const _=t,g=o,B=e,N=i,M=u,s=n;if(_<g){const p=0|(r=N,d=0|_,(d<r.bound?r.digits[d]:0)-(a=M,l=0|_,l<a.bound?a.digits[l]:0)+B);if(p>0){s.digits[_]=0|BigNatModule_modbase(p),t=_+1,o=g,e=BigNatModule_divbase(p),i=N,u=M,n=s;continue t}{const r=p+BigNatModule_baseN|0;s.digits[_]=0|BigNatModule_modbase(r),t=_+1,o=g,e=BigNatModule_divbase(r)-1,i=N,u=M,n=s;continue t}}return 0!==B}}export function BigNatModule_sub(t,o){const e=0|BigNatModule_maxInt(t.bound,o.bound),i=BigNatModule_createN(e);return BigNatModule_subP(0,e,0,t,o,i)?BigNatModule_embed(0):BigNatModule_normN(i)}export function BigNatModule_isZero(t){return 0===t.bound}export function BigNatModule_IsZero(t){return BigNatModule_isZero(t)}export function BigNatModule_isOne(t){return 1===t.bound&&1===t.digits[0]}export function BigNatModule_equal(t,o){return t.bound===o.bound&&((t,o,e)=>{for(;;){const i=t,u=o,n=e;if(-1===n)return!0;if(i[n]!==u[n])return!1;t=i,o=u,e=n-1}})(t.digits,o.digits,t.bound-1)}export function BigNatModule_shiftCompare(t,o,e,i){return t.bound+o<e.bound+i?-1:t.bound+o>e.bound+o?1:0|((t,e,u)=>{t:for(;;){const n=t,r=e,d=u;if(-1===d)return 0;{const a=0|(d<o?0:n[d-o]),l=0|(d<i?0:r[d-i]);if(a===l){t=n,e=r,u=d-1;continue t}return a<l?-1:1}}})(t.digits,e.digits,t.bound+o-1)}export function BigNatModule_compare(t,o){return t.bound<o.bound?-1:t.bound>o.bound?1:0|((t,o,e)=>{for(;;){const i=t,u=o,n=e;if(-1===n)return 0;if(i[n]!==u[n])return i[n]<u[n]?-1:1;t=i,o=u,e=n-1}})(t.digits,o.digits,t.bound-1)}export function BigNatModule_lt(t,o){return-1===BigNatModule_compare(t,o)}export function BigNatModule_gt(t,o){return 1===BigNatModule_compare(t,o)}export function BigNatModule_lte(t,o){return 1!==BigNatModule_compare(t,o)}export function BigNatModule_gte(t,o){return-1!==BigNatModule_compare(t,o)}export function BigNatModule_min(t,o){return BigNatModule_lt(t,o)?t:o}export function BigNatModule_max(t,o){return BigNatModule_lt(t,o)?o:t}export function BigNatModule_contributeArr(t,o,e){for(;;){const i=t,u=o,n=e,r=op_Addition(fromInteger(i[u],!1,2),n),d=op_Division(r,BigNatModule_baseNi64),a=0|~~toInt(op_BitwiseAnd(r,BigNatModule_baseMaski64));if(i[u]=0|a,!(compare(d,fromBits(0,0,!1))>0))break;t=i,o=u+1,e=d}}export function BigNatModule_scale(t,o){const e=BigNatModule_createN(o.bound+BigNatModule_boundInt),i=fromInteger(t,!1,2);for(let t=0;t<=o.bound-1;t++)BigNatModule_contributeArr(e.digits,t,op_Multiply(i,fromInteger(o.digits[t],!1,2)));return BigNatModule_normN(e)}export function BigNatModule_mulSchoolBookBothSmall(t,o){const e=BigNatModule_createN(2),i=op_Multiply(fromInteger(t,!1,2),fromInteger(o,!1,2));return BigNatModule_setCoeff(e,0,~~toInt(op_BitwiseAnd(i,BigNatModule_baseMaski64))),BigNatModule_setCoeff(e,1,~~toInt(op_Division(i,BigNatModule_baseNi64))),BigNatModule_normN(e)}export function BigNatModule_mulSchoolBookCarry(t,o,e){for(;;){const i=t,u=o,n=e;if(!(compare(u,fromBits(0,0,!1))>0))break;{const r=op_Addition(BigNatModule_coeff64(i,n),u);BigNatModule_setCoeff(i,n,~~toInt(op_BitwiseAnd(r,BigNatModule_baseMaski64))),t=i,o=op_Division(r,BigNatModule_baseNi64),e=n+1}}}export function BigNatModule_mulSchoolBookOneSmall(t,o){const e=0|BigNatModule_bound(t),i=BigNatModule_createN(e+1),u=fromInteger(o,!1,2);let n=fromBits(0,0,!1);for(let o=0;o<=e-1;o++){const e=op_Addition(op_Addition(n,BigNatModule_coeff64(i,o)),op_Multiply(BigNatModule_coeff64(t,o),u));BigNatModule_setCoeff(i,o,~~toInt(op_BitwiseAnd(e,BigNatModule_baseMaski64))),n=op_Division(e,BigNatModule_baseNi64)}return BigNatModule_mulSchoolBookCarry(i,n,e),BigNatModule_normN(i)}export function BigNatModule_mulSchoolBookNeitherSmall(t,o){const e=BigNatModule_createN(t.bound+o.bound),i=e.digits;for(let u=0;u<=t.bound-1;u++){const n=fromInteger(t.digits[u],!1,2);let r=fromBits(0,0,!1),d=u;for(let t=0;t<=o.bound-1;t++){const e=fromInteger(o.digits[t],!1,2),u=op_Addition(op_Addition(fromInteger(i[d],!1,2),r),op_Multiply(n,e));i[d]=0|~~toInt(op_BitwiseAnd(u,BigNatModule_baseMaski64)),r=op_Division(u,BigNatModule_baseNi64),d=d+1|0}BigNatModule_mulSchoolBookCarry(e,r,d)}return BigNatModule_normN(e)}export function BigNatModule_mulSchoolBook(t,o){const e=1===BigNatModule_bound(t),i=1===BigNatModule_bound(o);return e&&i?BigNatModule_mulSchoolBookBothSmall(BigNatModule_coeff(t,0),BigNatModule_coeff(o,0)):e?BigNatModule_mulSchoolBookOneSmall(o,BigNatModule_coeff(t,0)):i?BigNatModule_mulSchoolBookOneSmall(t,BigNatModule_coeff(o,0)):BigNatModule_mulSchoolBookNeitherSmall(t,o)}export class BigNatModule_encoding extends Record{constructor(t,o,e,i,u,n,r){super(),this.bigL=0|t,this.twoToBigL=0|o,this.k=0|e,this.bigK=0|i,this.bigN=0|u,this.split=0|n,this.splits=r}}export function BigNatModule_encoding$reflection(){return record_type("BigInt.BigNatModule.encoding",[],BigNatModule_encoding,(()=>[["bigL",int32_type],["twoToBigL",int32_type],["k",int32_type],["bigK",int32_type],["bigN",int32_type],["split",int32_type],["splits",array_type(int32_type)]]))}export function BigNatModule_mkEncoding(t,o,e,i){return new BigNatModule_encoding(t,BigNatModule_pow32(2,t),o,e,i,~~(BigNatModule_baseBits/t),initialize(~~(BigNatModule_baseBits/t),(o=>BigNatModule_pow32(2,t*o)),Int32Array))}export const BigNatModule_table=[BigNatModule_mkEncoding(1,28,268435456,268435456),BigNatModule_mkEncoding(2,26,67108864,134217728),BigNatModule_mkEncoding(3,24,16777216,50331648),BigNatModule_mkEncoding(4,22,4194304,16777216),BigNatModule_mkEncoding(5,20,1048576,5242880),BigNatModule_mkEncoding(6,18,262144,1572864),BigNatModule_mkEncoding(7,16,65536,458752),BigNatModule_mkEncoding(8,14,16384,131072),BigNatModule_mkEncoding(9,12,4096,36864),BigNatModule_mkEncoding(10,10,1024,10240),BigNatModule_mkEncoding(11,8,256,2816),BigNatModule_mkEncoding(12,6,64,768),BigNatModule_mkEncoding(13,4,16,208)];export function BigNatModule_calculateTableTow(t){const o=BigNatModule_FFT_maxBitsInsideFp-2*t|0,e=BigNatModule_pow64(fromBits(2,0,!1),o);return[t,o,e,op_Multiply(e,fromInteger(t,!1,2))]}export function BigNatModule_encodingGivenResultBits(t){if(t>=BigNatModule_table[0].bigN)throw new Error("Product is huge, around 268435456 bits, beyond quickmul");return(o=>{for(;;){const e=o;if(!(e+1<BigNatModule_table.length&&t<BigNatModule_table[e+1].bigN))return BigNatModule_table[e];o=e+1}})(0)}export const BigNatModule_bitmask=initialize(BigNatModule_baseBits,(t=>BigNatModule_pow32(2,t)-1),Int32Array);export const BigNatModule_twopowers=initialize(BigNatModule_baseBits,(t=>BigNatModule_pow32(2,t)),Int32Array);export const BigNatModule_twopowersI64=initialize(BigNatModule_baseBits,(t=>BigNatModule_pow64(fromBits(2,0,!1),t)),null);export function BigNatModule_wordBits(t){return 0|(o=>{for(;;){const e=o;if(0===e)return 0;if(0!=(t&BigNatModule_twopowers[e-1]))return 0|e;o=e-1}})(BigNatModule_baseBits)}export function BigNatModule_bits(t){return 0===t.bound?0:BigNatModule_degree(t)*BigNatModule_baseBits+BigNatModule_wordBits(t.digits[BigNatModule_degree(t)])|0}export function BigNatModule_extractBits(t,o,e){let i,u,n,r,d,a;const l=0|~~(e/BigNatModule_baseBits),_=0|~~((e+o.bigL-1)/BigNatModule_baseBits);if(l!==_){const d=e%BigNatModule_baseBits|0;return 0|(i=t,u=0|l,((u<i.bound?i.digits[u]:0)>>d|(n=t,r=0|_,(r<n.bound?n.digits[r]:0)<<BigNatModule_baseBits-d))&BigNatModule_bitmask[o.bigL])}return 0|(d=t,a=0|l,(a<d.bound?d.digits[a]:0)>>e%BigNatModule_baseBits&BigNatModule_bitmask[o.bigL])}export function BigNatModule_encodePoly(t,o){const e=fill(new Uint32Array(t.bigK),0,t.bigK,BigNatModule_FFT_Fp_ofInt32(0)),i=o.bound*BigNatModule_baseBits|0;return((u,n)=>{for(;;){const r=u,d=n;if(r===t.bigK||d>i)break;{const i=0|BigNatModule_extractBits(o,t,d);e[r]=BigNatModule_FFT_Fp_ofInt32(i),u=r+1,n=d+t.bigL}}})(0,0),e}export function BigNatModule_decodeResultBits(t,o){let e=0;for(let t=0;t<=o.length-1;t++)o[t]!==BigNatModule_FFT_mzero&&(e=0|t);return BigNatModule_FFT_maxBitsInsideFp+t.bigL*e+1+1|0}export function BigNatModule_decodePoly(t,o){const e=1+~~(BigNatModule_decodeResultBits(t,o)/BigNatModule_baseBits)|0,i=BigNatModule_createN(e);return((u,n,r)=>{for(;;){const d=u,a=n,l=r;if(d===t.bigK)break;{a>=e||BigNatModule_contributeArr(i.digits,a,op_Multiply(fromInteger(BigNatModule_FFT_Fp_toInt(o[d]),!1,2),BigNatModule_twopowersI64[l]));const _=l+t.bigL|0,g=_>=BigNatModule_baseBits?[a+1,_-BigNatModule_baseBits]:[a,_];u=d+1,n=g[0],r=g[1]}}})(0,0,0),BigNatModule_normN(i)}export function BigNatModule_quickMulUsingFft(t,o){const e=BigNatModule_encodingGivenResultBits(BigNatModule_bits(t)+BigNatModule_bits(o));return BigNatModule_normN(BigNatModule_decodePoly(e,BigNatModule_FFT_computeFftPaddedPolynomialProduct(e.bigK,e.k,BigNatModule_encodePoly(e,t),BigNatModule_encodePoly(e,o))))}export const BigNatModule_minDigitsKaratsuba=16;export function BigNatModule_recMulKaratsuba(t,o,e){const i=0|BigNatModule_maxInt(o.bound,e.bound);if(i>BigNatModule_minDigitsKaratsuba){const u=0|~~(i/2),n=BigNatModule_restrictTo(u,o),r=BigNatModule_shiftDown(u,o),d=BigNatModule_restrictTo(u,e),a=BigNatModule_shiftDown(u,e),l=t(n,d),_=t(BigNatModule_add(n,r),BigNatModule_add(d,a)),g=t(r,a);return BigNatModule_add(l,BigNatModule_shiftUp(u,BigNatModule_add(BigNatModule_sub(_,BigNatModule_add(l,g)),BigNatModule_shiftUp(u,g))))}return BigNatModule_mulSchoolBook(o,e)}export function BigNatModule_mulKaratsuba(t,o){return BigNatModule_recMulKaratsuba(BigNatModule_mulKaratsuba,t,o)}export const BigNatModule_productDigitsUpperSchoolBook=~~(64e3/BigNatModule_baseBits);export const BigNatModule_singleDigitForceSchoolBook=~~(32e3/BigNatModule_baseBits);export const BigNatModule_productDigitsUpperFft=~~(BigNatModule_table[0].bigN/BigNatModule_baseBits);export function BigNatModule_mul(t,o){return BigNatModule_mulSchoolBook(t,o)}export function BigNatModule_scaleSubInPlace(t,o,e,i){const u=0|BigNatModule_degree(t),n=t.digits,r=0|BigNatModule_degree(e),d=e.digits,a=fromInteger(o,!1,2);let l=0,_=op_Multiply(a,fromInteger(d[0],!1,2));for(;compare(_,fromBits(0,0,!1))>0||l<r;){if(l>u)throw new Error("scaleSubInPlace: pre-condition did not apply, result would be -ve");let t=~~toInt(op_BitwiseAnd(_,BigNatModule_baseMaski64)),o=op_Division(_,BigNatModule_baseNi64);t<=n[l+i]?n[l+i]=n[l+i]-t|0:(n[l+i]=n[l+i]+(BigNatModule_baseN-t)|0,o=op_Addition(o,fromBits(1,0,!1))),_=l<r?op_Addition(o,op_Multiply(a,fromInteger(d[l+1],!1,2))):o,l=l+1|0}BigNatModule_normN(t)}export function BigNatModule_scaleSub(t,o,e,i){const u=BigNatModule_add(t,BigNatModule_zero);return BigNatModule_scaleSubInPlace(u,o,e,i),BigNatModule_normN(u)}export function BigNatModule_scaleAddInPlace(t,o,e,i){const u=0|BigNatModule_degree(t),n=t.digits,r=0|BigNatModule_degree(e),d=e.digits,a=fromInteger(o,!1,2);let l=0,_=op_Multiply(a,fromInteger(d[0],!1,2));for(;compare(_,fromBits(0,0,!1))>0||l<r;){if(l>u)throw new Error("scaleSubInPlace: pre-condition did not apply, result would be -ve");let t=~~toInt(op_BitwiseAnd(_,BigNatModule_baseMaski64)),o=op_Division(_,BigNatModule_baseNi64);t<BigNatModule_baseN-n[l+i]?n[l+i]=n[l+i]+t|0:(n[l+i]=t-(BigNatModule_baseN-n[l+i])|0,o=op_Addition(o,fromBits(1,0,!1))),_=l<r?op_Addition(o,op_Multiply(a,fromInteger(d[l+1],!1,2))):o,l=l+1|0}BigNatModule_normN(t)}export function BigNatModule_scaleAdd(t,o,e,i){const u=BigNatModule_add(t,BigNatModule_zero);return BigNatModule_scaleAddInPlace(u,o,e,i),BigNatModule_normN(u)}export function BigNatModule_removeFactor(t,o,e){const i=0|BigNatModule_degree(o),u=0|BigNatModule_degree(t),n=0|i;if(u<n+e)return 0;{const i=t.digits,r=o.digits,d=0|(0===n?u===e?~~(i[e]/r[0]):~~toInt(op_Division(op_Addition(op_Multiply(fromInteger(i[u],!1,2),BigNatModule_baseNi64),fromInteger(i[u-1],!1,2)),fromInteger(r[0],!1,2))):u===n+e?~~(i[u]/(r[n]+1)):~~toInt(op_Division(op_Addition(op_Multiply(fromInteger(i[u],!1,2),BigNatModule_baseNi64),fromInteger(i[u-1],!1,2)),op_Addition(fromInteger(r[n],!1,2),fromBits(1,0,!1)))));return 0===d?1!==BigNatModule_shiftCompare(o,e,t,0)?1:0:0|d}}export function BigNatModule_divmod(t,o){if(BigNatModule_isZero(o))throw new Error;if(BigNatModule_degree(t)<BigNatModule_degree(o))return[BigNatModule_zero,t];{const e=BigNatModule_copyN(t),i=BigNatModule_createN(BigNatModule_degree(t)-BigNatModule_degree(o)+1+1);let u=BigNatModule_degree(t);const n=0|BigNatModule_degree(o);let r=u-n;const d=t=>{};let a=!1;for(;!a;){d([i,e,r,u]);const t=0|BigNatModule_removeFactor(e,o,r);t>0?(BigNatModule_scaleSubInPlace(e,t,o,r),BigNatModule_scaleAddInPlace(i,t,BigNatModule_one,r),d([i,e,r,u])):(a=0===t&&0===r,a||(u===n+r?(d([i,e,r-1,u]),r=r-1|0):(d([i,e,r-1,u-1]),r=r-1|0,u=u-1|0)))}return[BigNatModule_normN(i),BigNatModule_normN(e)]}}export function BigNatModule_div(t,o){return BigNatModule_divmod(t,o)[0]}export function BigNatModule_rem(t,o){return BigNatModule_divmod(t,o)[1]}export function BigNatModule_bitAnd(t,o){const e=BigNatModule_createN(BigNatModule_minInt(t.bound,o.bound));for(let i=0;i<=e.bound-1;i++)e.digits[i]=t.digits[i]&o.digits[i]|0;return BigNatModule_normN(e)}export function BigNatModule_bitOr(t,o){const e=BigNatModule_createN(BigNatModule_maxInt(t.bound,o.bound));for(let o=0;o<=t.bound-1;o++)e.digits[o]=e.digits[o]|t.digits[o]|0;for(let t=0;t<=o.bound-1;t++)e.digits[t]=e.digits[t]|o.digits[t]|0;return BigNatModule_normN(e)}export function BigNatModule_bitXor(t,o){const e=BigNatModule_createN(BigNatModule_maxInt(t.bound,o.bound));for(let o=0;o<=t.bound-1;o++)e.digits[o]=e.digits[o]^t.digits[o]|0;for(let t=0;t<=o.bound-1;t++)e.digits[t]=e.digits[t]^o.digits[t]|0;return BigNatModule_normN(e)}export function BigNatModule_hcf(t,o){const e=(t,o)=>{for(;;){const e=t,i=o;if(BigNatModule_equal(BigNatModule_zero,e))return i;t=BigNatModule_divmod(i,e)[1],o=e}};return BigNatModule_lt(t,o)?e(t,o):e(o,t)}export const BigNatModule_two=BigNatModule_embed(2);export function BigNatModule_powi(t,o){return((t,o,e)=>{for(;;){const i=t,u=o,n=e;if(0===n)return i;n%2!=0?(t=BigNatModule_mul(u,i),o=BigNatModule_mul(u,u),e=~~(n/2)):(t=i,o=BigNatModule_mul(u,u),e=~~(n/2))}})(BigNatModule_one,t,o)}export function BigNatModule_pow(t,o){return((t,o,e)=>{t:for(;;){const i=t,u=o,n=e;if(BigNatModule_isZero(n))return i;{const r=BigNatModule_divmod(n,BigNatModule_two),d=r[0];if(BigNatModule_isZero(r[1])){t=i,o=BigNatModule_mul(u,u),e=d;continue t}t=BigNatModule_mul(u,i),o=BigNatModule_mul(u,u),e=d;continue t}}})(BigNatModule_one,t,o)}export function BigNatModule_toFloat(t){return((o,e,i)=>{for(;;){const u=o,n=e,r=i;if(r===t.bound)return u;o=u+n*t.digits[r],e=n*BigNatModule_baseN,i=r+1}})(0,1,0)}export function BigNatModule_ofInt32(t){return BigNatModule_embed(t)}export function BigNatModule_ofInt64(t){return BigNatModule_embed64(t)}export function BigNatModule_toUInt32(t){const o=0|t.bound;if(0===o)return 0;if(1===o)return(0|t.digits[0])>>>0;if(2===o){const o=0|t.digits[0],e=0|t.digits[1];if(e>BigNatModule_baseMask32B)throw new Error;return((o&BigNatModule_baseMask32A)>>>0)+((e&BigNatModule_baseMask32B)>>>0<<BigNatModule_baseShift32B>>>0)}throw new Error}export function BigNatModule_toUInt64(t){const o=0|t.bound;if(0===o)return fromBits(0,0,!0);if(1===o)return fromInteger(t.digits[0],!0,2);if(2===o){const o=0|t.digits[0],e=0|t.digits[1];return op_Addition(fromInteger(o&BigNatModule_baseMask64A,!0,2),op_LeftShift(fromInteger(e&BigNatModule_baseMask64B,!0,2),BigNatModule_baseShift64B))}if(3===o){const o=0|t.digits[0],e=0|t.digits[1],i=0|t.digits[2];if(i>BigNatModule_baseMask64C)throw new Error;return op_Addition(op_Addition(fromInteger(o&BigNatModule_baseMask64A,!0,2),op_LeftShift(fromInteger(e&BigNatModule_baseMask64B,!0,2),BigNatModule_baseShift64B)),op_LeftShift(fromInteger(i&BigNatModule_baseMask64C,!0,2),BigNatModule_baseShift64C))}throw new Error}export function BigNatModule_toString(t){const o=0|BigNatModule_degree(t),e=(t,o,i,u)=>{t:for(;;){const n=t,r=o,d=i,a=u;if(isEmpty(a)){const t=0|BigNatModule_eval32(d);return n&&0===t?r:cons(int32ToString(t),r)}{const l=tail(a),_=BigNatModule_divmod(d,head(a)[1]),g=_[1],B=_[0];if(n&&BigNatModule_isZero(B)){t=n,o=r,i=g,u=l;continue t}t=n,o=e(!1,r,g,l),i=B,u=l;continue t}}},i=e(!0,empty(),t,((t,e,i)=>{for(;;){const u=t,n=e,r=i;if(BigNatModule_degree(r)>o)return cons([n,r],u);t=cons([n,r],u),e=n+1,i=BigNatModule_mul(r,r)}})(empty(),0,BigNatModule_embed(10)));return isEmpty(i)?"0":join("",toArray(i))}export function BigNatModule_ofString(t){const o=0|t.length;if(isNullOrEmpty(t))throw new Error("empty string\\nParameter name: str");const e=BigNatModule_embed(10);return((i,u)=>{t:for(;;){const n=i,r=u;if(r===o)return n;{const o=t[r].charCodeAt(0)-48|0;if(0<=o&&o<=9){i=BigNatModule_add(BigNatModule_mul(e,n),BigNatModule_embed(o)),u=r+1;continue t}throw new Error}}})(BigNatModule_embed(0),0)}export function BigNatModule_isSmall(t){return t.bound<=1}export function BigNatModule_getSmall(t){const o=t;return 0<o.bound?0|o.digits[0]:0}export function BigNatModule_factorial(t){const o=(t,e)=>{if(BigNatModule_equal(t,e))return t;{const i=BigNatModule_div(BigNatModule_add(t,e),BigNatModule_ofInt32(2));return BigNatModule_mul(o(t,i),o(BigNatModule_add(i,BigNatModule_one),e))}};return o(BigNatModule_one,t)}
+import { Record } from "../Types.js";
+import { record_type, array_type, int32_type } from "../Reflection.js";
+import { op_LeftShift, op_BitwiseAnd, op_Addition, compare, op_Subtraction, op_Division, equals, fromInteger, op_Multiply, op_Modulus, toInt, fromBits } from "../Long.js";
+import { copy, initialize, map, fill } from "../Array.js";
+import { toArray, empty, head, tail, isEmpty, cons } from "../List.js";
+import { int32ToString } from "../Util.js";
+import { isNullOrEmpty, join } from "../String.js";
+
+export class BigNat extends Record {
+    "constructor"(bound, digits) {
+        super();
+        this.bound = (bound | 0);
+        this.digits = digits;
+    }
+}
+
+export function BigNat$reflection() {
+    return record_type("BigInt.BigNat", [], BigNat, () => [["bound", int32_type], ["digits", array_type(int32_type)]]);
+}
+
+export function BigNatModule_FFT_pow32(x_mut, n_mut) {
+    BigNatModule_FFT_pow32:
+    while (true) {
+        const x = x_mut, n = n_mut;
+        if (n === 0) {
+            return 1;
+        }
+        else if ((n % 2) === 0) {
+            x_mut = (x * x);
+            n_mut = (~(~(n / 2)));
+            continue BigNatModule_FFT_pow32;
+        }
+        else {
+            return (x * BigNatModule_FFT_pow32(x * x, ~(~(n / 2)))) | 0;
+        }
+        break;
+    }
+}
+
+export function BigNatModule_FFT_leastBounding2Power(b) {
+    const findBounding2Power = (b_1_mut, tp_mut, i_mut) => {
+        findBounding2Power:
+        while (true) {
+            const b_1 = b_1_mut, tp = tp_mut, i = i_mut;
+            if (b_1 <= tp) {
+                return [tp, i];
+            }
+            else {
+                b_1_mut = b_1;
+                tp_mut = (tp * 2);
+                i_mut = (i + 1);
+                continue findBounding2Power;
+            }
+            break;
+        }
+    };
+    return findBounding2Power(b, 1, 0);
+}
+
+export const BigNatModule_FFT_p = fromBits(2013265921, 0, false);
+
+export const BigNatModule_FFT_patternInput$004075 = [27, 15, 31, 440564289];
+
+export const BigNatModule_FFT_w = BigNatModule_FFT_patternInput$004075[3];
+
+export const BigNatModule_FFT_m = BigNatModule_FFT_patternInput$004075[1];
+
+export const BigNatModule_FFT_k = BigNatModule_FFT_patternInput$004075[0];
+
+export const BigNatModule_FFT_g = BigNatModule_FFT_patternInput$004075[2];
+
+export const BigNatModule_FFT_primeP = BigNatModule_FFT_p;
+
+export const BigNatModule_FFT_maxBitsInsideFp = 30;
+
+export const BigNatModule_FFT_Fp_p = 2013265921;
+
+export const BigNatModule_FFT_Fp_p64 = fromBits(2013265921, 0, true);
+
+export function BigNatModule_FFT_Fp_toInt(x) {
+    return ~(~x);
+}
+
+export function BigNatModule_FFT_Fp_ofInt32(x) {
+    return x >>> 0;
+}
+
+export const BigNatModule_FFT_Fp_mzero = 0;
+
+export const BigNatModule_FFT_Fp_mone = 1;
+
+export const BigNatModule_FFT_Fp_mtwo = 2;
+
+export function BigNatModule_FFT_Fp_mpow(x_mut, n_mut) {
+    BigNatModule_FFT_Fp_mpow:
+    while (true) {
+        const x = x_mut, n = n_mut;
+        if (n === 0) {
+            return BigNatModule_FFT_Fp_mone;
+        }
+        else if ((n % 2) === 0) {
+            x_mut = (toInt(op_Modulus(op_Multiply(fromInteger(x, true, 6), fromInteger(x, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0);
+            n_mut = (~(~(n / 2)));
+            continue BigNatModule_FFT_Fp_mpow;
+        }
+        else {
+            const y_2 = BigNatModule_FFT_Fp_mpow(toInt(op_Modulus(op_Multiply(fromInteger(x, true, 6), fromInteger(x, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0, ~(~(n / 2)));
+            return toInt(op_Modulus(op_Multiply(fromInteger(x, true, 6), fromInteger(y_2, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0;
+        }
+        break;
+    }
+}
+
+export function BigNatModule_FFT_Fp_mpowL(x_mut, n_mut) {
+    BigNatModule_FFT_Fp_mpowL:
+    while (true) {
+        const x = x_mut, n = n_mut;
+        if (equals(n, fromBits(0, 0, false))) {
+            return BigNatModule_FFT_Fp_mone;
+        }
+        else if (equals(op_Modulus(n, fromBits(2, 0, false)), fromBits(0, 0, false))) {
+            x_mut = (toInt(op_Modulus(op_Multiply(fromInteger(x, true, 6), fromInteger(x, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0);
+            n_mut = op_Division(n, fromBits(2, 0, false));
+            continue BigNatModule_FFT_Fp_mpowL;
+        }
+        else {
+            const y_2 = BigNatModule_FFT_Fp_mpowL(toInt(op_Modulus(op_Multiply(fromInteger(x, true, 6), fromInteger(x, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0, op_Division(n, fromBits(2, 0, false)));
+            return toInt(op_Modulus(op_Multiply(fromInteger(x, true, 6), fromInteger(y_2, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0;
+        }
+        break;
+    }
+}
+
+export function BigNatModule_FFT_Fp_m2PowNthRoot(n) {
+    return BigNatModule_FFT_Fp_mpow(BigNatModule_FFT_w >>> 0, BigNatModule_FFT_pow32(2, BigNatModule_FFT_k - n));
+}
+
+export function BigNatModule_FFT_Fp_minv(x) {
+    return BigNatModule_FFT_Fp_mpowL(x, op_Subtraction(BigNatModule_FFT_primeP, fromBits(2, 0, false)));
+}
+
+export function BigNatModule_FFT_computeFFT(lambda, mu, n, w, u, res, offset) {
+    let x_1, x_3, y_5;
+    if (n === 1) {
+        res[offset] = u[mu];
+    }
+    else {
+        const halfN = (~(~(n / 2))) | 0;
+        const ww = toInt(op_Modulus(op_Multiply(fromInteger(w, true, 6), fromInteger(w, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0;
+        const offsetHalfN = (offset + halfN) | 0;
+        BigNatModule_FFT_computeFFT(lambda * 2, mu, halfN, ww, u, res, offset);
+        BigNatModule_FFT_computeFFT(lambda * 2, lambda + mu, halfN, ww, u, res, offsetHalfN);
+        let wj = BigNatModule_FFT_Fp_mone;
+        for (let j = 0; j <= (halfN - 1); j++) {
+            const even = res[offset + j];
+            const odd = res[offsetHalfN + j];
+            res[offset + j] = ((even + ((x_1 = wj, toInt(op_Modulus(op_Multiply(fromInteger(x_1, true, 6), fromInteger(odd, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0))) % BigNatModule_FFT_Fp_p);
+            res[offsetHalfN + j] = (((even + BigNatModule_FFT_Fp_p) - ((x_3 = wj, toInt(op_Modulus(op_Multiply(fromInteger(x_3, true, 6), fromInteger(odd, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0))) % BigNatModule_FFT_Fp_p);
+            wj = ((y_5 = wj, toInt(op_Modulus(op_Multiply(fromInteger(w, true, 6), fromInteger(y_5, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0));
+        }
+    }
+}
+
+export function BigNatModule_FFT_computFftInPlace(n, w, u) {
+    const res = fill(new Uint32Array(n), 0, n, BigNatModule_FFT_Fp_mzero);
+    BigNatModule_FFT_computeFFT(1, 0, n, w, u, res, 0);
+    return res;
+}
+
+export function BigNatModule_FFT_computeInverseFftInPlace(n, w, uT) {
+    const bigKInv = BigNatModule_FFT_Fp_minv(n >>> 0);
+    return map((y) => (toInt(op_Modulus(op_Multiply(fromInteger(bigKInv, true, 6), fromInteger(y, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0), BigNatModule_FFT_computFftInPlace(n, BigNatModule_FFT_Fp_minv(w), uT), Uint32Array);
+}
+
+export const BigNatModule_FFT_maxTwoPower = 29;
+
+export const BigNatModule_FFT_twoPowerTable = initialize(BigNatModule_FFT_maxTwoPower - 1, (i) => BigNatModule_FFT_pow32(2, i), Int32Array);
+
+export function BigNatModule_FFT_computeFftPaddedPolynomialProduct(bigK, k, u, v) {
+    const w = BigNatModule_FFT_Fp_m2PowNthRoot(k);
+    const n = bigK | 0;
+    const uT = BigNatModule_FFT_computFftInPlace(n, w, u);
+    const vT = BigNatModule_FFT_computFftInPlace(n, w, v);
+    return BigNatModule_FFT_computeInverseFftInPlace(n, w, initialize(n, (i) => {
+        const x = uT[i];
+        const y = vT[i];
+        return toInt(op_Modulus(op_Multiply(fromInteger(x, true, 6), fromInteger(y, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0;
+    }, Uint32Array));
+}
+
+export function BigNatModule_FFT_padTo(n, u) {
+    const uBound = u.length | 0;
+    return initialize(n, (i) => ((i < uBound) ? BigNatModule_FFT_Fp_ofInt32(u[i]) : BigNatModule_FFT_Fp_mzero), Uint32Array);
+}
+
+export function BigNatModule_FFT_computeFftPolynomialProduct(degu, u, degv, v) {
+    const patternInput = BigNatModule_FFT_leastBounding2Power((degu + degv) + 1);
+    const bigK = patternInput[0] | 0;
+    const w = BigNatModule_FFT_Fp_m2PowNthRoot(patternInput[1]);
+    const u_1 = BigNatModule_FFT_padTo(bigK, u);
+    const v_1 = BigNatModule_FFT_padTo(bigK, v);
+    const n = bigK | 0;
+    const uT = BigNatModule_FFT_computFftInPlace(n, w, u_1);
+    const vT = BigNatModule_FFT_computFftInPlace(n, w, v_1);
+    return map(BigNatModule_FFT_Fp_toInt, BigNatModule_FFT_computeInverseFftInPlace(n, w, initialize(n, (i) => {
+        const x = uT[i];
+        const y = vT[i];
+        return toInt(op_Modulus(op_Multiply(fromInteger(x, true, 6), fromInteger(y, true, 6)), BigNatModule_FFT_Fp_p64)) >>> 0;
+    }, Uint32Array)), Int32Array);
+}
+
+export const BigNatModule_FFT_mzero = BigNatModule_FFT_Fp_mzero;
+
+export const BigNatModule_FFT_mone = BigNatModule_FFT_Fp_mone;
+
+export const BigNatModule_FFT_maxFp = ((BigNatModule_FFT_Fp_p + BigNatModule_FFT_Fp_p) - BigNatModule_FFT_mone) % BigNatModule_FFT_Fp_p;
+
+export function BigNatModule_bound(n) {
+    return n.bound;
+}
+
+export function BigNatModule_setBound(n, v) {
+    n.bound = (v | 0);
+}
+
+export function BigNatModule_coeff(n, i) {
+    return n.digits[i];
+}
+
+export function BigNatModule_coeff64(n, i) {
+    return fromInteger(BigNatModule_coeff(n, i), false, 2);
+}
+
+export function BigNatModule_setCoeff(n, i, v) {
+    n.digits[i] = (v | 0);
+}
+
+export function BigNatModule_pow64(x_mut, n_mut) {
+    BigNatModule_pow64:
+    while (true) {
+        const x = x_mut, n = n_mut;
+        if (n === 0) {
+            return fromBits(1, 0, false);
+        }
+        else if ((n % 2) === 0) {
+            x_mut = op_Multiply(x, x);
+            n_mut = (~(~(n / 2)));
+            continue BigNatModule_pow64;
+        }
+        else {
+            return op_Multiply(x, BigNatModule_pow64(op_Multiply(x, x), ~(~(n / 2))));
+        }
+        break;
+    }
+}
+
+export function BigNatModule_pow32(x_mut, n_mut) {
+    BigNatModule_pow32:
+    while (true) {
+        const x = x_mut, n = n_mut;
+        if (n === 0) {
+            return 1;
+        }
+        else if ((n % 2) === 0) {
+            x_mut = (x * x);
+            n_mut = (~(~(n / 2)));
+            continue BigNatModule_pow32;
+        }
+        else {
+            return (x * BigNatModule_pow32(x * x, ~(~(n / 2)))) | 0;
+        }
+        break;
+    }
+}
+
+export function BigNatModule_hash(n) {
+    let res = 0;
+    for (let i = 0; i <= (n.bound - 1); i++) {
+        res = ((n.digits[i] + (res << 3)) | 0);
+    }
+    return res | 0;
+}
+
+export function BigNatModule_maxInt(a, b) {
+    if (a < b) {
+        return b | 0;
+    }
+    else {
+        return a | 0;
+    }
+}
+
+export function BigNatModule_minInt(a, b) {
+    if (a < b) {
+        return a | 0;
+    }
+    else {
+        return b | 0;
+    }
+}
+
+export const BigNatModule_baseBits = 24;
+
+export const BigNatModule_baseN = 16777216;
+
+export const BigNatModule_baseMask = 16777215;
+
+export const BigNatModule_baseNi64 = fromBits(16777216, 0, false);
+
+export const BigNatModule_baseMaski64 = fromBits(16777215, 0, false);
+
+export const BigNatModule_baseMaskU = fromBits(16777215, 0, true);
+
+export const BigNatModule_baseMask32A = 16777215;
+
+export const BigNatModule_baseMask32B = 255;
+
+export const BigNatModule_baseShift32B = 24;
+
+export const BigNatModule_baseMask64A = 16777215;
+
+export const BigNatModule_baseMask64B = 16777215;
+
+export const BigNatModule_baseMask64C = 65535;
+
+export const BigNatModule_baseShift64B = 24;
+
+export const BigNatModule_baseShift64C = 48;
+
+export function BigNatModule_divbase(x) {
+    return ~(~((x >>> 0) >>> BigNatModule_baseBits));
+}
+
+export function BigNatModule_modbase(x) {
+    return x & BigNatModule_baseMask;
+}
+
+export function BigNatModule_createN(b) {
+    return new BigNat(b, new Int32Array(b));
+}
+
+export function BigNatModule_copyN(x) {
+    return new BigNat(x.bound, copy(x.digits));
+}
+
+export function BigNatModule_normN(n) {
+    const findLeastBound = (na_mut, i_mut) => {
+        findLeastBound:
+        while (true) {
+            const na = na_mut, i = i_mut;
+            if ((i === -1) ? true : (na[i] !== 0)) {
+                return (i + 1) | 0;
+            }
+            else {
+                na_mut = na;
+                i_mut = (i - 1);
+                continue findLeastBound;
+            }
+            break;
+        }
+    };
+    const bound = findLeastBound(n.digits, n.bound - 1) | 0;
+    n.bound = (bound | 0);
+    return n;
+}
+
+export const BigNatModule_boundInt = 2;
+
+export const BigNatModule_boundInt64 = 3;
+
+export const BigNatModule_boundBase = 1;
+
+export function BigNatModule_embed(x) {
+    const x_1 = ((x < 0) ? 0 : x) | 0;
+    if (x_1 < BigNatModule_baseN) {
+        const r = BigNatModule_createN(1);
+        r.digits[0] = (x_1 | 0);
+        return BigNatModule_normN(r);
+    }
+    else {
+        const r_1 = BigNatModule_createN(BigNatModule_boundInt);
+        for (let i = 0; i <= (BigNatModule_boundInt - 1); i++) {
+            r_1.digits[i] = (((~(~(x_1 / BigNatModule_pow32(BigNatModule_baseN, i)))) % BigNatModule_baseN) | 0);
+        }
+        return BigNatModule_normN(r_1);
+    }
+}
+
+export function BigNatModule_embed64(x) {
+    const x_1 = (compare(x, fromBits(0, 0, false)) < 0) ? fromBits(0, 0, false) : x;
+    const r = BigNatModule_createN(BigNatModule_boundInt64);
+    for (let i = 0; i <= (BigNatModule_boundInt64 - 1); i++) {
+        r.digits[i] = ((~(~toInt(op_Modulus(op_Division(x_1, BigNatModule_pow64(BigNatModule_baseNi64, i)), BigNatModule_baseNi64)))) | 0);
+    }
+    return BigNatModule_normN(r);
+}
+
+export function BigNatModule_eval32(n) {
+    if (n.bound === 1) {
+        return n.digits[0] | 0;
+    }
+    else {
+        let acc = 0;
+        for (let i = n.bound - 1; i >= 0; i--) {
+            acc = ((n.digits[i] + (BigNatModule_baseN * acc)) | 0);
+        }
+        return acc | 0;
+    }
+}
+
+export function BigNatModule_eval64(n) {
+    if (n.bound === 1) {
+        return fromInteger(n.digits[0], false, 2);
+    }
+    else {
+        let acc = fromBits(0, 0, false);
+        for (let i = n.bound - 1; i >= 0; i--) {
+            acc = op_Addition(fromInteger(n.digits[i], false, 2), op_Multiply(BigNatModule_baseNi64, acc));
+        }
+        return acc;
+    }
+}
+
+export const BigNatModule_one = BigNatModule_embed(1);
+
+export const BigNatModule_zero = BigNatModule_embed(0);
+
+export function BigNatModule_restrictTo(d, n) {
+    return new BigNat(BigNatModule_minInt(d, n.bound), n.digits);
+}
+
+export function BigNatModule_shiftUp(d, n) {
+    const m = BigNatModule_createN(n.bound + d);
+    for (let i = 0; i <= (n.bound - 1); i++) {
+        m.digits[i + d] = (n.digits[i] | 0);
+    }
+    return m;
+}
+
+export function BigNatModule_shiftDown(d, n) {
+    if ((n.bound - d) <= 0) {
+        return BigNatModule_zero;
+    }
+    else {
+        const m = BigNatModule_createN(n.bound - d);
+        for (let i = 0; i <= (m.bound - 1); i++) {
+            m.digits[i] = (n.digits[i + d] | 0);
+        }
+        return m;
+    }
+}
+
+export function BigNatModule_degree(n) {
+    return n.bound - 1;
+}
+
+export function BigNatModule_addP(i_mut, n_mut, c_mut, p_mut, q_mut, r_mut) {
+    let z, i_1, z_1, i_2;
+    BigNatModule_addP:
+    while (true) {
+        const i = i_mut, n = n_mut, c = c_mut, p = p_mut, q = q_mut, r = r_mut;
+        if (i < n) {
+            const x = ((((z = p, (i_1 = (i | 0), (i_1 < z.bound) ? z.digits[i_1] : 0))) + ((z_1 = q, (i_2 = (i | 0), (i_2 < z_1.bound) ? z_1.digits[i_2] : 0)))) + c) | 0;
+            r.digits[i] = (BigNatModule_modbase(x) | 0);
+            i_mut = (i + 1);
+            n_mut = n;
+            c_mut = BigNatModule_divbase(x);
+            p_mut = p;
+            q_mut = q;
+            r_mut = r;
+            continue BigNatModule_addP;
+        }
+        break;
+    }
+}
+
+export function BigNatModule_add(p, q) {
+    const rbound = (1 + BigNatModule_maxInt(p.bound, q.bound)) | 0;
+    const r = BigNatModule_createN(rbound);
+    BigNatModule_addP(0, rbound, 0, p, q, r);
+    return BigNatModule_normN(r);
+}
+
+export function BigNatModule_subP(i_mut, n_mut, c_mut, p_mut, q_mut, r_mut) {
+    let z, i_1, z_1, i_2;
+    BigNatModule_subP:
+    while (true) {
+        const i = i_mut, n = n_mut, c = c_mut, p = p_mut, q = q_mut, r = r_mut;
+        if (i < n) {
+            const x = ((((z = p, (i_1 = (i | 0), (i_1 < z.bound) ? z.digits[i_1] : 0))) - ((z_1 = q, (i_2 = (i | 0), (i_2 < z_1.bound) ? z_1.digits[i_2] : 0)))) + c) | 0;
+            if (x > 0) {
+                r.digits[i] = (BigNatModule_modbase(x) | 0);
+                i_mut = (i + 1);
+                n_mut = n;
+                c_mut = BigNatModule_divbase(x);
+                p_mut = p;
+                q_mut = q;
+                r_mut = r;
+                continue BigNatModule_subP;
+            }
+            else {
+                const x_1 = (x + BigNatModule_baseN) | 0;
+                r.digits[i] = (BigNatModule_modbase(x_1) | 0);
+                i_mut = (i + 1);
+                n_mut = n;
+                c_mut = (BigNatModule_divbase(x_1) - 1);
+                p_mut = p;
+                q_mut = q;
+                r_mut = r;
+                continue BigNatModule_subP;
+            }
+        }
+        else {
+            return c !== 0;
+        }
+        break;
+    }
+}
+
+export function BigNatModule_sub(p, q) {
+    const rbound = BigNatModule_maxInt(p.bound, q.bound) | 0;
+    const r = BigNatModule_createN(rbound);
+    if (BigNatModule_subP(0, rbound, 0, p, q, r)) {
+        return BigNatModule_embed(0);
+    }
+    else {
+        return BigNatModule_normN(r);
+    }
+}
+
+export function BigNatModule_isZero(p) {
+    return p.bound === 0;
+}
+
+export function BigNatModule_IsZero(p) {
+    return BigNatModule_isZero(p);
+}
+
+export function BigNatModule_isOne(p) {
+    if (p.bound === 1) {
+        return p.digits[0] === 1;
+    }
+    else {
+        return false;
+    }
+}
+
+export function BigNatModule_equal(p, q) {
+    if (p.bound === q.bound) {
+        const check = (pa_mut, qa_mut, i_mut) => {
+            check:
+            while (true) {
+                const pa = pa_mut, qa = qa_mut, i = i_mut;
+                if (i === -1) {
+                    return true;
+                }
+                else if (pa[i] === qa[i]) {
+                    pa_mut = pa;
+                    qa_mut = qa;
+                    i_mut = (i - 1);
+                    continue check;
+                }
+                else {
+                    return false;
+                }
+                break;
+            }
+        };
+        return check(p.digits, q.digits, p.bound - 1);
+    }
+    else {
+        return false;
+    }
+}
+
+export function BigNatModule_shiftCompare(p, pn, q, qn) {
+    if ((p.bound + pn) < (q.bound + qn)) {
+        return -1;
+    }
+    else if ((p.bound + pn) > (q.bound + pn)) {
+        return 1;
+    }
+    else {
+        const check = (pa_mut, qa_mut, i_mut) => {
+            check:
+            while (true) {
+                const pa = pa_mut, qa = qa_mut, i = i_mut;
+                if (i === -1) {
+                    return 0;
+                }
+                else {
+                    const pai = ((i < pn) ? 0 : pa[i - pn]) | 0;
+                    const qai = ((i < qn) ? 0 : qa[i - qn]) | 0;
+                    if (pai === qai) {
+                        pa_mut = pa;
+                        qa_mut = qa;
+                        i_mut = (i - 1);
+                        continue check;
+                    }
+                    else if (pai < qai) {
+                        return -1;
+                    }
+                    else {
+                        return 1;
+                    }
+                }
+                break;
+            }
+        };
+        return check(p.digits, q.digits, (p.bound + pn) - 1) | 0;
+    }
+}
+
+export function BigNatModule_compare(p, q) {
+    if (p.bound < q.bound) {
+        return -1;
+    }
+    else if (p.bound > q.bound) {
+        return 1;
+    }
+    else {
+        const check = (pa_mut, qa_mut, i_mut) => {
+            check:
+            while (true) {
+                const pa = pa_mut, qa = qa_mut, i = i_mut;
+                if (i === -1) {
+                    return 0;
+                }
+                else if (pa[i] === qa[i]) {
+                    pa_mut = pa;
+                    qa_mut = qa;
+                    i_mut = (i - 1);
+                    continue check;
+                }
+                else if (pa[i] < qa[i]) {
+                    return -1;
+                }
+                else {
+                    return 1;
+                }
+                break;
+            }
+        };
+        return check(p.digits, q.digits, p.bound - 1) | 0;
+    }
+}
+
+export function BigNatModule_lt(p, q) {
+    return BigNatModule_compare(p, q) === -1;
+}
+
+export function BigNatModule_gt(p, q) {
+    return BigNatModule_compare(p, q) === 1;
+}
+
+export function BigNatModule_lte(p, q) {
+    return BigNatModule_compare(p, q) !== 1;
+}
+
+export function BigNatModule_gte(p, q) {
+    return BigNatModule_compare(p, q) !== -1;
+}
+
+export function BigNatModule_min(a, b) {
+    if (BigNatModule_lt(a, b)) {
+        return a;
+    }
+    else {
+        return b;
+    }
+}
+
+export function BigNatModule_max(a, b) {
+    if (BigNatModule_lt(a, b)) {
+        return b;
+    }
+    else {
+        return a;
+    }
+}
+
+export function BigNatModule_contributeArr(a_mut, i_mut, c_mut) {
+    BigNatModule_contributeArr:
+    while (true) {
+        const a = a_mut, i = i_mut, c = c_mut;
+        const x = op_Addition(fromInteger(a[i], false, 2), c);
+        const c_1 = op_Division(x, BigNatModule_baseNi64);
+        const x_3 = (~(~toInt(op_BitwiseAnd(x, BigNatModule_baseMaski64)))) | 0;
+        a[i] = (x_3 | 0);
+        if (compare(c_1, fromBits(0, 0, false)) > 0) {
+            a_mut = a;
+            i_mut = (i + 1);
+            c_mut = c_1;
+            continue BigNatModule_contributeArr;
+        }
+        break;
+    }
+}
+
+export function BigNatModule_scale(k, p) {
+    const r = BigNatModule_createN(p.bound + BigNatModule_boundInt);
+    const k_1 = fromInteger(k, false, 2);
+    for (let i = 0; i <= (p.bound - 1); i++) {
+        BigNatModule_contributeArr(r.digits, i, op_Multiply(k_1, fromInteger(p.digits[i], false, 2)));
+    }
+    return BigNatModule_normN(r);
+}
+
+export function BigNatModule_mulSchoolBookBothSmall(p, q) {
+    const r = BigNatModule_createN(2);
+    const rak = op_Multiply(fromInteger(p, false, 2), fromInteger(q, false, 2));
+    BigNatModule_setCoeff(r, 0, ~(~toInt(op_BitwiseAnd(rak, BigNatModule_baseMaski64))));
+    BigNatModule_setCoeff(r, 1, ~(~toInt(op_Division(rak, BigNatModule_baseNi64))));
+    return BigNatModule_normN(r);
+}
+
+export function BigNatModule_mulSchoolBookCarry(r_mut, c_mut, k_mut) {
+    BigNatModule_mulSchoolBookCarry:
+    while (true) {
+        const r = r_mut, c = c_mut, k = k_mut;
+        if (compare(c, fromBits(0, 0, false)) > 0) {
+            const rak = op_Addition(BigNatModule_coeff64(r, k), c);
+            BigNatModule_setCoeff(r, k, ~(~toInt(op_BitwiseAnd(rak, BigNatModule_baseMaski64))));
+            r_mut = r;
+            c_mut = op_Division(rak, BigNatModule_baseNi64);
+            k_mut = (k + 1);
+            continue BigNatModule_mulSchoolBookCarry;
+        }
+        break;
+    }
+}
+
+export function BigNatModule_mulSchoolBookOneSmall(p, q) {
+    const bp = BigNatModule_bound(p) | 0;
+    const r = BigNatModule_createN(bp + 1);
+    const q_1 = fromInteger(q, false, 2);
+    let c = fromBits(0, 0, false);
+    for (let i = 0; i <= (bp - 1); i++) {
+        const rak = op_Addition(op_Addition(c, BigNatModule_coeff64(r, i)), op_Multiply(BigNatModule_coeff64(p, i), q_1));
+        BigNatModule_setCoeff(r, i, ~(~toInt(op_BitwiseAnd(rak, BigNatModule_baseMaski64))));
+        c = op_Division(rak, BigNatModule_baseNi64);
+    }
+    BigNatModule_mulSchoolBookCarry(r, c, bp);
+    return BigNatModule_normN(r);
+}
+
+export function BigNatModule_mulSchoolBookNeitherSmall(p, q) {
+    const r = BigNatModule_createN(p.bound + q.bound);
+    const ra = r.digits;
+    for (let i = 0; i <= (p.bound - 1); i++) {
+        const pai = fromInteger(p.digits[i], false, 2);
+        let c = fromBits(0, 0, false);
+        let k = i;
+        for (let j = 0; j <= (q.bound - 1); j++) {
+            const qaj = fromInteger(q.digits[j], false, 2);
+            const rak = op_Addition(op_Addition(fromInteger(ra[k], false, 2), c), op_Multiply(pai, qaj));
+            ra[k] = ((~(~toInt(op_BitwiseAnd(rak, BigNatModule_baseMaski64)))) | 0);
+            c = op_Division(rak, BigNatModule_baseNi64);
+            k = ((k + 1) | 0);
+        }
+        BigNatModule_mulSchoolBookCarry(r, c, k);
+    }
+    return BigNatModule_normN(r);
+}
+
+export function BigNatModule_mulSchoolBook(p, q) {
+    const pSmall = BigNatModule_bound(p) === 1;
+    const qSmall = BigNatModule_bound(q) === 1;
+    if (pSmall && qSmall) {
+        return BigNatModule_mulSchoolBookBothSmall(BigNatModule_coeff(p, 0), BigNatModule_coeff(q, 0));
+    }
+    else if (pSmall) {
+        return BigNatModule_mulSchoolBookOneSmall(q, BigNatModule_coeff(p, 0));
+    }
+    else if (qSmall) {
+        return BigNatModule_mulSchoolBookOneSmall(p, BigNatModule_coeff(q, 0));
+    }
+    else {
+        return BigNatModule_mulSchoolBookNeitherSmall(p, q);
+    }
+}
+
+export class BigNatModule_encoding extends Record {
+    "constructor"(bigL, twoToBigL, k, bigK, bigN, split, splits) {
+        super();
+        this.bigL = (bigL | 0);
+        this.twoToBigL = (twoToBigL | 0);
+        this.k = (k | 0);
+        this.bigK = (bigK | 0);
+        this.bigN = (bigN | 0);
+        this.split = (split | 0);
+        this.splits = splits;
+    }
+}
+
+export function BigNatModule_encoding$reflection() {
+    return record_type("BigInt.BigNatModule.encoding", [], BigNatModule_encoding, () => [["bigL", int32_type], ["twoToBigL", int32_type], ["k", int32_type], ["bigK", int32_type], ["bigN", int32_type], ["split", int32_type], ["splits", array_type(int32_type)]]);
+}
+
+export function BigNatModule_mkEncoding(bigL, k, bigK, bigN) {
+    return new BigNatModule_encoding(bigL, BigNatModule_pow32(2, bigL), k, bigK, bigN, ~(~(BigNatModule_baseBits / bigL)), initialize(~(~(BigNatModule_baseBits / bigL)), (i) => BigNatModule_pow32(2, bigL * i), Int32Array));
+}
+
+export const BigNatModule_table = [BigNatModule_mkEncoding(1, 28, 268435456, 268435456), BigNatModule_mkEncoding(2, 26, 67108864, 134217728), BigNatModule_mkEncoding(3, 24, 16777216, 50331648), BigNatModule_mkEncoding(4, 22, 4194304, 16777216), BigNatModule_mkEncoding(5, 20, 1048576, 5242880), BigNatModule_mkEncoding(6, 18, 262144, 1572864), BigNatModule_mkEncoding(7, 16, 65536, 458752), BigNatModule_mkEncoding(8, 14, 16384, 131072), BigNatModule_mkEncoding(9, 12, 4096, 36864), BigNatModule_mkEncoding(10, 10, 1024, 10240), BigNatModule_mkEncoding(11, 8, 256, 2816), BigNatModule_mkEncoding(12, 6, 64, 768), BigNatModule_mkEncoding(13, 4, 16, 208)];
+
+export function BigNatModule_calculateTableTow(bigL) {
+    const k = (BigNatModule_FFT_maxBitsInsideFp - (2 * bigL)) | 0;
+    const bigK = BigNatModule_pow64(fromBits(2, 0, false), k);
+    return [bigL, k, bigK, op_Multiply(bigK, fromInteger(bigL, false, 2))];
+}
+
+export function BigNatModule_encodingGivenResultBits(bitsRes) {
+    const selectFrom = (i_mut) => {
+        selectFrom:
+        while (true) {
+            const i = i_mut;
+            if (((i + 1) < BigNatModule_table.length) && (bitsRes < BigNatModule_table[i + 1].bigN)) {
+                i_mut = (i + 1);
+                continue selectFrom;
+            }
+            else {
+                return BigNatModule_table[i];
+            }
+            break;
+        }
+    };
+    if (bitsRes >= BigNatModule_table[0].bigN) {
+        throw new Error("Product is huge, around 268435456 bits, beyond quickmul");
+    }
+    else {
+        return selectFrom(0);
+    }
+}
+
+export const BigNatModule_bitmask = initialize(BigNatModule_baseBits, (i) => (BigNatModule_pow32(2, i) - 1), Int32Array);
+
+export const BigNatModule_twopowers = initialize(BigNatModule_baseBits, (i) => BigNatModule_pow32(2, i), Int32Array);
+
+export const BigNatModule_twopowersI64 = initialize(BigNatModule_baseBits, (i) => BigNatModule_pow64(fromBits(2, 0, false), i), null);
+
+export function BigNatModule_wordBits(word) {
+    const hi = (k_mut) => {
+        hi:
+        while (true) {
+            const k = k_mut;
+            if (k === 0) {
+                return 0;
+            }
+            else if ((word & BigNatModule_twopowers[k - 1]) !== 0) {
+                return k | 0;
+            }
+            else {
+                k_mut = (k - 1);
+                continue hi;
+            }
+            break;
+        }
+    };
+    return hi(BigNatModule_baseBits) | 0;
+}
+
+export function BigNatModule_bits(u) {
+    if (u.bound === 0) {
+        return 0;
+    }
+    else {
+        return ((BigNatModule_degree(u) * BigNatModule_baseBits) + BigNatModule_wordBits(u.digits[BigNatModule_degree(u)])) | 0;
+    }
+}
+
+export function BigNatModule_extractBits(n, enc, bi) {
+    let z, i, z_1, i_1, z_2, i_2;
+    const biw = (~(~(bi / BigNatModule_baseBits))) | 0;
+    const bjw = (~(~(((bi + enc.bigL) - 1) / BigNatModule_baseBits))) | 0;
+    if (biw !== bjw) {
+        const xbit = (bi % BigNatModule_baseBits) | 0;
+        return (((((z = n, (i = (biw | 0), (i < z.bound) ? z.digits[i] : 0))) >> xbit) | (((z_1 = n, (i_1 = (bjw | 0), (i_1 < z_1.bound) ? z_1.digits[i_1] : 0))) << (BigNatModule_baseBits - xbit))) & BigNatModule_bitmask[enc.bigL]) | 0;
+    }
+    else {
+        return ((((z_2 = n, (i_2 = (biw | 0), (i_2 < z_2.bound) ? z_2.digits[i_2] : 0))) >> (bi % BigNatModule_baseBits)) & BigNatModule_bitmask[enc.bigL]) | 0;
+    }
+}
+
+export function BigNatModule_encodePoly(enc, n) {
+    const poly = fill(new Uint32Array(enc.bigK), 0, enc.bigK, BigNatModule_FFT_Fp_ofInt32(0));
+    const biMax = (n.bound * BigNatModule_baseBits) | 0;
+    const encoder = (i_mut, bi_mut) => {
+        encoder:
+        while (true) {
+            const i = i_mut, bi = bi_mut;
+            if ((i === enc.bigK) ? true : (bi > biMax)) {
+            }
+            else {
+                const pi = BigNatModule_extractBits(n, enc, bi) | 0;
+                poly[i] = BigNatModule_FFT_Fp_ofInt32(pi);
+                i_mut = (i + 1);
+                bi_mut = (bi + enc.bigL);
+                continue encoder;
+            }
+            break;
+        }
+    };
+    encoder(0, 0);
+    return poly;
+}
+
+export function BigNatModule_decodeResultBits(enc, poly) {
+    let n = 0;
+    for (let i = 0; i <= (poly.length - 1); i++) {
+        if (poly[i] !== BigNatModule_FFT_mzero) {
+            n = (i | 0);
+        }
+    }
+    return (((BigNatModule_FFT_maxBitsInsideFp + (enc.bigL * n)) + 1) + 1) | 0;
+}
+
+export function BigNatModule_decodePoly(enc, poly) {
+    const rbound = ((~(~(BigNatModule_decodeResultBits(enc, poly) / BigNatModule_baseBits))) + 1) | 0;
+    const r = BigNatModule_createN(rbound);
+    const evaluate = (i_mut, j_mut, d_mut) => {
+        evaluate:
+        while (true) {
+            const i = i_mut, j = j_mut, d = d_mut;
+            if (i === enc.bigK) {
+            }
+            else {
+                if (j >= rbound) {
+                }
+                else {
+                    BigNatModule_contributeArr(r.digits, j, op_Multiply(fromInteger(BigNatModule_FFT_Fp_toInt(poly[i]), false, 2), BigNatModule_twopowersI64[d]));
+                }
+                const d_1 = (d + enc.bigL) | 0;
+                const patternInput = (d_1 >= BigNatModule_baseBits) ? [j + 1, d_1 - BigNatModule_baseBits] : [j, d_1];
+                i_mut = (i + 1);
+                j_mut = patternInput[0];
+                d_mut = patternInput[1];
+                continue evaluate;
+            }
+            break;
+        }
+    };
+    evaluate(0, 0, 0);
+    return BigNatModule_normN(r);
+}
+
+export function BigNatModule_quickMulUsingFft(u, v) {
+    const enc = BigNatModule_encodingGivenResultBits(BigNatModule_bits(u) + BigNatModule_bits(v));
+    return BigNatModule_normN(BigNatModule_decodePoly(enc, BigNatModule_FFT_computeFftPaddedPolynomialProduct(enc.bigK, enc.k, BigNatModule_encodePoly(enc, u), BigNatModule_encodePoly(enc, v))));
+}
+
+export const BigNatModule_minDigitsKaratsuba = 16;
+
+export function BigNatModule_recMulKaratsuba(mul, p, q) {
+    const bmax = BigNatModule_maxInt(p.bound, q.bound) | 0;
+    if (bmax > BigNatModule_minDigitsKaratsuba) {
+        const k = (~(~(bmax / 2))) | 0;
+        const a0 = BigNatModule_restrictTo(k, p);
+        const a1 = BigNatModule_shiftDown(k, p);
+        const b0 = BigNatModule_restrictTo(k, q);
+        const b1 = BigNatModule_shiftDown(k, q);
+        const q0 = mul(a0, b0);
+        const q1 = mul(BigNatModule_add(a0, a1), BigNatModule_add(b0, b1));
+        const q2 = mul(a1, b1);
+        return BigNatModule_add(q0, BigNatModule_shiftUp(k, BigNatModule_add(BigNatModule_sub(q1, BigNatModule_add(q0, q2)), BigNatModule_shiftUp(k, q2))));
+    }
+    else {
+        return BigNatModule_mulSchoolBook(p, q);
+    }
+}
+
+export function BigNatModule_mulKaratsuba(x, y) {
+    return BigNatModule_recMulKaratsuba(BigNatModule_mulKaratsuba, x, y);
+}
+
+export const BigNatModule_productDigitsUpperSchoolBook = ~(~(64000 / BigNatModule_baseBits));
+
+export const BigNatModule_singleDigitForceSchoolBook = ~(~(32000 / BigNatModule_baseBits));
+
+export const BigNatModule_productDigitsUpperFft = ~(~(BigNatModule_table[0].bigN / BigNatModule_baseBits));
+
+export function BigNatModule_mul(p, q) {
+    return BigNatModule_mulSchoolBook(p, q);
+}
+
+export function BigNatModule_scaleSubInPlace(x, f, a, n) {
+    const matchValue_1 = BigNatModule_degree(x) | 0;
+    const x_1 = x.digits;
+    const ad = BigNatModule_degree(a) | 0;
+    const a_1 = a.digits;
+    const f_1 = fromInteger(f, false, 2);
+    let j = 0;
+    let z = op_Multiply(f_1, fromInteger(a_1[0], false, 2));
+    while ((compare(z, fromBits(0, 0, false)) > 0) ? true : (j < ad)) {
+        if (j > matchValue_1) {
+            throw new Error("scaleSubInPlace: pre-condition did not apply, result would be -ve");
+        }
+        let zLo = ~(~toInt(op_BitwiseAnd(z, BigNatModule_baseMaski64)));
+        let zHi = op_Division(z, BigNatModule_baseNi64);
+        if (zLo <= x_1[j + n]) {
+            x_1[j + n] = ((x_1[j + n] - zLo) | 0);
+        }
+        else {
+            x_1[j + n] = ((x_1[j + n] + (BigNatModule_baseN - zLo)) | 0);
+            zHi = op_Addition(zHi, fromBits(1, 0, false));
+        }
+        if (j < ad) {
+            z = op_Addition(zHi, op_Multiply(f_1, fromInteger(a_1[j + 1], false, 2)));
+        }
+        else {
+            z = zHi;
+        }
+        j = ((j + 1) | 0);
+    }
+    BigNatModule_normN(x);
+}
+
+export function BigNatModule_scaleSub(x, f, a, n) {
+    const freshx = BigNatModule_add(x, BigNatModule_zero);
+    BigNatModule_scaleSubInPlace(freshx, f, a, n);
+    return BigNatModule_normN(freshx);
+}
+
+export function BigNatModule_scaleAddInPlace(x, f, a, n) {
+    const matchValue_1 = BigNatModule_degree(x) | 0;
+    const x_1 = x.digits;
+    const ad = BigNatModule_degree(a) | 0;
+    const a_1 = a.digits;
+    const f_1 = fromInteger(f, false, 2);
+    let j = 0;
+    let z = op_Multiply(f_1, fromInteger(a_1[0], false, 2));
+    while ((compare(z, fromBits(0, 0, false)) > 0) ? true : (j < ad)) {
+        if (j > matchValue_1) {
+            throw new Error("scaleSubInPlace: pre-condition did not apply, result would be -ve");
+        }
+        let zLo = ~(~toInt(op_BitwiseAnd(z, BigNatModule_baseMaski64)));
+        let zHi = op_Division(z, BigNatModule_baseNi64);
+        if (zLo < (BigNatModule_baseN - x_1[j + n])) {
+            x_1[j + n] = ((x_1[j + n] + zLo) | 0);
+        }
+        else {
+            x_1[j + n] = ((zLo - (BigNatModule_baseN - x_1[j + n])) | 0);
+            zHi = op_Addition(zHi, fromBits(1, 0, false));
+        }
+        if (j < ad) {
+            z = op_Addition(zHi, op_Multiply(f_1, fromInteger(a_1[j + 1], false, 2)));
+        }
+        else {
+            z = zHi;
+        }
+        j = ((j + 1) | 0);
+    }
+    BigNatModule_normN(x);
+}
+
+export function BigNatModule_scaleAdd(x, f, a, n) {
+    const freshx = BigNatModule_add(x, BigNatModule_zero);
+    BigNatModule_scaleAddInPlace(freshx, f, a, n);
+    return BigNatModule_normN(freshx);
+}
+
+export function BigNatModule_removeFactor(x, a, n) {
+    const matchValue = BigNatModule_degree(a) | 0;
+    const degx = BigNatModule_degree(x) | 0;
+    const dega = matchValue | 0;
+    if (degx < (dega + n)) {
+        return 0;
+    }
+    else {
+        const xa = x.digits;
+        const aa = a.digits;
+        const f = ((dega === 0) ? ((degx === n) ? (~(~(xa[n] / aa[0]))) : (~(~toInt(op_Division(op_Addition(op_Multiply(fromInteger(xa[degx], false, 2), BigNatModule_baseNi64), fromInteger(xa[degx - 1], false, 2)), fromInteger(aa[0], false, 2)))))) : ((degx === (dega + n)) ? (~(~(xa[degx] / (aa[dega] + 1)))) : (~(~toInt(op_Division(op_Addition(op_Multiply(fromInteger(xa[degx], false, 2), BigNatModule_baseNi64), fromInteger(xa[degx - 1], false, 2)), op_Addition(fromInteger(aa[dega], false, 2), fromBits(1, 0, false)))))))) | 0;
+        if (f === 0) {
+            if (BigNatModule_shiftCompare(a, n, x, 0) !== 1) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
+        else {
+            return f | 0;
+        }
+    }
+}
+
+export function BigNatModule_divmod(b, a) {
+    if (BigNatModule_isZero(a)) {
+        throw new Error();
+    }
+    else if (BigNatModule_degree(b) < BigNatModule_degree(a)) {
+        return [BigNatModule_zero, b];
+    }
+    else {
+        const x = BigNatModule_copyN(b);
+        const d = BigNatModule_createN(((BigNatModule_degree(b) - BigNatModule_degree(a)) + 1) + 1);
+        let p = BigNatModule_degree(b);
+        const m = BigNatModule_degree(a) | 0;
+        let n = p - m;
+        const Invariant = (_arg) => {
+        };
+        let finished = false;
+        while (!finished) {
+            Invariant([d, x, n, p]);
+            const f = BigNatModule_removeFactor(x, a, n) | 0;
+            if (f > 0) {
+                BigNatModule_scaleSubInPlace(x, f, a, n);
+                BigNatModule_scaleAddInPlace(d, f, BigNatModule_one, n);
+                Invariant([d, x, n, p]);
+            }
+            else {
+                finished = ((f === 0) && (n === 0));
+                if (!finished) {
+                    if (p === (m + n)) {
+                        Invariant([d, x, n - 1, p]);
+                        n = ((n - 1) | 0);
+                    }
+                    else {
+                        Invariant([d, x, n - 1, p - 1]);
+                        n = ((n - 1) | 0);
+                        p = ((p - 1) | 0);
+                    }
+                }
+            }
+        }
+        return [BigNatModule_normN(d), BigNatModule_normN(x)];
+    }
+}
+
+export function BigNatModule_div(b, a) {
+    return BigNatModule_divmod(b, a)[0];
+}
+
+export function BigNatModule_rem(b, a) {
+    return BigNatModule_divmod(b, a)[1];
+}
+
+export function BigNatModule_bitAnd(a, b) {
+    const r = BigNatModule_createN(BigNatModule_minInt(a.bound, b.bound));
+    for (let i = 0; i <= (r.bound - 1); i++) {
+        r.digits[i] = ((a.digits[i] & b.digits[i]) | 0);
+    }
+    return BigNatModule_normN(r);
+}
+
+export function BigNatModule_bitOr(a, b) {
+    const r = BigNatModule_createN(BigNatModule_maxInt(a.bound, b.bound));
+    for (let i = 0; i <= (a.bound - 1); i++) {
+        r.digits[i] = ((r.digits[i] | a.digits[i]) | 0);
+    }
+    for (let i_1 = 0; i_1 <= (b.bound - 1); i_1++) {
+        r.digits[i_1] = ((r.digits[i_1] | b.digits[i_1]) | 0);
+    }
+    return BigNatModule_normN(r);
+}
+
+export function BigNatModule_bitXor(a, b) {
+    const r = BigNatModule_createN(BigNatModule_maxInt(a.bound, b.bound));
+    for (let i = 0; i <= (a.bound - 1); i++) {
+        r.digits[i] = ((r.digits[i] ^ a.digits[i]) | 0);
+    }
+    for (let i_1 = 0; i_1 <= (b.bound - 1); i_1++) {
+        r.digits[i_1] = ((r.digits[i_1] ^ b.digits[i_1]) | 0);
+    }
+    return BigNatModule_normN(r);
+}
+
+export function BigNatModule_hcf(a, b) {
+    const hcfloop = (a_1_mut, b_1_mut) => {
+        hcfloop:
+        while (true) {
+            const a_1 = a_1_mut, b_1 = b_1_mut;
+            if (BigNatModule_equal(BigNatModule_zero, a_1)) {
+                return b_1;
+            }
+            else {
+                a_1_mut = BigNatModule_divmod(b_1, a_1)[1];
+                b_1_mut = a_1;
+                continue hcfloop;
+            }
+            break;
+        }
+    };
+    if (BigNatModule_lt(a, b)) {
+        return hcfloop(a, b);
+    }
+    else {
+        return hcfloop(b, a);
+    }
+}
+
+export const BigNatModule_two = BigNatModule_embed(2);
+
+export function BigNatModule_powi(x, n) {
+    const power = (acc_mut, x_1_mut, n_1_mut) => {
+        power:
+        while (true) {
+            const acc = acc_mut, x_1 = x_1_mut, n_1 = n_1_mut;
+            if (n_1 === 0) {
+                return acc;
+            }
+            else if ((n_1 % 2) === 0) {
+                acc_mut = acc;
+                x_1_mut = BigNatModule_mul(x_1, x_1);
+                n_1_mut = (~(~(n_1 / 2)));
+                continue power;
+            }
+            else {
+                acc_mut = BigNatModule_mul(x_1, acc);
+                x_1_mut = BigNatModule_mul(x_1, x_1);
+                n_1_mut = (~(~(n_1 / 2)));
+                continue power;
+            }
+            break;
+        }
+    };
+    return power(BigNatModule_one, x, n);
+}
+
+export function BigNatModule_pow(x, n) {
+    const power = (acc_mut, x_1_mut, n_1_mut) => {
+        power:
+        while (true) {
+            const acc = acc_mut, x_1 = x_1_mut, n_1 = n_1_mut;
+            if (BigNatModule_isZero(n_1)) {
+                return acc;
+            }
+            else {
+                const patternInput = BigNatModule_divmod(n_1, BigNatModule_two);
+                const ndiv2 = patternInput[0];
+                if (BigNatModule_isZero(patternInput[1])) {
+                    acc_mut = acc;
+                    x_1_mut = BigNatModule_mul(x_1, x_1);
+                    n_1_mut = ndiv2;
+                    continue power;
+                }
+                else {
+                    acc_mut = BigNatModule_mul(x_1, acc);
+                    x_1_mut = BigNatModule_mul(x_1, x_1);
+                    n_1_mut = ndiv2;
+                    continue power;
+                }
+            }
+            break;
+        }
+    };
+    return power(BigNatModule_one, x, n);
+}
+
+export function BigNatModule_toFloat(n) {
+    const evalFloat = (acc_mut, k_mut, i_mut) => {
+        evalFloat:
+        while (true) {
+            const acc = acc_mut, k = k_mut, i = i_mut;
+            if (i === n.bound) {
+                return acc;
+            }
+            else {
+                acc_mut = (acc + (k * n.digits[i]));
+                k_mut = (k * BigNatModule_baseN);
+                i_mut = (i + 1);
+                continue evalFloat;
+            }
+            break;
+        }
+    };
+    return evalFloat(0, 1, 0);
+}
+
+export function BigNatModule_ofInt32(n) {
+    return BigNatModule_embed(n);
+}
+
+export function BigNatModule_ofInt64(n) {
+    return BigNatModule_embed64(n);
+}
+
+export function BigNatModule_toUInt32(n) {
+    const matchValue = n.bound | 0;
+    if (matchValue === 0) {
+        return 0;
+    }
+    else if (matchValue === 1) {
+        const value = n.digits[0] | 0;
+        return value >>> 0;
+    }
+    else if (matchValue === 2) {
+        const matchValue_1 = n.digits[0] | 0;
+        const xB = n.digits[1] | 0;
+        if (xB > BigNatModule_baseMask32B) {
+            throw new Error();
+        }
+        return ((matchValue_1 & BigNatModule_baseMask32A) >>> 0) + ((((xB & BigNatModule_baseMask32B) >>> 0) << BigNatModule_baseShift32B) >>> 0);
+    }
+    else {
+        throw new Error();
+    }
+}
+
+export function BigNatModule_toUInt64(n) {
+    const matchValue = n.bound | 0;
+    if (matchValue === 0) {
+        return fromBits(0, 0, true);
+    }
+    else if (matchValue === 1) {
+        return fromInteger(n.digits[0], true, 2);
+    }
+    else if (matchValue === 2) {
+        const matchValue_1 = n.digits[0] | 0;
+        const matchValue_2 = n.digits[1] | 0;
+        return op_Addition(fromInteger(matchValue_1 & BigNatModule_baseMask64A, true, 2), op_LeftShift(fromInteger(matchValue_2 & BigNatModule_baseMask64B, true, 2), BigNatModule_baseShift64B));
+    }
+    else if (matchValue === 3) {
+        const matchValue_3 = n.digits[0] | 0;
+        const matchValue_4 = n.digits[1] | 0;
+        const xC = n.digits[2] | 0;
+        if (xC > BigNatModule_baseMask64C) {
+            throw new Error();
+        }
+        return op_Addition(op_Addition(fromInteger(matchValue_3 & BigNatModule_baseMask64A, true, 2), op_LeftShift(fromInteger(matchValue_4 & BigNatModule_baseMask64B, true, 2), BigNatModule_baseShift64B)), op_LeftShift(fromInteger(xC & BigNatModule_baseMask64C, true, 2), BigNatModule_baseShift64C));
+    }
+    else {
+        throw new Error();
+    }
+}
+
+export function BigNatModule_toString(n) {
+    const degn = BigNatModule_degree(n) | 0;
+    const route = (prior_mut, k_mut, ten2k_mut) => {
+        route:
+        while (true) {
+            const prior = prior_mut, k = k_mut, ten2k = ten2k_mut;
+            if (BigNatModule_degree(ten2k) > degn) {
+                return cons([k, ten2k], prior);
+            }
+            else {
+                prior_mut = cons([k, ten2k], prior);
+                k_mut = (k + 1);
+                ten2k_mut = BigNatModule_mul(ten2k, ten2k);
+                continue route;
+            }
+            break;
+        }
+    };
+    const collect = (isLeading_mut, digits_mut, n_1_mut, arg_mut) => {
+        collect:
+        while (true) {
+            const isLeading = isLeading_mut, digits = digits_mut, n_1 = n_1_mut, arg = arg_mut;
+            if (!isEmpty(arg)) {
+                const prior_1 = tail(arg);
+                const patternInput = BigNatModule_divmod(n_1, head(arg)[1]);
+                const nL = patternInput[1];
+                const nH = patternInput[0];
+                if (isLeading && BigNatModule_isZero(nH)) {
+                    isLeading_mut = isLeading;
+                    digits_mut = digits;
+                    n_1_mut = nL;
+                    arg_mut = prior_1;
+                    continue collect;
+                }
+                else {
+                    isLeading_mut = isLeading;
+                    digits_mut = collect(false, digits, nL, prior_1);
+                    n_1_mut = nH;
+                    arg_mut = prior_1;
+                    continue collect;
+                }
+            }
+            else {
+                const n_2 = BigNatModule_eval32(n_1) | 0;
+                if (isLeading && (n_2 === 0)) {
+                    return digits;
+                }
+                else {
+                    return cons(int32ToString(n_2), digits);
+                }
+            }
+            break;
+        }
+    };
+    const digits_4 = collect(true, empty(), n, route(empty(), 0, BigNatModule_embed(10)));
+    if (isEmpty(digits_4)) {
+        return "0";
+    }
+    else {
+        return join("", toArray(digits_4));
+    }
+}
+
+export function BigNatModule_ofString(str) {
+    const len = str.length | 0;
+    if (isNullOrEmpty(str)) {
+        throw new Error("empty string\\nParameter name: str");
+    }
+    const ten = BigNatModule_embed(10);
+    const build = (acc_mut, i_mut) => {
+        build:
+        while (true) {
+            const acc = acc_mut, i = i_mut;
+            if (i === len) {
+                return acc;
+            }
+            else {
+                const c = str[i];
+                const d = (c.charCodeAt(0) - 48) | 0;
+                if ((0 <= d) && (d <= 9)) {
+                    acc_mut = BigNatModule_add(BigNatModule_mul(ten, acc), BigNatModule_embed(d));
+                    i_mut = (i + 1);
+                    continue build;
+                }
+                else {
+                    throw new Error();
+                }
+            }
+            break;
+        }
+    };
+    return build(BigNatModule_embed(0), 0);
+}
+
+export function BigNatModule_isSmall(n) {
+    return n.bound <= 1;
+}
+
+export function BigNatModule_getSmall(n) {
+    const z = n;
+    const i = 0;
+    if (i < z.bound) {
+        return z.digits[i] | 0;
+    }
+    else {
+        return 0;
+    }
+}
+
+export function BigNatModule_factorial(n) {
+    const productR = (a, b) => {
+        if (BigNatModule_equal(a, b)) {
+            return a;
+        }
+        else {
+            const m = BigNatModule_div(BigNatModule_add(a, b), BigNatModule_ofInt32(2));
+            return BigNatModule_mul(productR(a, m), productR(BigNatModule_add(m, BigNatModule_one), b));
+        }
+    };
+    return productR(BigNatModule_one, n);
+}
+

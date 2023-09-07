@@ -1,1 +1,1515 @@
-import{clear,defaultOf,equals,isDisposable,isArrayLike,toIterator,disposeSafe,getEnumerator}from"./Util.js";import{toString}from"./Types.js";import{class_type}from"./Reflection.js";import{some,value as value_1}from"./Option.js";import{Operators_Lock,Operators_NullArg}from"./FSharp.Core.js";import{chunkBySize as chunkBySize_1,permute as permute_1,transpose as transpose_1,map as map_1,windowed as windowed_1,splitInto as splitInto_1,pairwise as pairwise_1,scanBack as scanBack_1,reverse as reverse_1,mapFoldBack as mapFoldBack_1,mapFold as mapFold_1,tryItem as tryItem_1,tryHead as tryHead_1,foldBack2 as foldBack2_1,foldBack as foldBack_1,tryFindIndexBack as tryFindIndexBack_1,tryFindBack as tryFindBack_1,singleton as singleton_1}from"./Array.js";import{length as length_1,tryItem as tryItem_2,isEmpty as isEmpty_1,tryHead as tryHead_2,ofSeq as ofSeq_1,ofArray as ofArray_1,toArray as toArray_1,FSharpList}from"./List.js";import{SR_indexOutOfBounds}from"./Global.js";export const SR_enumerationAlreadyFinished="Enumeration already finished.";export const SR_enumerationNotStarted="Enumeration has not started. Call MoveNext.";export const SR_inputSequenceEmpty="The input sequence was empty.";export const SR_inputSequenceTooLong="The input sequence contains more than one element.";export const SR_keyNotFoundAlt="An index satisfying the predicate was not found in the collection.";export const SR_notEnoughElements="The input sequence has an insufficient number of elements.";export const SR_resetNotSupported="Reset is not supported on this enumerator.";export function Enumerator_noReset(){throw new Error(SR_resetNotSupported)}export function Enumerator_notStarted(){throw new Error(SR_enumerationNotStarted)}export function Enumerator_alreadyFinished(){throw new Error(SR_enumerationAlreadyFinished)}export class Enumerator_Seq{constructor(e){this.f=e}toString(){let e=0,t="seq [";const r=getEnumerator(this);try{for(;e<4&&r["System.Collections.IEnumerator.MoveNext"]();)e>0&&(t+="; "),t+=toString(r["System.Collections.Generic.IEnumerator`1.get_Current"]()),e=e+1|0;return 4===e&&(t+="; ..."),t+"]"}finally{disposeSafe(r)}}GetEnumerator(){return this.f()}[Symbol.iterator](){return toIterator(this.GetEnumerator())}"System.Collections.IEnumerable.GetEnumerator"(){return this.f()}}export function Enumerator_Seq$reflection(e){return class_type("SeqModule.Enumerator.Seq",[e],Enumerator_Seq)}export function Enumerator_Seq_$ctor_673A07F2(e){return new Enumerator_Seq(e)}export class Enumerator_FromFunctions$1{constructor(e,t,r){this.current=e,this.next=t,this.dispose=r}"System.Collections.Generic.IEnumerator`1.get_Current"(){return this.current()}"System.Collections.IEnumerator.get_Current"(){return this.current()}"System.Collections.IEnumerator.MoveNext"(){return this.next()}"System.Collections.IEnumerator.Reset"(){Enumerator_noReset()}Dispose(){this.dispose()}}export function Enumerator_FromFunctions$1$reflection(e){return class_type("SeqModule.Enumerator.FromFunctions`1",[e],Enumerator_FromFunctions$1)}export function Enumerator_FromFunctions$1_$ctor_58C54629(e,t,r){return new Enumerator_FromFunctions$1(e,t,r)}export function Enumerator_cast(e){return Enumerator_FromFunctions$1_$ctor_58C54629((()=>e["System.Collections.Generic.IEnumerator`1.get_Current"]()),(()=>e["System.Collections.IEnumerator.MoveNext"]()),(()=>{disposeSafe(e)}))}export function Enumerator_concat(e){let t,r,n,o=!1,i=!1;const u=()=>{if(i=!0,null!=r){const e=r;try{disposeSafe(e)}finally{r=void 0}}if(null!=t){const e=t;try{disposeSafe(e)}finally{t=void 0}}};return Enumerator_FromFunctions$1_$ctor_58C54629((()=>(o?i&&Enumerator_alreadyFinished():Enumerator_notStarted(),null!=n?value_1(n):Enumerator_alreadyFinished())),(()=>{let s;if(o||(o=!0),i)return!1;{let o;for(;null==o;){const i=t;if(null!=i)if(null!=r){const e=r;if(e["System.Collections.IEnumerator.MoveNext"]())n=some(e["System.Collections.Generic.IEnumerator`1.get_Current"]()),o=!0;else try{disposeSafe(e)}finally{r=void 0}}else{const e=i;e["System.Collections.IEnumerator.MoveNext"]()?(s=e["System.Collections.Generic.IEnumerator`1.get_Current"](),r=getEnumerator(s)):(u(),o=!1)}else t=getEnumerator(e)}return value_1(o)}}),(()=>{i||u()}))}export function Enumerator_enumerateThenFinally(e,t){return Enumerator_FromFunctions$1_$ctor_58C54629((()=>t["System.Collections.Generic.IEnumerator`1.get_Current"]()),(()=>t["System.Collections.IEnumerator.MoveNext"]()),(()=>{try{disposeSafe(t)}finally{e()}}))}export function Enumerator_generateWhileSome(e,t,r){let n,o=!1,i=some(e());const u=()=>{if(null!=i){const e=value_1(i);try{r(e)}finally{i=void 0}}},s=()=>{try{u()}finally{n=void 0}};return Enumerator_FromFunctions$1_$ctor_58C54629((()=>(o||Enumerator_notStarted(),null!=n?value_1(n):Enumerator_alreadyFinished())),(()=>{if(o||(o=!0),null!=i){const e=value_1(i);let r;try{r=t(e)}catch(e){throw s(),e}return null!=r?(n=r,!0):(s(),!1)}return!1}),u)}export function Enumerator_unfold(e,t){let r,n=t;return Enumerator_FromFunctions$1_$ctor_58C54629((()=>{if(null!=r){const e=r[0];return r[1],e}return Enumerator_notStarted()}),(()=>{if(r=e(n),null!=r){r[0];const e=r[1];return n=e,!0}return!1}),(()=>{}))}export function indexNotFound(){throw new Error(SR_keyNotFoundAlt)}export function checkNonNull(e,t){null==t&&Operators_NullArg(e)}export function mkSeq(e){return Enumerator_Seq_$ctor_673A07F2(e)}export function ofSeq(e){return checkNonNull("source",e),getEnumerator(e)}export function delay(e){return mkSeq((()=>getEnumerator(e())))}export function concat(e){return mkSeq((()=>Enumerator_concat(e)))}export function unfold(e,t){return mkSeq((()=>Enumerator_unfold(e,t)))}export function empty(){return delay((()=>new Array(0)))}export function singleton(e){return delay((()=>singleton_1(e,null)))}export function ofArray(e){return e}export function toArray(e){return e instanceof FSharpList?toArray_1(e):Array.from(e)}export function ofList(e){return e}export function toList(e){return isArrayLike(e)?ofArray_1(e):e instanceof FSharpList?e:ofSeq_1(e)}export function generate(e,t,r){return mkSeq((()=>Enumerator_generateWhileSome(e,t,r)))}export function generateIndexed(e,t,r){return mkSeq((()=>{let n=-1;return Enumerator_generateWhileSome(e,(e=>(n=n+1|0,t(n,e))),r)}))}export function append(e,t){return concat([e,t])}export function cast(e){return mkSeq((()=>(checkNonNull("source",e),Enumerator_cast(getEnumerator(e)))))}export function choose(e,t){return generate((()=>ofSeq(t)),(t=>{let r;for(;null==r&&t["System.Collections.IEnumerator.MoveNext"]();)r=e(t["System.Collections.Generic.IEnumerator`1.get_Current"]());return r}),(e=>{disposeSafe(e)}))}export function compareWith(e,t,r){const n=ofSeq(t);try{const t=ofSeq(r);try{let r=0,o=n["System.Collections.IEnumerator.MoveNext"](),i=t["System.Collections.IEnumerator.MoveNext"]();for(;0===r&&o&&i;)r=0|e(n["System.Collections.Generic.IEnumerator`1.get_Current"](),t["System.Collections.Generic.IEnumerator`1.get_Current"]()),0===r&&(o=n["System.Collections.IEnumerator.MoveNext"](),i=t["System.Collections.IEnumerator.MoveNext"]());return 0|(0!==r?r:o?1:i?-1:0)}finally{disposeSafe(t)}}finally{disposeSafe(n)}}export function contains(e,t,r){const n=ofSeq(t);try{let t=!1;for(;!t&&n["System.Collections.IEnumerator.MoveNext"]();)t=r.Equals(e,n["System.Collections.Generic.IEnumerator`1.get_Current"]());return t}finally{disposeSafe(n)}}export function enumerateFromFunctions(e,t,r){return generate(e,(e=>t(e)?some(r(e)):void 0),(e=>{const t=e;isDisposable(t)&&disposeSafe(t)}))}export function enumerateThenFinally(e,t){const r=t;return mkSeq((()=>{try{return Enumerator_enumerateThenFinally(r,ofSeq(e))}catch(e){throw r(),e}}))}export function enumerateUsing(e,t){const r=()=>{equals(e,defaultOf())||disposeSafe(e)};return mkSeq((()=>{try{return Enumerator_enumerateThenFinally(r,ofSeq(t(e)))}catch(e){throw r(),e}}))}export function enumerateWhile(e,t){return concat(unfold((r=>e()?[t,r+1]:void 0),0))}export function filter(e,t){return choose((t=>e(t)?some(t):void 0),t)}export function exists(e,t){const r=ofSeq(t);try{let t=!1;for(;!t&&r["System.Collections.IEnumerator.MoveNext"]();)t=e(r["System.Collections.Generic.IEnumerator`1.get_Current"]());return t}finally{disposeSafe(r)}}export function exists2(e,t,r){const n=ofSeq(t);try{const t=ofSeq(r);try{let r=!1;for(;!r&&n["System.Collections.IEnumerator.MoveNext"]()&&t["System.Collections.IEnumerator.MoveNext"]();)r=e(n["System.Collections.Generic.IEnumerator`1.get_Current"](),t["System.Collections.Generic.IEnumerator`1.get_Current"]());return r}finally{disposeSafe(t)}}finally{disposeSafe(n)}}export function exactlyOne(e){const t=ofSeq(e);try{if(t["System.Collections.IEnumerator.MoveNext"]()){const e=t["System.Collections.Generic.IEnumerator`1.get_Current"]();if(t["System.Collections.IEnumerator.MoveNext"]())throw new Error(SR_inputSequenceTooLong+"\\nParameter name: source");return e}throw new Error(SR_inputSequenceEmpty+"\\nParameter name: source")}finally{disposeSafe(t)}}export function tryExactlyOne(e){const t=ofSeq(e);try{if(t["System.Collections.IEnumerator.MoveNext"]()){const e=t["System.Collections.Generic.IEnumerator`1.get_Current"]();return t["System.Collections.IEnumerator.MoveNext"]()?void 0:some(e)}return}finally{disposeSafe(t)}}export function tryFind(e,t){const r=ofSeq(t);try{let t;for(;null==t&&r["System.Collections.IEnumerator.MoveNext"]();){const n=r["System.Collections.Generic.IEnumerator`1.get_Current"]();e(n)&&(t=some(n))}return t}finally{disposeSafe(r)}}export function find(e,t){const r=tryFind(e,t);return null==r?indexNotFound():value_1(r)}export function tryFindBack(e,t){return tryFindBack_1(e,toArray(t))}export function findBack(e,t){const r=tryFindBack(e,t);return null==r?indexNotFound():value_1(r)}export function tryFindIndex(e,t){const r=ofSeq(t);try{return(t=>{for(;;){const n=t;if(!r["System.Collections.IEnumerator.MoveNext"]())return;if(e(r["System.Collections.Generic.IEnumerator`1.get_Current"]()))return n;t=n+1}})(0)}finally{disposeSafe(r)}}export function findIndex(e,t){const r=tryFindIndex(e,t);return null==r?(indexNotFound(),-1):0|r}export function tryFindIndexBack(e,t){return tryFindIndexBack_1(e,toArray(t))}export function findIndexBack(e,t){const r=tryFindIndexBack(e,t);return null==r?(indexNotFound(),-1):0|r}export function fold(e,t,r){const n=ofSeq(r);try{let r=t;for(;n["System.Collections.IEnumerator.MoveNext"]();)r=e(r,n["System.Collections.Generic.IEnumerator`1.get_Current"]());return r}finally{disposeSafe(n)}}export function foldBack(e,t,r){return foldBack_1(e,toArray(t),r)}export function fold2(e,t,r,n){const o=ofSeq(r);try{const r=ofSeq(n);try{let n=t;for(;o["System.Collections.IEnumerator.MoveNext"]()&&r["System.Collections.IEnumerator.MoveNext"]();)n=e(n,o["System.Collections.Generic.IEnumerator`1.get_Current"](),r["System.Collections.Generic.IEnumerator`1.get_Current"]());return n}finally{disposeSafe(r)}}finally{disposeSafe(o)}}export function foldBack2(e,t,r,n){return foldBack2_1(e,toArray(t),toArray(r),n)}export function forAll(e,t){return!exists((t=>!e(t)),t)}export function forAll2(e,t,r){return!exists2(((t,r)=>!e(t,r)),t,r)}export function tryHead(e){if(isArrayLike(e))return tryHead_1(e);if(e instanceof FSharpList)return tryHead_2(e);{const t=ofSeq(e);try{return t["System.Collections.IEnumerator.MoveNext"]()?some(t["System.Collections.Generic.IEnumerator`1.get_Current"]()):void 0}finally{disposeSafe(t)}}}export function head(e){const t=tryHead(e);if(null==t)throw new Error(SR_inputSequenceEmpty+"\\nParameter name: source");return value_1(t)}export function initialize(e,t){return unfold((r=>r<e?[t(r),r+1]:void 0),0)}export function initializeInfinite(e){return initialize(2147483647,e)}export function isEmpty(e){if(isArrayLike(e))return 0===e.length;if(e instanceof FSharpList)return isEmpty_1(e);{const t=ofSeq(e);try{return!t["System.Collections.IEnumerator.MoveNext"]()}finally{disposeSafe(t)}}}export function tryItem(e,t){if(isArrayLike(t))return tryItem_1(e,t);if(t instanceof FSharpList)return tryItem_2(e,t);{const r=ofSeq(t);try{return(e=>{for(;;){const t=e;if(!r["System.Collections.IEnumerator.MoveNext"]())return;if(0===t)return some(r["System.Collections.Generic.IEnumerator`1.get_Current"]());e=t-1}})(e)}finally{disposeSafe(r)}}}export function item(e,t){const r=tryItem(e,t);if(null==r)throw new Error(SR_notEnoughElements+"\\nParameter name: index");return value_1(r)}export function iterate(e,t){fold(((t,r)=>{e(r)}),void 0,t)}export function iterate2(e,t,r){fold2(((t,r,n)=>{e(r,n)}),void 0,t,r)}export function iterateIndexed(e,t){fold(((t,r)=>(e(t,r),t+1|0)),0,t)}export function iterateIndexed2(e,t,r){fold2(((t,r,n)=>(e(t,r,n),t+1|0)),0,t,r)}export function tryLast(e){const t=ofSeq(e);try{const e=e=>{for(;;){const r=e;if(!t["System.Collections.IEnumerator.MoveNext"]())return r;e=t["System.Collections.Generic.IEnumerator`1.get_Current"]()}};return t["System.Collections.IEnumerator.MoveNext"]()?some(e(t["System.Collections.Generic.IEnumerator`1.get_Current"]())):void 0}finally{disposeSafe(t)}}export function last(e){const t=tryLast(e);if(null==t)throw new Error(SR_notEnoughElements+"\\nParameter name: source");return value_1(t)}export function length(e){if(isArrayLike(e))return 0|e.length;if(e instanceof FSharpList)return 0|length_1(e);{const t=ofSeq(e);try{let e=0;for(;t["System.Collections.IEnumerator.MoveNext"]();)e=e+1|0;return 0|e}finally{disposeSafe(t)}}}export function map(e,t){return generate((()=>ofSeq(t)),(t=>t["System.Collections.IEnumerator.MoveNext"]()?some(e(t["System.Collections.Generic.IEnumerator`1.get_Current"]())):void 0),(e=>{disposeSafe(e)}))}export function mapIndexed(e,t){return generateIndexed((()=>ofSeq(t)),((t,r)=>r["System.Collections.IEnumerator.MoveNext"]()?some(e(t,r["System.Collections.Generic.IEnumerator`1.get_Current"]())):void 0),(e=>{disposeSafe(e)}))}export function indexed(e){return mapIndexed(((e,t)=>[e,t]),e)}export function map2(e,t,r){return generate((()=>[ofSeq(t),ofSeq(r)]),(t=>{const r=t[0],n=t[1];return r["System.Collections.IEnumerator.MoveNext"]()&&n["System.Collections.IEnumerator.MoveNext"]()?some(e(r["System.Collections.Generic.IEnumerator`1.get_Current"](),n["System.Collections.Generic.IEnumerator`1.get_Current"]())):void 0}),(e=>{try{disposeSafe(e[0])}finally{disposeSafe(e[1])}}))}export function mapIndexed2(e,t,r){return generateIndexed((()=>[ofSeq(t),ofSeq(r)]),((t,r)=>{const n=r[0],o=r[1];return n["System.Collections.IEnumerator.MoveNext"]()&&o["System.Collections.IEnumerator.MoveNext"]()?some(e(t,n["System.Collections.Generic.IEnumerator`1.get_Current"](),o["System.Collections.Generic.IEnumerator`1.get_Current"]())):void 0}),(e=>{try{disposeSafe(e[0])}finally{disposeSafe(e[1])}}))}export function map3(e,t,r,n){return generate((()=>[ofSeq(t),ofSeq(r),ofSeq(n)]),(t=>{const r=t[0],n=t[1],o=t[2];return r["System.Collections.IEnumerator.MoveNext"]()&&n["System.Collections.IEnumerator.MoveNext"]()&&o["System.Collections.IEnumerator.MoveNext"]()?some(e(r["System.Collections.Generic.IEnumerator`1.get_Current"](),n["System.Collections.Generic.IEnumerator`1.get_Current"](),o["System.Collections.Generic.IEnumerator`1.get_Current"]())):void 0}),(e=>{try{disposeSafe(e[0])}finally{try{disposeSafe(e[1])}finally{disposeSafe(e[2])}}}))}export function readOnly(e){return checkNonNull("source",e),map((e=>e),e)}export class CachedSeq$1{constructor(e,t){this.cleanup=e,this.res=t}Dispose(){this.cleanup()}GetEnumerator(){return getEnumerator(this.res)}[Symbol.iterator](){return toIterator(this.GetEnumerator())}"System.Collections.IEnumerable.GetEnumerator"(){return getEnumerator(this.res)}}export function CachedSeq$1$reflection(e){return class_type("SeqModule.CachedSeq`1",[e],CachedSeq$1)}export function CachedSeq$1_$ctor_Z7A8347D4(e,t){return new CachedSeq$1(e,t)}export function CachedSeq$1__Clear(e){e.cleanup()}export function cache(e){checkNonNull("source",e);const t=[];let r;return CachedSeq$1_$ctor_Z7A8347D4((()=>{Operators_Lock(t,(()=>{let e,n;clear(t),null!=r&&null!=value_1(r)?(e=0,n=value_1(r)):e=1,0===e&&disposeSafe(n),r=void 0}))}),unfold((n=>Operators_Lock(t,(()=>{if(n<t.length)return[t[n],n+1];if(n>=t.length){let n;if(null!=r)n=value_1(r);else{const t=getEnumerator(e);r=some(t),n=t}if(null==n);else{const e=n;e["System.Collections.IEnumerator.MoveNext"]()?t.push(e["System.Collections.Generic.IEnumerator`1.get_Current"]()):(disposeSafe(e),r=some(void 0))}}return n<t.length?[t[n],n+1]:void 0}))),0))}export function allPairs(e,t){const r=cache(t);return delay((()=>concat(map((e=>map((t=>[e,t]),r)),e))))}export function mapFold(e,t,r){const n=mapFold_1(e,t,toArray(r),null);return[readOnly(n[0]),n[1]]}export function mapFoldBack(e,t,r){const n=mapFoldBack_1(e,toArray(t),r,null);return[readOnly(n[0]),n[1]]}export function tryPick(e,t){const r=ofSeq(t);try{let t;for(;null==t&&r["System.Collections.IEnumerator.MoveNext"]();)t=e(r["System.Collections.Generic.IEnumerator`1.get_Current"]());return t}finally{disposeSafe(r)}}export function pick(e,t){const r=tryPick(e,t);return null==r?indexNotFound():value_1(r)}export function reduce(e,t){const r=ofSeq(t);try{const t=t=>{for(;;){const n=t;if(!r["System.Collections.IEnumerator.MoveNext"]())return n;t=e(n,r["System.Collections.Generic.IEnumerator`1.get_Current"]())}};if(r["System.Collections.IEnumerator.MoveNext"]())return t(r["System.Collections.Generic.IEnumerator`1.get_Current"]());throw new Error(SR_inputSequenceEmpty)}finally{disposeSafe(r)}}export function reduceBack(e,t){const r=toArray(t);if(r.length>0)return r.reduceRight(e);throw new Error(SR_inputSequenceEmpty)}export function replicate(e,t){return initialize(e,(e=>t))}export function reverse(e){return delay((()=>ofArray(reverse_1(toArray(e)))))}export function scan(e,t,r){return delay((()=>{let n=t;return concat([singleton(t),map((t=>(n=e(n,t),n)),r)])}))}export function scanBack(e,t,r){return delay((()=>ofArray(scanBack_1(e,toArray(t),r,null))))}export function skip(e,t){return mkSeq((()=>{const r=ofSeq(t);try{for(let t=1;t<=e;t++)if(!r["System.Collections.IEnumerator.MoveNext"]())throw new Error(SR_notEnoughElements+"\\nParameter name: source");return Enumerator_enumerateThenFinally((()=>{}),r)}catch(e){throw disposeSafe(r),e}}))}export function skipWhile(e,t){return delay((()=>{let r=!0;return filter((t=>(r&&(r=e(t)),!r)),t)}))}export function tail(e){return skip(1,e)}export function take(e,t){return generateIndexed((()=>ofSeq(t)),((t,r)=>{if(t<e){if(r["System.Collections.IEnumerator.MoveNext"]())return some(r["System.Collections.Generic.IEnumerator`1.get_Current"]());throw new Error(SR_notEnoughElements+"\\nParameter name: source")}}),(e=>{disposeSafe(e)}))}export function takeWhile(e,t){return generate((()=>ofSeq(t)),(t=>t["System.Collections.IEnumerator.MoveNext"]()&&e(t["System.Collections.Generic.IEnumerator`1.get_Current"]())?some(t["System.Collections.Generic.IEnumerator`1.get_Current"]()):void 0),(e=>{disposeSafe(e)}))}export function truncate(e,t){return generateIndexed((()=>ofSeq(t)),((t,r)=>t<e&&r["System.Collections.IEnumerator.MoveNext"]()?some(r["System.Collections.Generic.IEnumerator`1.get_Current"]()):void 0),(e=>{disposeSafe(e)}))}export function zip(e,t){return map2(((e,t)=>[e,t]),e,t)}export function zip3(e,t,r){return map3(((e,t,r)=>[e,t,r]),e,t,r)}export function collect(e,t){return delay((()=>concat(map(e,t))))}export function where(e,t){return filter(e,t)}export function pairwise(e){return delay((()=>ofArray(pairwise_1(toArray(e)))))}export function splitInto(e,t){return delay((()=>ofArray(splitInto_1(e,toArray(t)))))}export function windowed(e,t){return delay((()=>ofArray(windowed_1(e,toArray(t)))))}export function transpose(e){return delay((()=>ofArray(map_1(ofArray,transpose_1(map_1(toArray,toArray(e),null),null),null))))}export function sortWith(e,t){return delay((()=>{const r=toArray(t);return r.sort(e),ofArray(r)}))}export function sort(e,t){return sortWith(((e,r)=>t.Compare(e,r)),e)}export function sortBy(e,t,r){return sortWith(((t,n)=>r.Compare(e(t),e(n))),t)}export function sortDescending(e,t){return sortWith(((e,r)=>-1*t.Compare(e,r)),e)}export function sortByDescending(e,t,r){return sortWith(((t,n)=>-1*r.Compare(e(t),e(n))),t)}export function sum(e,t){return fold(((e,r)=>t.Add(e,r)),t.GetZero(),e)}export function sumBy(e,t,r){return fold(((t,n)=>r.Add(t,e(n))),r.GetZero(),t)}export function maxBy(e,t,r){return reduce(((t,n)=>r.Compare(e(n),e(t))>0?n:t),t)}export function max(e,t){return reduce(((e,r)=>t.Compare(r,e)>0?r:e),e)}export function minBy(e,t,r){return reduce(((t,n)=>r.Compare(e(n),e(t))>0?t:n),t)}export function min(e,t){return reduce(((e,r)=>t.Compare(r,e)>0?e:r),e)}export function average(e,t){let r=0;const n=fold(((e,n)=>(r=r+1|0,t.Add(e,n))),t.GetZero(),e);if(0===r)throw new Error(SR_inputSequenceEmpty+"\\nParameter name: source");return t.DivideByInt(n,r)}export function averageBy(e,t,r){let n=0;const o=fold(((t,o)=>(n=n+1|0,r.Add(t,e(o)))),r.GetZero(),t);if(0===n)throw new Error(SR_inputSequenceEmpty+"\\nParameter name: source");return r.DivideByInt(o,n)}export function permute(e,t){return delay((()=>ofArray(permute_1(e,toArray(t)))))}export function chunkBySize(e,t){return delay((()=>ofArray(chunkBySize_1(e,toArray(t)))))}export function insertAt(e,t,r){let n=!1;if(e<0)throw new Error(SR_indexOutOfBounds+"\\nParameter name: index");return generateIndexed((()=>ofSeq(r)),((r,o)=>{if((n||r<e)&&o["System.Collections.IEnumerator.MoveNext"]())return some(o["System.Collections.Generic.IEnumerator`1.get_Current"]());if(r===e)return n=!0,some(t);if(!n)throw new Error(SR_indexOutOfBounds+"\\nParameter name: index")}),(e=>{disposeSafe(e)}))}export function insertManyAt(e,t,r){let n=-1;if(e<0)throw new Error(SR_indexOutOfBounds+"\\nParameter name: index");return generateIndexed((()=>[ofSeq(r),ofSeq(t)]),((t,r)=>{const o=r[0],i=r[1];let u;if(t===e&&(n=0),0===n?i["System.Collections.IEnumerator.MoveNext"]()?u=some(i["System.Collections.Generic.IEnumerator`1.get_Current"]()):(n=1,u=void 0):u=void 0,null!=u)return some(value_1(u));if(o["System.Collections.IEnumerator.MoveNext"]())return some(o["System.Collections.Generic.IEnumerator`1.get_Current"]());if(n<1)throw new Error(SR_indexOutOfBounds+"\\nParameter name: index")}),(e=>{disposeSafe(e[0]),disposeSafe(e[1])}))}export function removeAt(e,t){let r=!1;if(e<0)throw new Error(SR_indexOutOfBounds+"\\nParameter name: index");return generateIndexed((()=>ofSeq(t)),((t,n)=>{if((r||t<e)&&n["System.Collections.IEnumerator.MoveNext"]())return some(n["System.Collections.Generic.IEnumerator`1.get_Current"]());if(t===e&&n["System.Collections.IEnumerator.MoveNext"]())return r=!0,n["System.Collections.IEnumerator.MoveNext"]()?some(n["System.Collections.Generic.IEnumerator`1.get_Current"]()):void 0;if(!r)throw new Error(SR_indexOutOfBounds+"\\nParameter name: index")}),(e=>{disposeSafe(e)}))}export function removeManyAt(e,t,r){if(e<0)throw new Error(SR_indexOutOfBounds+"\\nParameter name: index");return generateIndexed((()=>ofSeq(r)),((r,n)=>{if(r<e){if(n["System.Collections.IEnumerator.MoveNext"]())return some(n["System.Collections.Generic.IEnumerator`1.get_Current"]());throw new Error(SR_indexOutOfBounds+"\\nParameter name: index")}if(r===e)for(let e=1;e<=t;e++)if(!n["System.Collections.IEnumerator.MoveNext"]())throw new Error(SR_indexOutOfBounds+"\\nParameter name: count");return n["System.Collections.IEnumerator.MoveNext"]()?some(n["System.Collections.Generic.IEnumerator`1.get_Current"]()):void 0}),(e=>{disposeSafe(e)}))}export function updateAt(e,t,r){let n=!1;if(e<0)throw new Error(SR_indexOutOfBounds+"\\nParameter name: index");return generateIndexed((()=>ofSeq(r)),((r,o)=>{if((n||r<e)&&o["System.Collections.IEnumerator.MoveNext"]())return some(o["System.Collections.Generic.IEnumerator`1.get_Current"]());if(r===e&&o["System.Collections.IEnumerator.MoveNext"]())return n=!0,some(t);if(!n)throw new Error(SR_indexOutOfBounds+"\\nParameter name: index")}),(e=>{disposeSafe(e)}))}
+import { clear, defaultOf, equals, isDisposable, isArrayLike, toIterator, disposeSafe, getEnumerator } from "./Util.js";
+import { toString } from "./Types.js";
+import { class_type } from "./Reflection.js";
+import { some, value as value_1 } from "./Option.js";
+import { Operators_Lock, Operators_NullArg } from "./FSharp.Core.js";
+import { chunkBySize as chunkBySize_1, permute as permute_1, transpose as transpose_1, map as map_1, windowed as windowed_1, splitInto as splitInto_1, pairwise as pairwise_1, scanBack as scanBack_1, reverse as reverse_1, mapFoldBack as mapFoldBack_1, mapFold as mapFold_1, tryItem as tryItem_1, tryHead as tryHead_1, foldBack2 as foldBack2_1, foldBack as foldBack_1, tryFindIndexBack as tryFindIndexBack_1, tryFindBack as tryFindBack_1, singleton as singleton_1 } from "./Array.js";
+import { length as length_1, tryItem as tryItem_2, isEmpty as isEmpty_1, tryHead as tryHead_2, ofSeq as ofSeq_1, ofArray as ofArray_1, toArray as toArray_1, FSharpList } from "./List.js";
+import { SR_indexOutOfBounds } from "./Global.js";
+
+export const SR_enumerationAlreadyFinished = "Enumeration already finished.";
+
+export const SR_enumerationNotStarted = "Enumeration has not started. Call MoveNext.";
+
+export const SR_inputSequenceEmpty = "The input sequence was empty.";
+
+export const SR_inputSequenceTooLong = "The input sequence contains more than one element.";
+
+export const SR_keyNotFoundAlt = "An index satisfying the predicate was not found in the collection.";
+
+export const SR_notEnoughElements = "The input sequence has an insufficient number of elements.";
+
+export const SR_resetNotSupported = "Reset is not supported on this enumerator.";
+
+export function Enumerator_noReset() {
+    throw new Error(SR_resetNotSupported);
+}
+
+export function Enumerator_notStarted() {
+    throw new Error(SR_enumerationNotStarted);
+}
+
+export function Enumerator_alreadyFinished() {
+    throw new Error(SR_enumerationAlreadyFinished);
+}
+
+export class Enumerator_Seq {
+    "constructor"(f) {
+        this.f = f;
+    }
+    toString() {
+        const xs = this;
+        const maxCount = 4;
+        let i = 0;
+        let str = "seq [";
+        const e = getEnumerator(xs);
+        try {
+            while ((i < maxCount) && e["System.Collections.IEnumerator.MoveNext"]()) {
+                if (i > 0) {
+                    str = (str + "; ");
+                }
+                str = (str + toString(e["System.Collections.Generic.IEnumerator`1.get_Current"]()));
+                i = ((i + 1) | 0);
+            }
+            if (i === maxCount) {
+                str = (str + "; ...");
+            }
+            return str + "]";
+        }
+        finally {
+            disposeSafe(e);
+        }
+    }
+    GetEnumerator() {
+        const x = this;
+        return x.f();
+    }
+    [Symbol.iterator]() {
+        return toIterator(this.GetEnumerator());
+    }
+    "System.Collections.IEnumerable.GetEnumerator"() {
+        const x = this;
+        return x.f();
+    }
+}
+
+export function Enumerator_Seq$reflection(gen0) {
+    return class_type("SeqModule.Enumerator.Seq", [gen0], Enumerator_Seq);
+}
+
+export function Enumerator_Seq_$ctor_673A07F2(f) {
+    return new Enumerator_Seq(f);
+}
+
+export class Enumerator_FromFunctions$1 {
+    "constructor"(current, next, dispose) {
+        this.current = current;
+        this.next = next;
+        this.dispose = dispose;
+    }
+    "System.Collections.Generic.IEnumerator`1.get_Current"() {
+        const _ = this;
+        return _.current();
+    }
+    "System.Collections.IEnumerator.get_Current"() {
+        const _ = this;
+        return _.current();
+    }
+    "System.Collections.IEnumerator.MoveNext"() {
+        const _ = this;
+        return _.next();
+    }
+    "System.Collections.IEnumerator.Reset"() {
+        Enumerator_noReset();
+    }
+    Dispose() {
+        const _ = this;
+        _.dispose();
+    }
+}
+
+export function Enumerator_FromFunctions$1$reflection(gen0) {
+    return class_type("SeqModule.Enumerator.FromFunctions`1", [gen0], Enumerator_FromFunctions$1);
+}
+
+export function Enumerator_FromFunctions$1_$ctor_58C54629(current, next, dispose) {
+    return new Enumerator_FromFunctions$1(current, next, dispose);
+}
+
+export function Enumerator_cast(e) {
+    return Enumerator_FromFunctions$1_$ctor_58C54629(() => e["System.Collections.Generic.IEnumerator`1.get_Current"](), () => e["System.Collections.IEnumerator.MoveNext"](), () => {
+        disposeSafe(e);
+    });
+}
+
+export function Enumerator_concat(sources) {
+    let outerOpt = void 0;
+    let innerOpt = void 0;
+    let started = false;
+    let finished = false;
+    let curr = void 0;
+    const finish = () => {
+        finished = true;
+        if (innerOpt != null) {
+            const inner = innerOpt;
+            try {
+                disposeSafe(inner);
+            }
+            finally {
+                innerOpt = (void 0);
+            }
+        }
+        if (outerOpt != null) {
+            const outer = outerOpt;
+            try {
+                disposeSafe(outer);
+            }
+            finally {
+                outerOpt = (void 0);
+            }
+        }
+    };
+    return Enumerator_FromFunctions$1_$ctor_58C54629(() => {
+        if (!started) {
+            Enumerator_notStarted();
+        }
+        else if (finished) {
+            Enumerator_alreadyFinished();
+        }
+        if (curr != null) {
+            return value_1(curr);
+        }
+        else {
+            return Enumerator_alreadyFinished();
+        }
+    }, () => {
+        let copyOfStruct;
+        if (!started) {
+            started = true;
+        }
+        if (finished) {
+            return false;
+        }
+        else {
+            let res = void 0;
+            while (res == null) {
+                const outerOpt_1 = outerOpt;
+                const innerOpt_1 = innerOpt;
+                if (outerOpt_1 != null) {
+                    if (innerOpt_1 != null) {
+                        const inner_1 = innerOpt_1;
+                        if (inner_1["System.Collections.IEnumerator.MoveNext"]()) {
+                            curr = some(inner_1["System.Collections.Generic.IEnumerator`1.get_Current"]());
+                            res = true;
+                        }
+                        else {
+                            try {
+                                disposeSafe(inner_1);
+                            }
+                            finally {
+                                innerOpt = (void 0);
+                            }
+                        }
+                    }
+                    else {
+                        const outer_1 = outerOpt_1;
+                        if (outer_1["System.Collections.IEnumerator.MoveNext"]()) {
+                            const ie = outer_1["System.Collections.Generic.IEnumerator`1.get_Current"]();
+                            innerOpt = ((copyOfStruct = ie, getEnumerator(copyOfStruct)));
+                        }
+                        else {
+                            finish();
+                            res = false;
+                        }
+                    }
+                }
+                else {
+                    outerOpt = getEnumerator(sources);
+                }
+            }
+            return value_1(res);
+        }
+    }, () => {
+        if (!finished) {
+            finish();
+        }
+    });
+}
+
+export function Enumerator_enumerateThenFinally(f, e) {
+    return Enumerator_FromFunctions$1_$ctor_58C54629(() => e["System.Collections.Generic.IEnumerator`1.get_Current"](), () => e["System.Collections.IEnumerator.MoveNext"](), () => {
+        try {
+            disposeSafe(e);
+        }
+        finally {
+            f();
+        }
+    });
+}
+
+export function Enumerator_generateWhileSome(openf, compute, closef) {
+    let started = false;
+    let curr = void 0;
+    let state = some(openf());
+    const dispose = () => {
+        if (state != null) {
+            const x_1 = value_1(state);
+            try {
+                closef(x_1);
+            }
+            finally {
+                state = (void 0);
+            }
+        }
+    };
+    const finish = () => {
+        try {
+            dispose();
+        }
+        finally {
+            curr = (void 0);
+        }
+    };
+    return Enumerator_FromFunctions$1_$ctor_58C54629(() => {
+        if (!started) {
+            Enumerator_notStarted();
+        }
+        if (curr != null) {
+            return value_1(curr);
+        }
+        else {
+            return Enumerator_alreadyFinished();
+        }
+    }, () => {
+        if (!started) {
+            started = true;
+        }
+        if (state != null) {
+            const s = value_1(state);
+            let matchValue_1;
+            try {
+                matchValue_1 = compute(s);
+            }
+            catch (matchValue) {
+                finish();
+                throw matchValue;
+            }
+            if (matchValue_1 != null) {
+                curr = matchValue_1;
+                return true;
+            }
+            else {
+                finish();
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }, dispose);
+}
+
+export function Enumerator_unfold(f, state) {
+    let curr = void 0;
+    let acc = state;
+    return Enumerator_FromFunctions$1_$ctor_58C54629(() => {
+        if (curr != null) {
+            const x = curr[0];
+            const st = curr[1];
+            return x;
+        }
+        else {
+            return Enumerator_notStarted();
+        }
+    }, () => {
+        curr = f(acc);
+        if (curr != null) {
+            const x_1 = curr[0];
+            const st_1 = curr[1];
+            acc = st_1;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }, () => {
+    });
+}
+
+export function indexNotFound() {
+    throw new Error(SR_keyNotFoundAlt);
+}
+
+export function checkNonNull(argName, arg) {
+    if (arg == null) {
+        Operators_NullArg(argName);
+    }
+}
+
+export function mkSeq(f) {
+    return Enumerator_Seq_$ctor_673A07F2(f);
+}
+
+export function ofSeq(xs) {
+    checkNonNull("source", xs);
+    return getEnumerator(xs);
+}
+
+export function delay(generator) {
+    return mkSeq(() => getEnumerator(generator()));
+}
+
+export function concat(sources) {
+    return mkSeq(() => Enumerator_concat(sources));
+}
+
+export function unfold(generator, state) {
+    return mkSeq(() => Enumerator_unfold(generator, state));
+}
+
+export function empty() {
+    return delay(() => (new Array(0)));
+}
+
+export function singleton(x) {
+    return delay(() => singleton_1(x, null));
+}
+
+export function ofArray(arr) {
+    return arr;
+}
+
+export function toArray(xs) {
+    if (xs instanceof FSharpList) {
+        return toArray_1(xs);
+    }
+    else {
+        return Array.from(xs);
+    }
+}
+
+export function ofList(xs) {
+    return xs;
+}
+
+export function toList(xs) {
+    if (isArrayLike(xs)) {
+        return ofArray_1(xs);
+    }
+    else if (xs instanceof FSharpList) {
+        return xs;
+    }
+    else {
+        return ofSeq_1(xs);
+    }
+}
+
+export function generate(create, compute, dispose) {
+    return mkSeq(() => Enumerator_generateWhileSome(create, compute, dispose));
+}
+
+export function generateIndexed(create, compute, dispose) {
+    return mkSeq(() => {
+        let i = -1;
+        return Enumerator_generateWhileSome(create, (x) => {
+            i = ((i + 1) | 0);
+            return compute(i, x);
+        }, dispose);
+    });
+}
+
+export function append(xs, ys) {
+    return concat([xs, ys]);
+}
+
+export function cast(xs) {
+    return mkSeq(() => {
+        checkNonNull("source", xs);
+        return Enumerator_cast(getEnumerator(xs));
+    });
+}
+
+export function choose(chooser, xs) {
+    return generate(() => ofSeq(xs), (e) => {
+        let curr = void 0;
+        while ((curr == null) && e["System.Collections.IEnumerator.MoveNext"]()) {
+            curr = chooser(e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+        }
+        return curr;
+    }, (e_1) => {
+        disposeSafe(e_1);
+    });
+}
+
+export function compareWith(comparer, xs, ys) {
+    const e1 = ofSeq(xs);
+    try {
+        const e2 = ofSeq(ys);
+        try {
+            let c = 0;
+            let b1 = e1["System.Collections.IEnumerator.MoveNext"]();
+            let b2 = e2["System.Collections.IEnumerator.MoveNext"]();
+            while (((c === 0) && b1) && b2) {
+                c = (comparer(e1["System.Collections.Generic.IEnumerator`1.get_Current"](), e2["System.Collections.Generic.IEnumerator`1.get_Current"]()) | 0);
+                if (c === 0) {
+                    b1 = e1["System.Collections.IEnumerator.MoveNext"]();
+                    b2 = e2["System.Collections.IEnumerator.MoveNext"]();
+                }
+            }
+            return ((c !== 0) ? c : (b1 ? 1 : (b2 ? -1 : 0))) | 0;
+        }
+        finally {
+            disposeSafe(e2);
+        }
+    }
+    finally {
+        disposeSafe(e1);
+    }
+}
+
+export function contains(value, xs, comparer) {
+    const e = ofSeq(xs);
+    try {
+        let found = false;
+        while ((!found) && e["System.Collections.IEnumerator.MoveNext"]()) {
+            found = comparer.Equals(value, e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+        }
+        return found;
+    }
+    finally {
+        disposeSafe(e);
+    }
+}
+
+export function enumerateFromFunctions(create, moveNext, current) {
+    return generate(create, (x) => (moveNext(x) ? some(current(x)) : (void 0)), (x_1) => {
+        const matchValue = x_1;
+        if (isDisposable(matchValue)) {
+            disposeSafe(matchValue);
+        }
+    });
+}
+
+export function enumerateThenFinally(source, compensation) {
+    const compensation_1 = compensation;
+    return mkSeq(() => {
+        try {
+            return Enumerator_enumerateThenFinally(compensation_1, ofSeq(source));
+        }
+        catch (matchValue) {
+            compensation_1();
+            throw matchValue;
+        }
+    });
+}
+
+export function enumerateUsing(resource, source) {
+    const compensation = () => {
+        if (equals(resource, defaultOf())) {
+        }
+        else {
+            let copyOfStruct = resource;
+            disposeSafe(copyOfStruct);
+        }
+    };
+    return mkSeq(() => {
+        try {
+            return Enumerator_enumerateThenFinally(compensation, ofSeq(source(resource)));
+        }
+        catch (matchValue_1) {
+            compensation();
+            throw matchValue_1;
+        }
+    });
+}
+
+export function enumerateWhile(guard, xs) {
+    return concat(unfold((i) => (guard() ? [xs, i + 1] : (void 0)), 0));
+}
+
+export function filter(f, xs) {
+    return choose((x) => {
+        if (f(x)) {
+            return some(x);
+        }
+        else {
+            return void 0;
+        }
+    }, xs);
+}
+
+export function exists(predicate, xs) {
+    const e = ofSeq(xs);
+    try {
+        let found = false;
+        while ((!found) && e["System.Collections.IEnumerator.MoveNext"]()) {
+            found = predicate(e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+        }
+        return found;
+    }
+    finally {
+        disposeSafe(e);
+    }
+}
+
+export function exists2(predicate, xs, ys) {
+    const e1 = ofSeq(xs);
+    try {
+        const e2 = ofSeq(ys);
+        try {
+            let found = false;
+            while (((!found) && e1["System.Collections.IEnumerator.MoveNext"]()) && e2["System.Collections.IEnumerator.MoveNext"]()) {
+                found = predicate(e1["System.Collections.Generic.IEnumerator`1.get_Current"](), e2["System.Collections.Generic.IEnumerator`1.get_Current"]());
+            }
+            return found;
+        }
+        finally {
+            disposeSafe(e2);
+        }
+    }
+    finally {
+        disposeSafe(e1);
+    }
+}
+
+export function exactlyOne(xs) {
+    const e = ofSeq(xs);
+    try {
+        if (e["System.Collections.IEnumerator.MoveNext"]()) {
+            const v = e["System.Collections.Generic.IEnumerator`1.get_Current"]();
+            if (e["System.Collections.IEnumerator.MoveNext"]()) {
+                throw new Error((SR_inputSequenceTooLong + "\\nParameter name: ") + "source");
+            }
+            else {
+                return v;
+            }
+        }
+        else {
+            throw new Error((SR_inputSequenceEmpty + "\\nParameter name: ") + "source");
+        }
+    }
+    finally {
+        disposeSafe(e);
+    }
+}
+
+export function tryExactlyOne(xs) {
+    const e = ofSeq(xs);
+    try {
+        if (e["System.Collections.IEnumerator.MoveNext"]()) {
+            const v = e["System.Collections.Generic.IEnumerator`1.get_Current"]();
+            return e["System.Collections.IEnumerator.MoveNext"]() ? (void 0) : some(v);
+        }
+        else {
+            return void 0;
+        }
+    }
+    finally {
+        disposeSafe(e);
+    }
+}
+
+export function tryFind(predicate, xs) {
+    const e = ofSeq(xs);
+    try {
+        let res = void 0;
+        while ((res == null) && e["System.Collections.IEnumerator.MoveNext"]()) {
+            const c = e["System.Collections.Generic.IEnumerator`1.get_Current"]();
+            if (predicate(c)) {
+                res = some(c);
+            }
+        }
+        return res;
+    }
+    finally {
+        disposeSafe(e);
+    }
+}
+
+export function find(predicate, xs) {
+    const matchValue = tryFind(predicate, xs);
+    if (matchValue == null) {
+        return indexNotFound();
+    }
+    else {
+        return value_1(matchValue);
+    }
+}
+
+export function tryFindBack(predicate, xs) {
+    return tryFindBack_1(predicate, toArray(xs));
+}
+
+export function findBack(predicate, xs) {
+    const matchValue = tryFindBack(predicate, xs);
+    if (matchValue == null) {
+        return indexNotFound();
+    }
+    else {
+        return value_1(matchValue);
+    }
+}
+
+export function tryFindIndex(predicate, xs) {
+    const e = ofSeq(xs);
+    try {
+        const loop = (i_mut) => {
+            loop:
+            while (true) {
+                const i = i_mut;
+                if (e["System.Collections.IEnumerator.MoveNext"]()) {
+                    if (predicate(e["System.Collections.Generic.IEnumerator`1.get_Current"]())) {
+                        return i;
+                    }
+                    else {
+                        i_mut = (i + 1);
+                        continue loop;
+                    }
+                }
+                else {
+                    return void 0;
+                }
+                break;
+            }
+        };
+        return loop(0);
+    }
+    finally {
+        disposeSafe(e);
+    }
+}
+
+export function findIndex(predicate, xs) {
+    const matchValue = tryFindIndex(predicate, xs);
+    if (matchValue == null) {
+        indexNotFound();
+        return -1;
+    }
+    else {
+        return matchValue | 0;
+    }
+}
+
+export function tryFindIndexBack(predicate, xs) {
+    return tryFindIndexBack_1(predicate, toArray(xs));
+}
+
+export function findIndexBack(predicate, xs) {
+    const matchValue = tryFindIndexBack(predicate, xs);
+    if (matchValue == null) {
+        indexNotFound();
+        return -1;
+    }
+    else {
+        return matchValue | 0;
+    }
+}
+
+export function fold(folder, state, xs) {
+    const e = ofSeq(xs);
+    try {
+        let acc = state;
+        while (e["System.Collections.IEnumerator.MoveNext"]()) {
+            acc = folder(acc, e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+        }
+        return acc;
+    }
+    finally {
+        disposeSafe(e);
+    }
+}
+
+export function foldBack(folder, xs, state) {
+    return foldBack_1(folder, toArray(xs), state);
+}
+
+export function fold2(folder, state, xs, ys) {
+    const e1 = ofSeq(xs);
+    try {
+        const e2 = ofSeq(ys);
+        try {
+            let acc = state;
+            while (e1["System.Collections.IEnumerator.MoveNext"]() && e2["System.Collections.IEnumerator.MoveNext"]()) {
+                acc = folder(acc, e1["System.Collections.Generic.IEnumerator`1.get_Current"](), e2["System.Collections.Generic.IEnumerator`1.get_Current"]());
+            }
+            return acc;
+        }
+        finally {
+            disposeSafe(e2);
+        }
+    }
+    finally {
+        disposeSafe(e1);
+    }
+}
+
+export function foldBack2(folder, xs, ys, state) {
+    return foldBack2_1(folder, toArray(xs), toArray(ys), state);
+}
+
+export function forAll(predicate, xs) {
+    return !exists((x) => (!predicate(x)), xs);
+}
+
+export function forAll2(predicate, xs, ys) {
+    return !exists2((x, y) => (!predicate(x, y)), xs, ys);
+}
+
+export function tryHead(xs) {
+    if (isArrayLike(xs)) {
+        return tryHead_1(xs);
+    }
+    else if (xs instanceof FSharpList) {
+        return tryHead_2(xs);
+    }
+    else {
+        const e = ofSeq(xs);
+        try {
+            return e["System.Collections.IEnumerator.MoveNext"]() ? some(e["System.Collections.Generic.IEnumerator`1.get_Current"]()) : (void 0);
+        }
+        finally {
+            disposeSafe(e);
+        }
+    }
+}
+
+export function head(xs) {
+    const matchValue = tryHead(xs);
+    if (matchValue == null) {
+        throw new Error((SR_inputSequenceEmpty + "\\nParameter name: ") + "source");
+    }
+    else {
+        return value_1(matchValue);
+    }
+}
+
+export function initialize(count, f) {
+    return unfold((i) => ((i < count) ? [f(i), i + 1] : (void 0)), 0);
+}
+
+export function initializeInfinite(f) {
+    return initialize(2147483647, f);
+}
+
+export function isEmpty(xs) {
+    if (isArrayLike(xs)) {
+        return xs.length === 0;
+    }
+    else if (xs instanceof FSharpList) {
+        return isEmpty_1(xs);
+    }
+    else {
+        const e = ofSeq(xs);
+        try {
+            return !e["System.Collections.IEnumerator.MoveNext"]();
+        }
+        finally {
+            disposeSafe(e);
+        }
+    }
+}
+
+export function tryItem(index, xs) {
+    if (isArrayLike(xs)) {
+        return tryItem_1(index, xs);
+    }
+    else if (xs instanceof FSharpList) {
+        return tryItem_2(index, xs);
+    }
+    else {
+        const e = ofSeq(xs);
+        try {
+            const loop = (index_1_mut) => {
+                loop:
+                while (true) {
+                    const index_1 = index_1_mut;
+                    if (!e["System.Collections.IEnumerator.MoveNext"]()) {
+                        return void 0;
+                    }
+                    else if (index_1 === 0) {
+                        return some(e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+                    }
+                    else {
+                        index_1_mut = (index_1 - 1);
+                        continue loop;
+                    }
+                    break;
+                }
+            };
+            return loop(index);
+        }
+        finally {
+            disposeSafe(e);
+        }
+    }
+}
+
+export function item(index, xs) {
+    const matchValue = tryItem(index, xs);
+    if (matchValue == null) {
+        throw new Error((SR_notEnoughElements + "\\nParameter name: ") + "index");
+    }
+    else {
+        return value_1(matchValue);
+    }
+}
+
+export function iterate(action, xs) {
+    fold((unitVar, x) => {
+        action(x);
+    }, void 0, xs);
+}
+
+export function iterate2(action, xs, ys) {
+    fold2((unitVar, x, y) => {
+        action(x, y);
+    }, void 0, xs, ys);
+}
+
+export function iterateIndexed(action, xs) {
+    fold((i, x) => {
+        action(i, x);
+        return (i + 1) | 0;
+    }, 0, xs);
+}
+
+export function iterateIndexed2(action, xs, ys) {
+    fold2((i, x, y) => {
+        action(i, x, y);
+        return (i + 1) | 0;
+    }, 0, xs, ys);
+}
+
+export function tryLast(xs) {
+    const e = ofSeq(xs);
+    try {
+        const loop = (acc_mut) => {
+            loop:
+            while (true) {
+                const acc = acc_mut;
+                if (!e["System.Collections.IEnumerator.MoveNext"]()) {
+                    return acc;
+                }
+                else {
+                    acc_mut = e["System.Collections.Generic.IEnumerator`1.get_Current"]();
+                    continue loop;
+                }
+                break;
+            }
+        };
+        return e["System.Collections.IEnumerator.MoveNext"]() ? some(loop(e["System.Collections.Generic.IEnumerator`1.get_Current"]())) : (void 0);
+    }
+    finally {
+        disposeSafe(e);
+    }
+}
+
+export function last(xs) {
+    const matchValue = tryLast(xs);
+    if (matchValue == null) {
+        throw new Error((SR_notEnoughElements + "\\nParameter name: ") + "source");
+    }
+    else {
+        return value_1(matchValue);
+    }
+}
+
+export function length(xs) {
+    if (isArrayLike(xs)) {
+        return xs.length | 0;
+    }
+    else if (xs instanceof FSharpList) {
+        return length_1(xs) | 0;
+    }
+    else {
+        const e = ofSeq(xs);
+        try {
+            let count = 0;
+            while (e["System.Collections.IEnumerator.MoveNext"]()) {
+                count = ((count + 1) | 0);
+            }
+            return count | 0;
+        }
+        finally {
+            disposeSafe(e);
+        }
+    }
+}
+
+export function map(mapping, xs) {
+    return generate(() => ofSeq(xs), (e) => (e["System.Collections.IEnumerator.MoveNext"]() ? some(mapping(e["System.Collections.Generic.IEnumerator`1.get_Current"]())) : (void 0)), (e_1) => {
+        disposeSafe(e_1);
+    });
+}
+
+export function mapIndexed(mapping, xs) {
+    return generateIndexed(() => ofSeq(xs), (i, e) => (e["System.Collections.IEnumerator.MoveNext"]() ? some(mapping(i, e["System.Collections.Generic.IEnumerator`1.get_Current"]())) : (void 0)), (e_1) => {
+        disposeSafe(e_1);
+    });
+}
+
+export function indexed(xs) {
+    return mapIndexed((i, x) => [i, x], xs);
+}
+
+export function map2(mapping, xs, ys) {
+    return generate(() => [ofSeq(xs), ofSeq(ys)], (tupledArg) => {
+        const e1 = tupledArg[0];
+        const e2 = tupledArg[1];
+        return (e1["System.Collections.IEnumerator.MoveNext"]() && e2["System.Collections.IEnumerator.MoveNext"]()) ? some(mapping(e1["System.Collections.Generic.IEnumerator`1.get_Current"](), e2["System.Collections.Generic.IEnumerator`1.get_Current"]())) : (void 0);
+    }, (tupledArg_1) => {
+        try {
+            disposeSafe(tupledArg_1[0]);
+        }
+        finally {
+            disposeSafe(tupledArg_1[1]);
+        }
+    });
+}
+
+export function mapIndexed2(mapping, xs, ys) {
+    return generateIndexed(() => [ofSeq(xs), ofSeq(ys)], (i, tupledArg) => {
+        const e1 = tupledArg[0];
+        const e2 = tupledArg[1];
+        return (e1["System.Collections.IEnumerator.MoveNext"]() && e2["System.Collections.IEnumerator.MoveNext"]()) ? some(mapping(i, e1["System.Collections.Generic.IEnumerator`1.get_Current"](), e2["System.Collections.Generic.IEnumerator`1.get_Current"]())) : (void 0);
+    }, (tupledArg_1) => {
+        try {
+            disposeSafe(tupledArg_1[0]);
+        }
+        finally {
+            disposeSafe(tupledArg_1[1]);
+        }
+    });
+}
+
+export function map3(mapping, xs, ys, zs) {
+    return generate(() => [ofSeq(xs), ofSeq(ys), ofSeq(zs)], (tupledArg) => {
+        const e1 = tupledArg[0];
+        const e2 = tupledArg[1];
+        const e3 = tupledArg[2];
+        return ((e1["System.Collections.IEnumerator.MoveNext"]() && e2["System.Collections.IEnumerator.MoveNext"]()) && e3["System.Collections.IEnumerator.MoveNext"]()) ? some(mapping(e1["System.Collections.Generic.IEnumerator`1.get_Current"](), e2["System.Collections.Generic.IEnumerator`1.get_Current"](), e3["System.Collections.Generic.IEnumerator`1.get_Current"]())) : (void 0);
+    }, (tupledArg_1) => {
+        try {
+            disposeSafe(tupledArg_1[0]);
+        }
+        finally {
+            try {
+                disposeSafe(tupledArg_1[1]);
+            }
+            finally {
+                disposeSafe(tupledArg_1[2]);
+            }
+        }
+    });
+}
+
+export function readOnly(xs) {
+    checkNonNull("source", xs);
+    return map((x) => x, xs);
+}
+
+export class CachedSeq$1 {
+    "constructor"(cleanup, res) {
+        this.cleanup = cleanup;
+        this.res = res;
+    }
+    Dispose() {
+        const _ = this;
+        _.cleanup();
+    }
+    GetEnumerator() {
+        const _ = this;
+        return getEnumerator(_.res);
+    }
+    [Symbol.iterator]() {
+        return toIterator(this.GetEnumerator());
+    }
+    "System.Collections.IEnumerable.GetEnumerator"() {
+        const _ = this;
+        return getEnumerator(_.res);
+    }
+}
+
+export function CachedSeq$1$reflection(gen0) {
+    return class_type("SeqModule.CachedSeq`1", [gen0], CachedSeq$1);
+}
+
+export function CachedSeq$1_$ctor_Z7A8347D4(cleanup, res) {
+    return new CachedSeq$1(cleanup, res);
+}
+
+export function CachedSeq$1__Clear(_) {
+    _.cleanup();
+}
+
+export function cache(source) {
+    checkNonNull("source", source);
+    const prefix = [];
+    let enumeratorR = void 0;
+    return CachedSeq$1_$ctor_Z7A8347D4(() => {
+        Operators_Lock(prefix, () => {
+            clear(prefix);
+            let matchResult, e;
+            if (enumeratorR != null) {
+                if (value_1(enumeratorR) != null) {
+                    matchResult = 0;
+                    e = value_1(enumeratorR);
+                }
+                else {
+                    matchResult = 1;
+                }
+            }
+            else {
+                matchResult = 1;
+            }
+            switch (matchResult) {
+                case 0: {
+                    disposeSafe(e);
+                    break;
+                }
+            }
+            enumeratorR = (void 0);
+        });
+    }, unfold((i_1) => Operators_Lock(prefix, () => {
+        if (i_1 < prefix.length) {
+            return [prefix[i_1], i_1 + 1];
+        }
+        else {
+            if (i_1 >= prefix.length) {
+                let optEnumerator_2;
+                if (enumeratorR != null) {
+                    optEnumerator_2 = value_1(enumeratorR);
+                }
+                else {
+                    const optEnumerator = getEnumerator(source);
+                    enumeratorR = some(optEnumerator);
+                    optEnumerator_2 = optEnumerator;
+                }
+                if (optEnumerator_2 == null) {
+                }
+                else {
+                    const enumerator = optEnumerator_2;
+                    if (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
+                        void (prefix.push(enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]()));
+                    }
+                    else {
+                        disposeSafe(enumerator);
+                        enumeratorR = some(void 0);
+                    }
+                }
+            }
+            if (i_1 < prefix.length) {
+                return [prefix[i_1], i_1 + 1];
+            }
+            else {
+                return void 0;
+            }
+        }
+    }), 0));
+}
+
+export function allPairs(xs, ys) {
+    const ysCache = cache(ys);
+    return delay(() => concat(map((x) => map((y) => [x, y], ysCache), xs)));
+}
+
+export function mapFold(mapping, state, xs) {
+    const patternInput = mapFold_1(mapping, state, toArray(xs), null);
+    return [readOnly(patternInput[0]), patternInput[1]];
+}
+
+export function mapFoldBack(mapping, xs, state) {
+    const patternInput = mapFoldBack_1(mapping, toArray(xs), state, null);
+    return [readOnly(patternInput[0]), patternInput[1]];
+}
+
+export function tryPick(chooser, xs) {
+    const e = ofSeq(xs);
+    try {
+        let res = void 0;
+        while ((res == null) && e["System.Collections.IEnumerator.MoveNext"]()) {
+            res = chooser(e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+        }
+        return res;
+    }
+    finally {
+        disposeSafe(e);
+    }
+}
+
+export function pick(chooser, xs) {
+    const matchValue = tryPick(chooser, xs);
+    if (matchValue == null) {
+        return indexNotFound();
+    }
+    else {
+        return value_1(matchValue);
+    }
+}
+
+export function reduce(folder, xs) {
+    const e = ofSeq(xs);
+    try {
+        const loop = (acc_mut) => {
+            loop:
+            while (true) {
+                const acc = acc_mut;
+                if (e["System.Collections.IEnumerator.MoveNext"]()) {
+                    acc_mut = folder(acc, e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+                    continue loop;
+                }
+                else {
+                    return acc;
+                }
+                break;
+            }
+        };
+        if (e["System.Collections.IEnumerator.MoveNext"]()) {
+            return loop(e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+        }
+        else {
+            throw new Error(SR_inputSequenceEmpty);
+        }
+    }
+    finally {
+        disposeSafe(e);
+    }
+}
+
+export function reduceBack(folder, xs) {
+    const arr = toArray(xs);
+    if (arr.length > 0) {
+        return arr.reduceRight(folder);
+    }
+    else {
+        throw new Error(SR_inputSequenceEmpty);
+    }
+}
+
+export function replicate(n, x) {
+    return initialize(n, (_arg) => x);
+}
+
+export function reverse(xs) {
+    return delay(() => ofArray(reverse_1(toArray(xs))));
+}
+
+export function scan(folder, state, xs) {
+    return delay(() => {
+        let acc = state;
+        return concat([singleton(state), map((x) => {
+            acc = folder(acc, x);
+            return acc;
+        }, xs)]);
+    });
+}
+
+export function scanBack(folder, xs, state) {
+    return delay(() => ofArray(scanBack_1(folder, toArray(xs), state, null)));
+}
+
+export function skip(count, source) {
+    return mkSeq(() => {
+        const e = ofSeq(source);
+        try {
+            for (let _ = 1; _ <= count; _++) {
+                if (!e["System.Collections.IEnumerator.MoveNext"]()) {
+                    throw new Error((SR_notEnoughElements + "\\nParameter name: ") + "source");
+                }
+            }
+            return Enumerator_enumerateThenFinally(() => {
+            }, e);
+        }
+        catch (matchValue) {
+            disposeSafe(e);
+            throw matchValue;
+        }
+    });
+}
+
+export function skipWhile(predicate, xs) {
+    return delay(() => {
+        let skipped = true;
+        return filter((x) => {
+            if (skipped) {
+                skipped = predicate(x);
+            }
+            return !skipped;
+        }, xs);
+    });
+}
+
+export function tail(xs) {
+    return skip(1, xs);
+}
+
+export function take(count, xs) {
+    return generateIndexed(() => ofSeq(xs), (i, e) => {
+        if (i < count) {
+            if (e["System.Collections.IEnumerator.MoveNext"]()) {
+                return some(e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+            }
+            else {
+                throw new Error((SR_notEnoughElements + "\\nParameter name: ") + "source");
+            }
+        }
+        else {
+            return void 0;
+        }
+    }, (e_1) => {
+        disposeSafe(e_1);
+    });
+}
+
+export function takeWhile(predicate, xs) {
+    return generate(() => ofSeq(xs), (e) => ((e["System.Collections.IEnumerator.MoveNext"]() && predicate(e["System.Collections.Generic.IEnumerator`1.get_Current"]())) ? some(e["System.Collections.Generic.IEnumerator`1.get_Current"]()) : (void 0)), (e_1) => {
+        disposeSafe(e_1);
+    });
+}
+
+export function truncate(count, xs) {
+    return generateIndexed(() => ofSeq(xs), (i, e) => (((i < count) && e["System.Collections.IEnumerator.MoveNext"]()) ? some(e["System.Collections.Generic.IEnumerator`1.get_Current"]()) : (void 0)), (e_1) => {
+        disposeSafe(e_1);
+    });
+}
+
+export function zip(xs, ys) {
+    return map2((x, y) => [x, y], xs, ys);
+}
+
+export function zip3(xs, ys, zs) {
+    return map3((x, y, z) => [x, y, z], xs, ys, zs);
+}
+
+export function collect(mapping, xs) {
+    return delay(() => concat(map(mapping, xs)));
+}
+
+export function where(predicate, xs) {
+    return filter(predicate, xs);
+}
+
+export function pairwise(xs) {
+    return delay(() => ofArray(pairwise_1(toArray(xs))));
+}
+
+export function splitInto(chunks, xs) {
+    return delay(() => ofArray(splitInto_1(chunks, toArray(xs))));
+}
+
+export function windowed(windowSize, xs) {
+    return delay(() => ofArray(windowed_1(windowSize, toArray(xs))));
+}
+
+export function transpose(xss) {
+    return delay(() => ofArray(map_1(ofArray, transpose_1(map_1(toArray, toArray(xss), null), null), null)));
+}
+
+export function sortWith(comparer, xs) {
+    return delay(() => {
+        const arr = toArray(xs);
+        arr.sort(comparer);
+        return ofArray(arr);
+    });
+}
+
+export function sort(xs, comparer) {
+    return sortWith((x, y) => comparer.Compare(x, y), xs);
+}
+
+export function sortBy(projection, xs, comparer) {
+    return sortWith((x, y) => comparer.Compare(projection(x), projection(y)), xs);
+}
+
+export function sortDescending(xs, comparer) {
+    return sortWith((x, y) => (comparer.Compare(x, y) * -1), xs);
+}
+
+export function sortByDescending(projection, xs, comparer) {
+    return sortWith((x, y) => (comparer.Compare(projection(x), projection(y)) * -1), xs);
+}
+
+export function sum(xs, adder) {
+    return fold((acc, x) => adder.Add(acc, x), adder.GetZero(), xs);
+}
+
+export function sumBy(f, xs, adder) {
+    return fold((acc, x) => adder.Add(acc, f(x)), adder.GetZero(), xs);
+}
+
+export function maxBy(projection, xs, comparer) {
+    return reduce((x, y) => ((comparer.Compare(projection(y), projection(x)) > 0) ? y : x), xs);
+}
+
+export function max(xs, comparer) {
+    return reduce((x, y) => ((comparer.Compare(y, x) > 0) ? y : x), xs);
+}
+
+export function minBy(projection, xs, comparer) {
+    return reduce((x, y) => ((comparer.Compare(projection(y), projection(x)) > 0) ? x : y), xs);
+}
+
+export function min(xs, comparer) {
+    return reduce((x, y) => ((comparer.Compare(y, x) > 0) ? x : y), xs);
+}
+
+export function average(xs, averager) {
+    let count = 0;
+    const total = fold((acc, x) => {
+        count = ((count + 1) | 0);
+        return averager.Add(acc, x);
+    }, averager.GetZero(), xs);
+    if (count === 0) {
+        throw new Error((SR_inputSequenceEmpty + "\\nParameter name: ") + "source");
+    }
+    else {
+        return averager.DivideByInt(total, count);
+    }
+}
+
+export function averageBy(f, xs, averager) {
+    let count = 0;
+    const total = fold((acc, x) => {
+        count = ((count + 1) | 0);
+        return averager.Add(acc, f(x));
+    }, averager.GetZero(), xs);
+    if (count === 0) {
+        throw new Error((SR_inputSequenceEmpty + "\\nParameter name: ") + "source");
+    }
+    else {
+        return averager.DivideByInt(total, count);
+    }
+}
+
+export function permute(f, xs) {
+    return delay(() => ofArray(permute_1(f, toArray(xs))));
+}
+
+export function chunkBySize(chunkSize, xs) {
+    return delay(() => ofArray(chunkBySize_1(chunkSize, toArray(xs))));
+}
+
+export function insertAt(index, y, xs) {
+    let isDone = false;
+    if (index < 0) {
+        throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "index");
+    }
+    return generateIndexed(() => ofSeq(xs), (i, e) => {
+        if ((isDone ? true : (i < index)) && e["System.Collections.IEnumerator.MoveNext"]()) {
+            return some(e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+        }
+        else if (i === index) {
+            isDone = true;
+            return some(y);
+        }
+        else {
+            if (!isDone) {
+                throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "index");
+            }
+            return void 0;
+        }
+    }, (e_1) => {
+        disposeSafe(e_1);
+    });
+}
+
+export function insertManyAt(index, ys, xs) {
+    let status = -1;
+    if (index < 0) {
+        throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "index");
+    }
+    return generateIndexed(() => [ofSeq(xs), ofSeq(ys)], (i, tupledArg) => {
+        const e1 = tupledArg[0];
+        const e2 = tupledArg[1];
+        if (i === index) {
+            status = 0;
+        }
+        let inserted;
+        if (status === 0) {
+            if (e2["System.Collections.IEnumerator.MoveNext"]()) {
+                inserted = some(e2["System.Collections.Generic.IEnumerator`1.get_Current"]());
+            }
+            else {
+                status = 1;
+                inserted = (void 0);
+            }
+        }
+        else {
+            inserted = (void 0);
+        }
+        if (inserted == null) {
+            if (e1["System.Collections.IEnumerator.MoveNext"]()) {
+                return some(e1["System.Collections.Generic.IEnumerator`1.get_Current"]());
+            }
+            else {
+                if (status < 1) {
+                    throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "index");
+                }
+                return void 0;
+            }
+        }
+        else {
+            return some(value_1(inserted));
+        }
+    }, (tupledArg_1) => {
+        disposeSafe(tupledArg_1[0]);
+        disposeSafe(tupledArg_1[1]);
+    });
+}
+
+export function removeAt(index, xs) {
+    let isDone = false;
+    if (index < 0) {
+        throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "index");
+    }
+    return generateIndexed(() => ofSeq(xs), (i, e) => {
+        if ((isDone ? true : (i < index)) && e["System.Collections.IEnumerator.MoveNext"]()) {
+            return some(e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+        }
+        else if ((i === index) && e["System.Collections.IEnumerator.MoveNext"]()) {
+            isDone = true;
+            return e["System.Collections.IEnumerator.MoveNext"]() ? some(e["System.Collections.Generic.IEnumerator`1.get_Current"]()) : (void 0);
+        }
+        else {
+            if (!isDone) {
+                throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "index");
+            }
+            return void 0;
+        }
+    }, (e_1) => {
+        disposeSafe(e_1);
+    });
+}
+
+export function removeManyAt(index, count, xs) {
+    if (index < 0) {
+        throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "index");
+    }
+    return generateIndexed(() => ofSeq(xs), (i, e) => {
+        if (i < index) {
+            if (e["System.Collections.IEnumerator.MoveNext"]()) {
+                return some(e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+            }
+            else {
+                throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "index");
+            }
+        }
+        else {
+            if (i === index) {
+                for (let _ = 1; _ <= count; _++) {
+                    if (!e["System.Collections.IEnumerator.MoveNext"]()) {
+                        throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "count");
+                    }
+                }
+            }
+            return e["System.Collections.IEnumerator.MoveNext"]() ? some(e["System.Collections.Generic.IEnumerator`1.get_Current"]()) : (void 0);
+        }
+    }, (e_1) => {
+        disposeSafe(e_1);
+    });
+}
+
+export function updateAt(index, y, xs) {
+    let isDone = false;
+    if (index < 0) {
+        throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "index");
+    }
+    return generateIndexed(() => ofSeq(xs), (i, e) => {
+        if ((isDone ? true : (i < index)) && e["System.Collections.IEnumerator.MoveNext"]()) {
+            return some(e["System.Collections.Generic.IEnumerator`1.get_Current"]());
+        }
+        else if ((i === index) && e["System.Collections.IEnumerator.MoveNext"]()) {
+            isDone = true;
+            return some(y);
+        }
+        else {
+            if (!isDone) {
+                throw new Error((SR_indexOutOfBounds + "\\nParameter name: ") + "index");
+            }
+            return void 0;
+        }
+    }, (e_1) => {
+        disposeSafe(e_1);
+    });
+}
+

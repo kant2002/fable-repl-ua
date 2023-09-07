@@ -1,1 +1,148 @@
-import{fromBits,getHighBits,getHighBitsUnsigned,getLowBits,getLowBitsUnsigned}from"./Long.js";const littleEndian=!0;export function isLittleEndian(){return littleEndian}export function getBytesBoolean(t){const e=new Uint8Array(1);return new DataView(e.buffer,e.byteOffset,e.byteLength).setUint8(0,t?1:0),e}export function getBytesChar(t){const e=new Uint8Array(2);return new DataView(e.buffer,e.byteOffset,e.byteLength).setUint16(0,t.charCodeAt(0),littleEndian),e}export function getBytesInt16(t){const e=new Uint8Array(2);return new DataView(e.buffer,e.byteOffset,e.byteLength).setInt16(0,t,littleEndian),e}export function getBytesInt32(t){const e=new Uint8Array(4);return new DataView(e.buffer,e.byteOffset,e.byteLength).setInt32(0,t,littleEndian),e}export function getBytesInt64(t){const e=new Uint8Array(8),n=new DataView(e.buffer,e.byteOffset,e.byteLength);return n.setInt32(littleEndian?0:4,getLowBits(t),littleEndian),n.setInt32(littleEndian?4:0,getHighBits(t),littleEndian),e}export function getBytesUInt16(t){const e=new Uint8Array(2);return new DataView(e.buffer,e.byteOffset,e.byteLength).setUint16(0,t,littleEndian),e}export function getBytesUInt32(t){const e=new Uint8Array(4);return new DataView(e.buffer,e.byteOffset,e.byteLength).setUint32(0,t,littleEndian),e}export function getBytesUInt64(t){const e=new Uint8Array(8),n=new DataView(e.buffer,e.byteOffset,e.byteLength);return n.setUint32(littleEndian?0:4,getLowBitsUnsigned(t),littleEndian),n.setUint32(littleEndian?4:0,getHighBitsUnsigned(t),littleEndian),e}export function getBytesSingle(t){const e=new Uint8Array(4);return new DataView(e.buffer,e.byteOffset,e.byteLength).setFloat32(0,t,littleEndian),e}export function getBytesDouble(t){const e=new Uint8Array(8);return new DataView(e.buffer,e.byteOffset,e.byteLength).setFloat64(0,t,littleEndian),e}export function int64BitsToDouble(t){const e=new ArrayBuffer(8),n=new DataView(e);return n.setInt32(littleEndian?0:4,getLowBits(t),littleEndian),n.setInt32(littleEndian?4:0,getHighBits(t),littleEndian),n.getFloat64(0,littleEndian)}export function doubleToInt64Bits(t){const e=new ArrayBuffer(8),n=new DataView(e);n.setFloat64(0,t,littleEndian);const i=n.getInt32(littleEndian?0:4,littleEndian),r=n.getInt32(littleEndian?4:0,littleEndian);return fromBits(i,r,!1)}export function toBoolean(t,e){const n=ArrayBuffer.isView(t)?t:Uint8Array.from(t);return 1===new DataView(n.buffer,n.byteOffset,n.byteLength).getUint8(e)}export function toChar(t,e){const n=ArrayBuffer.isView(t)?t:Uint8Array.from(t),i=new DataView(n.buffer,n.byteOffset,n.byteLength).getUint16(e,littleEndian);return String.fromCharCode(i)}export function toInt16(t,e){const n=ArrayBuffer.isView(t)?t:Uint8Array.from(t);return new DataView(n.buffer,n.byteOffset,n.byteLength).getInt16(e,littleEndian)}export function toInt32(t,e){const n=ArrayBuffer.isView(t)?t:Uint8Array.from(t);return new DataView(n.buffer,n.byteOffset,n.byteLength).getInt32(e,littleEndian)}export function toInt64(t,e){const n=ArrayBuffer.isView(t)?t:Uint8Array.from(t),i=new DataView(n.buffer,n.byteOffset,n.byteLength),r=i.getInt32(e+(littleEndian?0:4),littleEndian),f=i.getInt32(e+(littleEndian?4:0),littleEndian);return fromBits(r,f,!1)}export function toUInt16(t,e){const n=ArrayBuffer.isView(t)?t:Uint8Array.from(t);return new DataView(n.buffer,n.byteOffset,n.byteLength).getUint16(e,littleEndian)}export function toUInt32(t,e){const n=ArrayBuffer.isView(t)?t:Uint8Array.from(t);return new DataView(n.buffer,n.byteOffset,n.byteLength).getUint32(e,littleEndian)}export function toUInt64(t,e){const n=ArrayBuffer.isView(t)?t:Uint8Array.from(t),i=new DataView(n.buffer,n.byteOffset,n.byteLength),r=i.getUint32(e+(littleEndian?0:4),littleEndian),f=i.getUint32(e+(littleEndian?4:0),littleEndian);return fromBits(r,f,!0)}export function toSingle(t,e){const n=ArrayBuffer.isView(t)?t:Uint8Array.from(t);return new DataView(n.buffer,n.byteOffset,n.byteLength).getFloat32(e,littleEndian)}export function toDouble(t,e){const n=ArrayBuffer.isView(t)?t:Uint8Array.from(t);return new DataView(n.buffer,n.byteOffset,n.byteLength).getFloat64(e,littleEndian)}export function toString(t,e,n){const i=ArrayBuffer.isView(t)?t:Uint8Array.from(t);let r=new Uint8Array(i.buffer,i.byteOffset,i.byteLength);return null!=e&&null!=n?r=r.subarray(e,e+n):null!=e&&(r=r.subarray(e)),Array.from(r).map((t=>("0"+t.toString(16)).slice(-2))).join("-")}
+import { fromBits, getHighBits, getHighBitsUnsigned, getLowBits, getLowBitsUnsigned } from "./Long.js";
+const littleEndian = true;
+export function isLittleEndian() {
+    return littleEndian;
+}
+export function getBytesBoolean(value) {
+    const bytes = new Uint8Array(1);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    view.setUint8(0, value ? 1 : 0);
+    return bytes;
+}
+export function getBytesChar(value) {
+    const bytes = new Uint8Array(2);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    view.setUint16(0, value.charCodeAt(0), littleEndian);
+    return bytes;
+}
+export function getBytesInt16(value) {
+    const bytes = new Uint8Array(2);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    view.setInt16(0, value, littleEndian);
+    return bytes;
+}
+export function getBytesInt32(value) {
+    const bytes = new Uint8Array(4);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    view.setInt32(0, value, littleEndian);
+    return bytes;
+}
+export function getBytesInt64(value) {
+    const bytes = new Uint8Array(8);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    view.setInt32(littleEndian ? 0 : 4, getLowBits(value), littleEndian);
+    view.setInt32(littleEndian ? 4 : 0, getHighBits(value), littleEndian);
+    return bytes;
+}
+export function getBytesUInt16(value) {
+    const bytes = new Uint8Array(2);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    view.setUint16(0, value, littleEndian);
+    return bytes;
+}
+export function getBytesUInt32(value) {
+    const bytes = new Uint8Array(4);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    view.setUint32(0, value, littleEndian);
+    return bytes;
+}
+export function getBytesUInt64(value) {
+    const bytes = new Uint8Array(8);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    view.setUint32(littleEndian ? 0 : 4, getLowBitsUnsigned(value), littleEndian);
+    view.setUint32(littleEndian ? 4 : 0, getHighBitsUnsigned(value), littleEndian);
+    return bytes;
+}
+export function getBytesSingle(value) {
+    const bytes = new Uint8Array(4);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    view.setFloat32(0, value, littleEndian);
+    return bytes;
+}
+export function getBytesDouble(value) {
+    const bytes = new Uint8Array(8);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    view.setFloat64(0, value, littleEndian);
+    return bytes;
+}
+export function int64BitsToDouble(value) {
+    const buffer = new ArrayBuffer(8);
+    const view = new DataView(buffer);
+    view.setInt32(littleEndian ? 0 : 4, getLowBits(value), littleEndian);
+    view.setInt32(littleEndian ? 4 : 0, getHighBits(value), littleEndian);
+    return view.getFloat64(0, littleEndian);
+}
+export function doubleToInt64Bits(value) {
+    const buffer = new ArrayBuffer(8);
+    const view = new DataView(buffer);
+    view.setFloat64(0, value, littleEndian);
+    const lowBits = view.getInt32(littleEndian ? 0 : 4, littleEndian);
+    const highBits = view.getInt32(littleEndian ? 4 : 0, littleEndian);
+    return fromBits(lowBits, highBits, false);
+}
+export function toBoolean(bytes, offset) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    return view.getUint8(offset) === 1 ? true : false;
+}
+export function toChar(bytes, offset) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    const code = view.getUint16(offset, littleEndian);
+    return String.fromCharCode(code);
+}
+export function toInt16(bytes, offset) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    return view.getInt16(offset, littleEndian);
+}
+export function toInt32(bytes, offset) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    return view.getInt32(offset, littleEndian);
+}
+export function toInt64(bytes, offset) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    const lowBits = view.getInt32(offset + (littleEndian ? 0 : 4), littleEndian);
+    const highBits = view.getInt32(offset + (littleEndian ? 4 : 0), littleEndian);
+    return fromBits(lowBits, highBits, false);
+}
+export function toUInt16(bytes, offset) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    return view.getUint16(offset, littleEndian);
+}
+export function toUInt32(bytes, offset) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    return view.getUint32(offset, littleEndian);
+}
+export function toUInt64(bytes, offset) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    const lowBits = view.getUint32(offset + (littleEndian ? 0 : 4), littleEndian);
+    const highBits = view.getUint32(offset + (littleEndian ? 4 : 0), littleEndian);
+    return fromBits(lowBits, highBits, true);
+}
+export function toSingle(bytes, offset) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    return view.getFloat32(offset, littleEndian);
+}
+export function toDouble(bytes, offset) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    return view.getFloat64(offset, littleEndian);
+}
+export function toString(bytes, offset, count) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    let buffer = new Uint8Array(array.buffer, array.byteOffset, array.byteLength);
+    if (offset != null && count != null) {
+        buffer = buffer.subarray(offset, offset + count);
+    }
+    else if (offset != null) {
+        buffer = buffer.subarray(offset);
+    }
+    return Array.from(buffer).map((b) => ("0" + b.toString(16)).slice(-2)).join("-");
+}

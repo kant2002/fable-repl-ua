@@ -1,1 +1,142 @@
-const ok=r=>({tag:"ok",value:r}),error=r=>({tag:"error",error:r});export class Uri{constructor(r){this.uri=r}static isAbsoluteUri(r){try{return new URL(r),!0}catch(r){return!1}}static tryCreateWithKind(r,e){switch(e){case 1:return Uri.isAbsoluteUri(r)?ok(new Uri({original:r,value:new URL(r),kind:e})):error("Invalid URI: The format of the URI could not be determined.");case 2:return Uri.isAbsoluteUri(r)?error("URI is not a relative path."):ok(new Uri({original:r,value:r,kind:e}));case 0:return Uri.isAbsoluteUri(r)?ok(new Uri({original:r,value:new URL(r),kind:1})):ok(new Uri({original:r,value:r,kind:2}));default:return e}}static tryCreateWithBase(r,e){return 1!==r.uri.kind?error("Base URI should have Absolute kind"):"string"==typeof e?ok(new Uri({original:new URL(e,r.uri.value).toString(),value:new URL(e,r.uri.value),kind:1})):2===e.uri.kind?ok(new Uri({original:new URL(e.uri.value,r.uri.value).toString(),value:new URL(e.uri.value,r.uri.value),kind:1})):ok(r)}static tryCreateImpl(r,e=1){return"string"==typeof r?"number"!=typeof e?error("Kind must be specified when the baseUri is a string."):Uri.tryCreateWithKind(r,e):"number"==typeof e?error("Kind should not be specified when the baseUri is an absolute Uri."):Uri.tryCreateWithBase(r,e)}static create(r,e=1){const t=Uri.tryCreateImpl(r,e);switch(t.tag){case"ok":return t.value;case"error":throw new Error(t.error);default:return t}}static tryCreate(r,e=1,t){const i=Uri.tryCreateImpl(r,e);switch(i.tag){case"ok":return t.contents=i.value,!0;case"error":return!1;default:return i}}toString(){switch(this.uri.kind){case 1:return decodeURIComponent(this.asUrl().toString());case 2:return this.uri.value;default:return this.uri}}asUrl(){switch(this.uri.kind){case 1:return this.uri.value;case 2:throw new Error("This operation is not supported for a relative URI.");default:return this.uri}}get isAbsoluteUri(){return 1===this.uri.kind}get absoluteUri(){return this.asUrl().href}get scheme(){const r=this.asUrl().protocol;return r.slice(0,r.length-1)}get host(){return this.asUrl().host}get absolutePath(){return this.asUrl().pathname}get query(){return this.asUrl().search}get pathAndQuery(){const r=this.asUrl();return r.pathname+r.search}get fragment(){return this.asUrl().hash}get originalString(){return this.uri.original}}export default Uri;
+const ok = (value) => ({
+    tag: "ok",
+    value,
+});
+const error = (error) => ({ tag: "error", error });
+export class Uri {
+    constructor(state) {
+        this.uri = state;
+    }
+    static isAbsoluteUri(uri) {
+        try {
+            // tslint:disable-next-line no-unused-expression
+            new URL(uri);
+            return true;
+        }
+        catch (_a) {
+            return false;
+        }
+    }
+    static tryCreateWithKind(uri, kind) {
+        switch (kind) {
+            case 1 /* UriKind.Absolute */:
+                return Uri.isAbsoluteUri(uri)
+                    ? ok(new Uri({ original: uri, value: new URL(uri), kind }))
+                    : error("Invalid URI: The format of the URI could not be determined.");
+            case 2 /* UriKind.Relative */:
+                return Uri.isAbsoluteUri(uri)
+                    ? error("URI is not a relative path.")
+                    : ok(new Uri({ original: uri, value: uri, kind }));
+            case 0 /* UriKind.RelativeOrAbsolute */:
+                return Uri.isAbsoluteUri(uri)
+                    ? ok(new Uri({ original: uri, value: new URL(uri), kind: 1 /* UriKind.Absolute */ }))
+                    : ok(new Uri({ original: uri, value: uri, kind: 2 /* UriKind.Relative */ }));
+            default:
+                const never = kind;
+                return never;
+        }
+    }
+    static tryCreateWithBase(baseUri, relativeUri) {
+        return baseUri.uri.kind !== 1 /* UriKind.Absolute */
+            ? error("Base URI should have Absolute kind")
+            : typeof relativeUri === "string"
+                ? ok(new Uri({
+                    original: new URL(relativeUri, baseUri.uri.value).toString(),
+                    value: new URL(relativeUri, baseUri.uri.value),
+                    kind: 1 /* UriKind.Absolute */,
+                }))
+                : relativeUri.uri.kind === 2 /* UriKind.Relative */
+                    ? ok(new Uri({
+                        original: new URL(relativeUri.uri.value, baseUri.uri.value).toString(),
+                        value: new URL(relativeUri.uri.value, baseUri.uri.value),
+                        kind: 1 /* UriKind.Absolute */,
+                    }))
+                    : ok(baseUri);
+    }
+    static tryCreateImpl(value, kindOrUri = 1 /* UriKind.Absolute */) {
+        return typeof value === "string"
+            ? typeof kindOrUri !== "number"
+                ? error("Kind must be specified when the baseUri is a string.")
+                : Uri.tryCreateWithKind(value, kindOrUri)
+            : typeof kindOrUri === "number"
+                ? error("Kind should not be specified when the baseUri is an absolute Uri.")
+                : Uri.tryCreateWithBase(value, kindOrUri);
+    }
+    static create(value, kindOrUri = 1 /* UriKind.Absolute */) {
+        const result = Uri.tryCreateImpl(value, kindOrUri);
+        switch (result.tag) {
+            case "ok":
+                return result.value;
+            case "error":
+                throw new Error(result.error);
+            default:
+                const never = result;
+                return never;
+        }
+    }
+    static tryCreate(value, kindOrUri = 1 /* UriKind.Absolute */, out) {
+        const result = Uri.tryCreateImpl(value, kindOrUri);
+        switch (result.tag) {
+            case "ok":
+                out.contents = result.value;
+                return true;
+            case "error":
+                return false;
+            default:
+                const never = result;
+                return never;
+        }
+    }
+    toString() {
+        switch (this.uri.kind) {
+            case 1 /* UriKind.Absolute */:
+                return decodeURIComponent(this.asUrl().toString());
+            case 2 /* UriKind.Relative */:
+                return this.uri.value;
+            default:
+                const never = this.uri;
+                return never;
+        }
+    }
+    asUrl() {
+        switch (this.uri.kind) {
+            case 1 /* UriKind.Absolute */:
+                return this.uri.value;
+            case 2 /* UriKind.Relative */:
+                throw new Error("This operation is not supported for a relative URI.");
+            default:
+                const never = this.uri;
+                return never;
+        }
+    }
+    get isAbsoluteUri() {
+        return this.uri.kind === 1 /* UriKind.Absolute */;
+    }
+    get absoluteUri() {
+        return this.asUrl().href;
+    }
+    get scheme() {
+        const protocol = this.asUrl().protocol;
+        return protocol.slice(0, protocol.length - 1);
+    }
+    get host() {
+        return this.asUrl().host;
+    }
+    get absolutePath() {
+        return this.asUrl().pathname;
+    }
+    get query() {
+        return this.asUrl().search;
+    }
+    get pathAndQuery() {
+        const url = this.asUrl();
+        return url.pathname + url.search;
+    }
+    get fragment() {
+        return this.asUrl().hash;
+    }
+    get originalString() {
+        return this.uri.original;
+    }
+}
+export default Uri;

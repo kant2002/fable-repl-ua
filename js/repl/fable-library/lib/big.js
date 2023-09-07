@@ -1,1 +1,840 @@
-import{combineHashCodes}from"../Util.js";import{symbol}from"../Numeric.js";var P={GetHashCode(){return combineHashCodes([this.s,this.e].concat(this.c))},Equals(r){return!this.cmp(r)},CompareTo(r){return this.cmp(r)},[symbol](){const r=this;return{multiply:t=>r.mul(t),toPrecision:t=>r.toPrecision(t),toExponential:t=>r.toExponential(t),toFixed:t=>r.toFixed(t),toHex:()=>(Number(r)>>>0).toString(16)}}},DP=28,RM=1,MAX_DP=1e6,MAX_POWER=1e6,NE=-29,PE=29,STRICT=!1,NAME="[big.js] ",INVALID=NAME+"Invalid ",INVALID_DP=INVALID+"decimal places",INVALID_RM=INVALID+"rounding mode",DIV_BY_ZERO=NAME+"Division by zero",UNDEFINED=void 0,NUMERIC=/^-?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i;function _Big_(){function r(t){var e=this;if(!(e instanceof r))return t===UNDEFINED?_Big_():new r(t);if(t instanceof r)e.s=t.s,e.e=t.e,e.c=t.c.slice(),normalize(e);else{if("string"!=typeof t){if(!0===r.strict)throw TypeError(INVALID+"number");t=0===t&&1/t<0?"-0":String(t)}parse(e,t)}e.constructor=r}return r.prototype=P,r.DP=DP,r.RM=RM,r.NE=NE,r.PE=PE,r.strict=STRICT,r}function normalize(r){if(r.c.length>1&&!r.c[0]){let t=r.c.findIndex((r=>r));r.c=r.c.slice(t),r.e=r.e-t}}function parse(r,t){var e,n,i;if(!NUMERIC.test(t))throw Error(INVALID+"number");for(r.s="-"==t.charAt(0)?(t=t.slice(1),-1):1,(e=t.indexOf("."))>-1&&(t=t.replace(".","")),(n=t.search(/e/i))>0?(e<0&&(e=n),e+=+t.slice(n+1),t=t.substring(0,n)):e<0&&(e=t.length),i=t.length,n=0;n<e&&n<i&&"0"==t.charAt(n);)++n;if(n==i)r.c=[r.e=0];else for(r.e=e-n-1,r.c=[],e=0;n<i;)r.c[e++]=+t.charAt(n++);return round(r,Big.DP+1,Big.RM)}function round(r,t,e,n){var i=r.c;if(e===UNDEFINED&&(e=Big.RM),0!==e&&1!==e&&2!==e&&3!==e)throw Error(INVALID_RM);if(t<1)n=3===e&&(n||!!i[0])||0===t&&(1===e&&i[0]>=5||2===e&&(i[0]>5||5===i[0]&&(n||i[1]!==UNDEFINED))),i.length=1,n?(r.e=r.e-t+1,i[0]=1):i[0]=r.e=0;else if(t<i.length){const o=i.findIndex(((r,e)=>e>=t&&r>0))<0;if(n=1===e&&i[t]>=5||2===e&&(i[t]>5||5===i[t]&&(n||i[t+1]!==UNDEFINED||1&i[t-1]))||3===e&&(n||!o),i.length=t--,n)for(;++i[t]>9;)i[t]=0,t--||(++r.e,i.unshift(1));for(t=i.length;!i[--t];)i.pop()}return r}function stringify(r,t,e){var n=r.e,i=r.c.join(""),o=i.length;if(t)i=i.charAt(0)+(o>1?"."+i.slice(1):"")+(n<0?"e":"e+")+n;else if(n<0){for(;++n;)i="0"+i;i="0."+i}else if(n>0)if(++n>o)for(n-=o;n--;)i+="0";else n<o&&(i=i.slice(0,n)+"."+i.slice(n));else o>1&&(i=i.charAt(0)+"."+i.slice(1));return r.s<0&&e?"-"+i:i}P.abs=function(){var r=new this.constructor(this);return r.s=1,r},P.cmp=function(r){var t,e=this.constructor,n=new e(this),i=(r=new e(r),n.c),o=r.c,s=n.s,c=r.s,f=n.e,u=r.e;if(!i[0]||!o[0])return i[0]?s:o[0]?-c:0;if(s!=c)return s;if(t=s<0,f!=u)return f>u^t?1:-1;for(c=Math.max(i.length,o.length),s=0;s<c;s++)if((f=s<i.length?i[s]:0)!=(u=s<o.length?o[s]:0))return f>u^t?1:-1;return 0},P.div=function(r){var t=this.constructor,e=new t(this),n=(r=new t(r),e.c),i=r.c,o=e.s==r.s?1:-1,s=t.DP;if(s!==~~s||s<0||s>MAX_DP)throw Error(INVALID_DP);if(!i[0])throw Error(DIV_BY_ZERO);if(!n[0])return r.s=o,r.c=[r.e=0],r;var c,f,u,h,l,E=i.slice(),a=c=i.length,D=n.length,P=n.slice(0,c),g=P.length,N=r,I=N.c=[],p=0,w=s+(N.e=e.e-r.e)+1;for(N.s=o,o=w<0?0:w,E.unshift(0);g++<c;)P.push(0);do{for(u=0;u<10;u++){if(c!=(g=P.length))h=c>g?1:-1;else for(l=-1,h=0;++l<c;)if(i[l]!=P[l]){h=i[l]>P[l]?1:-1;break}if(!(h<0))break;for(f=g==c?i:E;g;){if(P[--g]<f[g]){for(l=g;l&&!P[--l];)P[l]=9;--P[l],P[g]+=10}P[g]-=f[g]}for(;!P[0];)P.shift()}I[p++]=h?u:++u,P[0]&&h?P[g]=n[a]||0:P=[n[a]]}while((a++<D||P[0]!==UNDEFINED)&&o--);return I[0]||1==p||(I.shift(),N.e--,w--),p>w&&round(N,w,t.RM,P[0]!==UNDEFINED),N},P.eq=function(r){return 0===this.cmp(r)},P.gt=function(r){return this.cmp(r)>0},P.gte=function(r){return this.cmp(r)>-1},P.lt=function(r){return this.cmp(r)<0},P.lte=function(r){return this.cmp(r)<1},P.minus=P.sub=function(r){var t,e,n,i,o=this.constructor,s=new o(this),c=(r=new o(r),s.s),f=r.s;if(c!=f)return r.s=-f,s.plus(r);var u=s.c.slice(),h=s.e,l=r.c,E=r.e;if(!u[0]||!l[0])return l[0]?r.s=-f:u[0]?r=new o(s):r.s=1,r;if(c=h-E){for((i=c<0)?(c=-c,n=u):(E=h,n=l),n.reverse(),f=c;f--;)n.push(0);n.reverse()}else for(e=((i=u.length<l.length)?u:l).length,c=f=0;f<e;f++)if(u[f]!=l[f]){i=u[f]<l[f];break}if(i&&(n=u,u=l,l=n,r.s=-r.s),(f=(e=l.length)-(t=u.length))>0)for(;f--;)u[t++]=0;for(f=t;e>c;){if(u[--e]<l[e]){for(t=e;t&&!u[--t];)u[t]=9;--u[t],u[e]+=10}u[e]-=l[e]}for(;0===u[--f];)u.pop();for(;0===u[0];)u.shift(),--E;return u[0]||(r.s=1,u=[E=0]),r.c=u,r.e=E,r},P.mod=function(r){var t,e=this.constructor,n=new e(this),i=(r=new e(r),n.s),o=r.s;if(!r.c[0])throw Error(DIV_BY_ZERO);return n.s=r.s=1,t=1==r.cmp(n),n.s=i,r.s=o,t?new e(n):(i=e.DP,o=e.RM,e.DP=e.RM=0,n=n.div(r),e.DP=i,e.RM=o,this.minus(n.times(r)))},P.plus=P.add=function(r){var t,e,n,i=this.constructor,o=new i(this);if(r=new i(r),o.s!=r.s)return r.s=-r.s,o.minus(r);var s=o.e,c=o.c,f=r.e,u=r.c;if(!c[0]||!u[0])return u[0]||(c[0]?r=new i(o):r.s=o.s),r;if(c=c.slice(),t=s-f){for(t>0?(f=s,n=u):(t=-t,n=c),n.reverse();t--;)n.push(0);n.reverse()}for(c.length-u.length<0&&(n=u,u=c,c=n),t=u.length,e=0;t;c[t]%=10)e=(c[--t]=c[t]+u[t]+e)/10|0;for(e&&(c.unshift(e),++f),t=c.length;0===c[--t];)c.pop();return r.c=c,r.e=f,r},P.pow=function(r){var t=this.constructor,e=new t(this),n=new t("1"),i=new t("1"),o=r<0;if(r!==~~r||r<-MAX_POWER||r>MAX_POWER)throw Error(INVALID+"exponent");for(o&&(r=-r);1&r&&(n=n.times(e)),r>>=1;)e=e.times(e);return o?i.div(n):n},P.prec=function(r,t){if(r!==~~r||r<1||r>MAX_DP)throw Error(INVALID+"precision");return round(new this.constructor(this),r,t)},P.round=function(r,t){if(r===UNDEFINED)r=0;else if(r!==~~r||r<-MAX_DP||r>MAX_DP)throw Error(INVALID_DP);return round(new this.constructor(this),r+this.e+1,t)},P.sqrt=function(){var r,t,e,n=this.constructor,i=new n(this),o=i.s,s=i.e,c=new n("0.5");if(!i.c[0])return new n(i);if(o<0)throw Error(NAME+"No square root");0===(o=Math.sqrt(i+""))||o===1/0?((t=i.c.join("")).length+s&1||(t+="0"),s=((s+1)/2|0)-(s<0||1&s),r=new n(((o=Math.sqrt(t))==1/0?"5e":(o=o.toExponential()).slice(0,o.indexOf("e")+1))+s)):r=new n(o+""),s=r.e+(n.DP+=4);do{e=r,r=c.times(e.plus(i.div(e)))}while(e.c.slice(0,s).join("")!==r.c.slice(0,s).join(""));return round(r,(n.DP-=4)+r.e+1,n.RM)},P.times=P.mul=function(r){var t,e=this.constructor,n=new e(this),i=(r=new e(r),n.c),o=r.c,s=i.length,c=o.length,f=n.e,u=r.e;if(r.s=n.s==r.s?1:-1,!i[0]||!o[0])return r.c=[r.e=0],r;for(r.e=f+u,s<c&&(t=i,i=o,o=t,u=s,s=c,c=u),t=new Array(u=s+c);u--;)t[u]=0;for(f=c;f--;){for(c=0,u=s+f;u>f;)c=t[u]+o[f]*i[u-f-1]+c,t[u--]=c%10,c=c/10|0;t[u]=c}for(c?++r.e:t.shift(),f=t.length;!t[--f];)t.pop();return r.c=t,r},P.toExponential=function(r,t){var e=this,n=e.c[0];if(r!==UNDEFINED){if(r!==~~r||r<0||r>MAX_DP)throw Error(INVALID_DP);for(e=round(new e.constructor(e),++r,t);e.c.length<r;)e.c.push(0)}return stringify(e,!0,!!n)},P.toFixed=function(r,t){var e=this,n=e.c[0];if(r!==UNDEFINED){if(r!==~~r||r<0||r>MAX_DP)throw Error(INVALID_DP);for(r=r+(e=round(new e.constructor(e),r+e.e+1,t)).e+1;e.c.length<r;)e.c.push(0)}return stringify(e,!1,!!n)},P.toJSON=P.toString=function(){var r=this,t=r.constructor;return stringify(r,r.e<=t.NE||r.e>=t.PE,!!r.c[0])},P.toNumber=function(){var r=Number(stringify(this,!0,!0));if(!0===this.constructor.strict&&!this.eq(r.toString()))throw Error(NAME+"Imprecise conversion");return r},P.toPrecision=function(r,t){var e=this,n=e.constructor,i=e.c[0];if(r!==UNDEFINED){if(r!==~~r||r<1||r>MAX_DP)throw Error(INVALID+"precision");for(e=round(new n(e),r,t);e.c.length<r;)e.c.push(0)}return stringify(e,r<=e.e||e.e<=n.NE||e.e>=n.PE,!!i)},P.valueOf=function(){var r=this,t=r.constructor;if(!0===t.strict)throw Error(NAME+"valueOf disallowed");return stringify(r,r.e<=t.NE||r.e>=t.PE,!0)};export var Big=_Big_();export default Big;
+// Adapted from https://github.com/MikeMcl/big.js/blob/0f94dc9110d55c4f324a47ba6a2e832ce23ac589/big.mjs
+/* tslint:disable */
+import { combineHashCodes } from "../Util.js";
+import { symbol } from "../Numeric.js";
+// The shared prototype object.
+var P = {
+    GetHashCode() { return combineHashCodes([this.s, this.e].concat(this.c)); },
+    Equals(x) { return !this.cmp(x); },
+    CompareTo(x) { return this.cmp(x); },
+    [symbol]() {
+        const _this = this;
+        return {
+            multiply: y => _this.mul(y),
+            toPrecision: sd => _this.toPrecision(sd),
+            toExponential: dp => _this.toExponential(dp),
+            toFixed: dp => _this.toFixed(dp),
+            toHex: () => (Number(_this) >>> 0).toString(16),
+        };
+    }
+};
+/*
+ *  big.js v6.0.3
+ *  A small, fast, easy-to-use library for arbitrary-precision decimal arithmetic.
+ *  Copyright (c) 2020 Michael Mclaughlin
+ *  https://github.com/MikeMcl/big.js/LICENCE.md
+ */
+/************************************** EDITABLE DEFAULTS *****************************************/
+// The default values below must be integers within the stated ranges.
+/*
+ * The maximum number of decimal places (DP) of the results of operations involving division:
+ * div and sqrt, and pow with negative exponents.
+ */
+var DP = 28, // 0 to MAX_DP
+/*
+ * The rounding mode (RM) used when rounding to the above decimal places.
+ *
+ *  0  Towards zero (i.e. truncate, no rounding).       (ROUND_DOWN)
+ *  1  To nearest neighbour. If equidistant, round up.  (ROUND_HALF_UP)
+ *  2  To nearest neighbour. If equidistant, to even.   (ROUND_HALF_EVEN)
+ *  3  Away from zero.                                  (ROUND_UP)
+ */
+RM = 1, // 0, 1, 2 or 3
+// The maximum value of DP and Big.DP.
+MAX_DP = 1E6, // 0 to 1000000
+// The maximum magnitude of the exponent argument to the pow method.
+MAX_POWER = 1E6, // 1 to 1000000
+/*
+ * The negative exponent (NE) at and beneath which toString returns exponential notation.
+ * (JavaScript numbers: -7)
+ * -1000000 is the minimum recommended exponent value of a Big.
+ */
+NE = -29, // 0 to -1000000
+/*
+ * The positive exponent (PE) at and above which toString returns exponential notation.
+ * (JavaScript numbers: 21)
+ * 1000000 is the maximum recommended exponent value of a Big, but this limit is not enforced.
+ */
+PE = 29, // 0 to 1000000
+/*
+ * When true, an error will be thrown if a primitive number is passed to the Big constructor,
+ * or if valueOf is called, or if toNumber is called on a Big which cannot be converted to a
+ * primitive number without a loss of precision.
+ */
+STRICT = false, // true or false
+/**************************************************************************************************/
+// Error messages.
+NAME = '[big.js] ', INVALID = NAME + 'Invalid ', INVALID_DP = INVALID + 'decimal places', INVALID_RM = INVALID + 'rounding mode', DIV_BY_ZERO = NAME + 'Division by zero', UNDEFINED = void 0, NUMERIC = /^-?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i;
+/*
+ * Create and return a Big constructor.
+ */
+function _Big_() {
+    /*
+     * The Big constructor and exported function.
+     * Create and return a new instance of a Big number object.
+     *
+     * n {number|string|Big} A numeric value.
+     */
+    function Big(n) {
+        var x = this;
+        // Enable constructor usage without new.
+        if (!(x instanceof Big))
+            return n === UNDEFINED ? _Big_() : new Big(n);
+        // Duplicate.
+        if (n instanceof Big) {
+            x.s = n.s;
+            x.e = n.e;
+            x.c = n.c.slice();
+            normalize(x);
+        }
+        else {
+            if (typeof n !== 'string') {
+                if (Big.strict === true) {
+                    throw TypeError(INVALID + 'number');
+                }
+                // Minus zero?
+                n = n === 0 && 1 / n < 0 ? '-0' : String(n);
+            }
+            parse(x, n);
+        }
+        // Retain a reference to this Big constructor.
+        // Shadow Big.prototype.constructor which points to Object.
+        x.constructor = Big;
+    }
+    Big.prototype = P;
+    Big.DP = DP;
+    Big.RM = RM;
+    Big.NE = NE;
+    Big.PE = PE;
+    Big.strict = STRICT;
+    return Big;
+}
+function normalize(x) {
+    // x = round(x, DP, 0);
+    if (x.c.length > 1 && !x.c[0]) {
+        let i = x.c.findIndex(x => x);
+        x.c = x.c.slice(i);
+        x.e = x.e - i;
+    }
+}
+/*
+ * Parse the number or string value passed to a Big constructor.
+ *
+ * x {Big} A Big number instance.
+ * n {number|string} A numeric value.
+ */
+function parse(x, n) {
+    var e, i, nl;
+    if (!NUMERIC.test(n)) {
+        throw Error(INVALID + 'number');
+    }
+    // Determine sign.
+    x.s = n.charAt(0) == '-' ? (n = n.slice(1), -1) : 1;
+    // Decimal point?
+    if ((e = n.indexOf('.')) > -1)
+        n = n.replace('.', '');
+    // Exponential form?
+    if ((i = n.search(/e/i)) > 0) {
+        // Determine exponent.
+        if (e < 0)
+            e = i;
+        e += +n.slice(i + 1);
+        n = n.substring(0, i);
+    }
+    else if (e < 0) {
+        // Integer.
+        e = n.length;
+    }
+    nl = n.length;
+    // Determine leading zeros before decimal point.
+    for (i = 0; i < e && i < nl && n.charAt(i) == '0';)
+        ++i;
+    // original version (ignores decimal point).
+    // // Determine leading zeros.
+    // for (i = 0; i < nl && n.charAt(i) == '0';) ++i;
+    if (i == nl) {
+        // Zero.
+        x.c = [x.e = 0];
+    }
+    else {
+        x.e = e - i - 1;
+        x.c = [];
+        // Convert string to array of digits without leading zeros
+        for (e = 0; i < nl;)
+            x.c[e++] = +n.charAt(i++);
+        // older version (doesn't keep trailing zeroes).
+        // // Determine trailing zeros.
+        // for (; nl > 0 && n.charAt(--nl) == '0';);
+        // // Convert string to array of digits without leading/trailing zeros.
+        // for (e = 0; i <= nl;) x.c[e++] = +n.charAt(i++);
+    }
+    x = round(x, Big.DP + 1, Big.RM);
+    return x;
+}
+/*
+ * Round Big x to a maximum of sd significant digits using rounding mode rm.
+ *
+ * x {Big} The Big to round.
+ * sd {number} Significant digits: integer, 0 to MAX_DP inclusive.
+ * rm {number} Rounding mode: 0 (down), 1 (half-up), 2 (half-even) or 3 (up).
+ * [more] {boolean} Whether the result of division was truncated.
+ */
+function round(x, sd, rm, more) {
+    var xc = x.c;
+    if (rm === UNDEFINED)
+        rm = Big.RM;
+    if (rm !== 0 && rm !== 1 && rm !== 2 && rm !== 3) {
+        throw Error(INVALID_RM);
+    }
+    if (sd < 1) {
+        more =
+            rm === 3 && (more || !!xc[0]) || sd === 0 && (rm === 1 && xc[0] >= 5 ||
+                rm === 2 && (xc[0] > 5 || xc[0] === 5 && (more || xc[1] !== UNDEFINED)));
+        xc.length = 1;
+        if (more) {
+            // 1, 0.1, 0.01, 0.001, 0.0001 etc.
+            x.e = x.e - sd + 1;
+            xc[0] = 1;
+        }
+        else {
+            // Zero.
+            xc[0] = x.e = 0;
+        }
+    }
+    else if (sd < xc.length) {
+        // xc[sd] is the digit after the digit that may be rounded up.
+        const isZero = xc.findIndex((xci, idx) => idx >= sd && xci > 0) < 0;
+        more =
+            rm === 1 && xc[sd] >= 5 ||
+                rm === 2 && (xc[sd] > 5 || xc[sd] === 5 &&
+                    (more || xc[sd + 1] !== UNDEFINED || xc[sd - 1] & 1)) ||
+                rm === 3 && (more || !isZero);
+        // Remove any digits after the required precision.
+        xc.length = sd--;
+        // Round up?
+        if (more) {
+            // Rounding up may mean the previous digit has to be rounded up.
+            for (; ++xc[sd] > 9;) {
+                xc[sd] = 0;
+                if (!sd--) {
+                    ++x.e;
+                    xc.unshift(1);
+                }
+            }
+        }
+        // Remove trailing zeros.
+        for (sd = xc.length; !xc[--sd];)
+            xc.pop();
+    }
+    return x;
+}
+/*
+ * Return a string representing the value of Big x in normal or exponential notation.
+ * Handles P.toExponential, P.toFixed, P.toJSON, P.toPrecision, P.toString and P.valueOf.
+ */
+function stringify(x, doExponential, isNonzero) {
+    var e = x.e, s = x.c.join(''), n = s.length;
+    // Exponential notation?
+    if (doExponential) {
+        s = s.charAt(0) + (n > 1 ? '.' + s.slice(1) : '') + (e < 0 ? 'e' : 'e+') + e;
+        // Normal notation.
+    }
+    else if (e < 0) {
+        for (; ++e;)
+            s = '0' + s;
+        s = '0.' + s;
+    }
+    else if (e > 0) {
+        if (++e > n) {
+            for (e -= n; e--;)
+                s += '0';
+        }
+        else if (e < n) {
+            s = s.slice(0, e) + '.' + s.slice(e);
+        }
+    }
+    else if (n > 1) {
+        s = s.charAt(0) + '.' + s.slice(1);
+    }
+    return x.s < 0 && isNonzero ? '-' + s : s;
+}
+// Prototype/instance methods
+/*
+ * Return a new Big whose value is the absolute value of this Big.
+ */
+P.abs = function () {
+    var x = new this.constructor(this);
+    x.s = 1;
+    return x;
+};
+/*
+ * Return 1 if the value of this Big is greater than the value of Big y,
+ *       -1 if the value of this Big is less than the value of Big y, or
+ *        0 if they have the same value.
+ */
+P.cmp = function (y) {
+    var isneg, Big = this.constructor, x = new Big(this), y = new Big(y), xc = x.c, yc = y.c, i = x.s, j = y.s, k = x.e, l = y.e;
+    // Either zero?
+    if (!xc[0] || !yc[0])
+        return !xc[0] ? !yc[0] ? 0 : -j : i;
+    // Signs differ?
+    if (i != j)
+        return i;
+    isneg = i < 0;
+    // Compare exponents.
+    if (k != l)
+        return k > l ^ isneg ? 1 : -1;
+    // Compare digit by digit.
+    j = Math.max(xc.length, yc.length);
+    for (i = 0; i < j; i++) {
+        k = i < xc.length ? xc[i] : 0;
+        l = i < yc.length ? yc[i] : 0;
+        if (k != l)
+            return k > l ^ isneg ? 1 : -1;
+    }
+    return 0;
+    // original version (doesn't compare well trailing zeroes, e.g. 1.0 with 1.00)
+    // j = (k = xc.length) < (l = yc.length) ? k : l;
+    // // Compare digit by digit.
+    // for (i = -1; ++i < j;) {
+    //   if (xc[i] != yc[i]) return xc[i] > yc[i] ^ isneg ? 1 : -1;
+    // }
+    // // Compare lengths.
+    // return k == l ? 0 : k > l ^ isneg ? 1 : -1;
+};
+/*
+ * Return a new Big whose value is the value of this Big divided by the value of Big y, rounded,
+ * if necessary, to a maximum of Big.DP decimal places using rounding mode Big.RM.
+ */
+P.div = function (y) {
+    var Big = this.constructor, x = new Big(this), y = new Big(y), a = x.c, // dividend
+    b = y.c, // divisor
+    k = x.s == y.s ? 1 : -1, dp = Big.DP;
+    if (dp !== ~~dp || dp < 0 || dp > MAX_DP) {
+        throw Error(INVALID_DP);
+    }
+    // Divisor is zero?
+    if (!b[0]) {
+        throw Error(DIV_BY_ZERO);
+    }
+    // Dividend is 0? Return +-0.
+    if (!a[0]) {
+        y.s = k;
+        y.c = [y.e = 0];
+        return y;
+    }
+    var bl, bt, n, cmp, ri, bz = b.slice(), ai = bl = b.length, al = a.length, r = a.slice(0, bl), // remainder
+    rl = r.length, q = y, // quotient
+    qc = q.c = [], qi = 0, p = dp + (q.e = x.e - y.e) + 1; // precision of the result
+    q.s = k;
+    k = p < 0 ? 0 : p;
+    // Create version of divisor with leading zero.
+    bz.unshift(0);
+    // Add zeros to make remainder as long as divisor.
+    for (; rl++ < bl;)
+        r.push(0);
+    do {
+        // n is how many times the divisor goes into current remainder.
+        for (n = 0; n < 10; n++) {
+            // Compare divisor and remainder.
+            if (bl != (rl = r.length)) {
+                cmp = bl > rl ? 1 : -1;
+            }
+            else {
+                for (ri = -1, cmp = 0; ++ri < bl;) {
+                    if (b[ri] != r[ri]) {
+                        cmp = b[ri] > r[ri] ? 1 : -1;
+                        break;
+                    }
+                }
+            }
+            // If divisor < remainder, subtract divisor from remainder.
+            if (cmp < 0) {
+                // Remainder can't be more than 1 digit longer than divisor.
+                // Equalise lengths using divisor with extra leading zero?
+                for (bt = rl == bl ? b : bz; rl;) {
+                    if (r[--rl] < bt[rl]) {
+                        ri = rl;
+                        for (; ri && !r[--ri];)
+                            r[ri] = 9;
+                        --r[ri];
+                        r[rl] += 10;
+                    }
+                    r[rl] -= bt[rl];
+                }
+                for (; !r[0];)
+                    r.shift();
+            }
+            else {
+                break;
+            }
+        }
+        // Add the digit n to the result array.
+        qc[qi++] = cmp ? n : ++n;
+        // Update the remainder.
+        if (r[0] && cmp)
+            r[rl] = a[ai] || 0;
+        else
+            r = [a[ai]];
+    } while ((ai++ < al || r[0] !== UNDEFINED) && k--);
+    // Leading zero? Do not remove if result is simply zero (qi == 1).
+    if (!qc[0] && qi != 1) {
+        // There can't be more than one zero.
+        qc.shift();
+        q.e--;
+        p--;
+    }
+    // Round?
+    if (qi > p)
+        round(q, p, Big.RM, r[0] !== UNDEFINED);
+    return q;
+};
+/*
+ * Return true if the value of this Big is equal to the value of Big y, otherwise return false.
+ */
+P.eq = function (y) {
+    return this.cmp(y) === 0;
+};
+/*
+ * Return true if the value of this Big is greater than the value of Big y, otherwise return
+ * false.
+ */
+P.gt = function (y) {
+    return this.cmp(y) > 0;
+};
+/*
+ * Return true if the value of this Big is greater than or equal to the value of Big y, otherwise
+ * return false.
+ */
+P.gte = function (y) {
+    return this.cmp(y) > -1;
+};
+/*
+ * Return true if the value of this Big is less than the value of Big y, otherwise return false.
+ */
+P.lt = function (y) {
+    return this.cmp(y) < 0;
+};
+/*
+ * Return true if the value of this Big is less than or equal to the value of Big y, otherwise
+ * return false.
+ */
+P.lte = function (y) {
+    return this.cmp(y) < 1;
+};
+/*
+ * Return a new Big whose value is the value of this Big minus the value of Big y.
+ */
+P.minus = P.sub = function (y) {
+    var i, j, t, xlty, Big = this.constructor, x = new Big(this), y = new Big(y), a = x.s, b = y.s;
+    // Signs differ?
+    if (a != b) {
+        y.s = -b;
+        return x.plus(y);
+    }
+    var xc = x.c.slice(), xe = x.e, yc = y.c, ye = y.e;
+    // Either zero?
+    if (!xc[0] || !yc[0]) {
+        if (yc[0]) {
+            y.s = -b;
+        }
+        else if (xc[0]) {
+            y = new Big(x);
+        }
+        else {
+            y.s = 1;
+        }
+        return y;
+    }
+    // Determine which is the bigger number. Prepend zeros to equalise exponents.
+    if (a = xe - ye) {
+        if (xlty = a < 0) {
+            a = -a;
+            t = xc;
+        }
+        else {
+            ye = xe;
+            t = yc;
+        }
+        t.reverse();
+        for (b = a; b--;)
+            t.push(0);
+        t.reverse();
+    }
+    else {
+        // Exponents equal. Check digit by digit.
+        j = ((xlty = xc.length < yc.length) ? xc : yc).length;
+        for (a = b = 0; b < j; b++) {
+            if (xc[b] != yc[b]) {
+                xlty = xc[b] < yc[b];
+                break;
+            }
+        }
+    }
+    // x < y? Point xc to the array of the bigger number.
+    if (xlty) {
+        t = xc;
+        xc = yc;
+        yc = t;
+        y.s = -y.s;
+    }
+    /*
+     * Append zeros to xc if shorter. No need to add zeros to yc if shorter as subtraction only
+     * needs to start at yc.length.
+     */
+    if ((b = (j = yc.length) - (i = xc.length)) > 0)
+        for (; b--;)
+            xc[i++] = 0;
+    // Subtract yc from xc.
+    for (b = i; j > a;) {
+        if (xc[--j] < yc[j]) {
+            for (i = j; i && !xc[--i];)
+                xc[i] = 9;
+            --xc[i];
+            xc[j] += 10;
+        }
+        xc[j] -= yc[j];
+    }
+    // Remove trailing zeros.
+    for (; xc[--b] === 0;)
+        xc.pop();
+    // Remove leading zeros and adjust exponent accordingly.
+    for (; xc[0] === 0;) {
+        xc.shift();
+        --ye;
+    }
+    if (!xc[0]) {
+        // n - n = +0
+        y.s = 1;
+        // Result must be zero.
+        xc = [ye = 0];
+    }
+    y.c = xc;
+    y.e = ye;
+    return y;
+};
+/*
+ * Return a new Big whose value is the value of this Big modulo the value of Big y.
+ */
+P.mod = function (y) {
+    var ygtx, Big = this.constructor, x = new Big(this), y = new Big(y), a = x.s, b = y.s;
+    if (!y.c[0]) {
+        throw Error(DIV_BY_ZERO);
+    }
+    x.s = y.s = 1;
+    ygtx = y.cmp(x) == 1;
+    x.s = a;
+    y.s = b;
+    if (ygtx)
+        return new Big(x);
+    a = Big.DP;
+    b = Big.RM;
+    Big.DP = Big.RM = 0;
+    x = x.div(y);
+    Big.DP = a;
+    Big.RM = b;
+    return this.minus(x.times(y));
+};
+/*
+ * Return a new Big whose value is the value of this Big plus the value of Big y.
+ */
+P.plus = P.add = function (y) {
+    var e, k, t, Big = this.constructor, x = new Big(this), y = new Big(y);
+    // Signs differ?
+    if (x.s != y.s) {
+        y.s = -y.s;
+        return x.minus(y);
+    }
+    var xe = x.e, xc = x.c, ye = y.e, yc = y.c;
+    // Either zero?
+    if (!xc[0] || !yc[0]) {
+        if (!yc[0]) {
+            if (xc[0]) {
+                y = new Big(x);
+            }
+            else {
+                y.s = x.s;
+            }
+        }
+        return y;
+    }
+    xc = xc.slice();
+    // Prepend zeros to equalise exponents.
+    // Note: reverse faster than unshifts.
+    if (e = xe - ye) {
+        if (e > 0) {
+            ye = xe;
+            t = yc;
+        }
+        else {
+            e = -e;
+            t = xc;
+        }
+        t.reverse();
+        for (; e--;)
+            t.push(0);
+        t.reverse();
+    }
+    // Point xc to the longer array.
+    if (xc.length - yc.length < 0) {
+        t = yc;
+        yc = xc;
+        xc = t;
+    }
+    e = yc.length;
+    // Only start adding at yc.length - 1 as the further digits of xc can be left as they are.
+    for (k = 0; e; xc[e] %= 10)
+        k = (xc[--e] = xc[e] + yc[e] + k) / 10 | 0;
+    // No need to check for zero, as +x + +y != 0 && -x + -y != 0
+    if (k) {
+        xc.unshift(k);
+        ++ye;
+    }
+    // Remove trailing zeros.
+    for (e = xc.length; xc[--e] === 0;)
+        xc.pop();
+    y.c = xc;
+    y.e = ye;
+    return y;
+};
+/*
+ * Return a Big whose value is the value of this Big raised to the power n.
+ * If n is negative, round to a maximum of Big.DP decimal places using rounding
+ * mode Big.RM.
+ *
+ * n {number} Integer, -MAX_POWER to MAX_POWER inclusive.
+ */
+P.pow = function (n) {
+    var Big = this.constructor, x = new Big(this), y = new Big('1'), one = new Big('1'), isneg = n < 0;
+    if (n !== ~~n || n < -MAX_POWER || n > MAX_POWER) {
+        throw Error(INVALID + 'exponent');
+    }
+    if (isneg)
+        n = -n;
+    for (;;) {
+        if (n & 1)
+            y = y.times(x);
+        n >>= 1;
+        if (!n)
+            break;
+        x = x.times(x);
+    }
+    return isneg ? one.div(y) : y;
+};
+/*
+ * Return a new Big whose value is the value of this Big rounded to a maximum precision of sd
+ * significant digits using rounding mode rm, or Big.RM if rm is not specified.
+ *
+ * sd {number} Significant digits: integer, 1 to MAX_DP inclusive.
+ * rm? {number} Rounding mode: 0 (down), 1 (half-up), 2 (half-even) or 3 (up).
+ */
+P.prec = function (sd, rm) {
+    if (sd !== ~~sd || sd < 1 || sd > MAX_DP) {
+        throw Error(INVALID + 'precision');
+    }
+    return round(new this.constructor(this), sd, rm);
+};
+/*
+ * Return a new Big whose value is the value of this Big rounded to a maximum of dp decimal places
+ * using rounding mode rm, or Big.RM if rm is not specified.
+ * If dp is negative, round to an integer which is a multiple of 10**-dp.
+ * If dp is not specified, round to 0 decimal places.
+ *
+ * dp? {number} Integer, -MAX_DP to MAX_DP inclusive.
+ * rm? {number} Rounding mode: 0 (down), 1 (half-up), 2 (half-even) or 3 (up).
+ */
+P.round = function (dp, rm) {
+    if (dp === UNDEFINED)
+        dp = 0;
+    else if (dp !== ~~dp || dp < -MAX_DP || dp > MAX_DP) {
+        throw Error(INVALID_DP);
+    }
+    return round(new this.constructor(this), dp + this.e + 1, rm);
+};
+/*
+ * Return a new Big whose value is the square root of the value of this Big, rounded, if
+ * necessary, to a maximum of Big.DP decimal places using rounding mode Big.RM.
+ */
+P.sqrt = function () {
+    var r, c, t, Big = this.constructor, x = new Big(this), s = x.s, e = x.e, half = new Big('0.5');
+    // Zero?
+    if (!x.c[0])
+        return new Big(x);
+    // Negative?
+    if (s < 0) {
+        throw Error(NAME + 'No square root');
+    }
+    // Estimate.
+    s = Math.sqrt(x + '');
+    // Math.sqrt underflow/overflow?
+    // Re-estimate: pass x coefficient to Math.sqrt as integer, then adjust the result exponent.
+    if (s === 0 || s === 1 / 0) {
+        c = x.c.join('');
+        if (!(c.length + e & 1))
+            c += '0';
+        s = Math.sqrt(c);
+        e = ((e + 1) / 2 | 0) - (e < 0 || e & 1);
+        r = new Big((s == 1 / 0 ? '5e' : (s = s.toExponential()).slice(0, s.indexOf('e') + 1)) + e);
+    }
+    else {
+        r = new Big(s + '');
+    }
+    e = r.e + (Big.DP += 4);
+    // Newton-Raphson iteration.
+    do {
+        t = r;
+        r = half.times(t.plus(x.div(t)));
+    } while (t.c.slice(0, e).join('') !== r.c.slice(0, e).join(''));
+    return round(r, (Big.DP -= 4) + r.e + 1, Big.RM);
+};
+/*
+ * Return a new Big whose value is the value of this Big times the value of Big y.
+ */
+P.times = P.mul = function (y) {
+    var c, Big = this.constructor, x = new Big(this), y = new Big(y), xc = x.c, yc = y.c, a = xc.length, b = yc.length, i = x.e, j = y.e;
+    // Determine sign of result.
+    y.s = x.s == y.s ? 1 : -1;
+    // Return signed 0 if either 0.
+    if (!xc[0] || !yc[0]) {
+        y.c = [y.e = 0];
+        return y;
+    }
+    // Initialise exponent of result as x.e + y.e.
+    y.e = i + j;
+    // If array xc has fewer digits than yc, swap xc and yc, and lengths.
+    if (a < b) {
+        c = xc;
+        xc = yc;
+        yc = c;
+        j = a;
+        a = b;
+        b = j;
+    }
+    // Initialise coefficient array of result with zeros.
+    for (c = new Array(j = a + b); j--;)
+        c[j] = 0;
+    // Multiply.
+    // i is initially xc.length.
+    for (i = b; i--;) {
+        b = 0;
+        // a is yc.length.
+        for (j = a + i; j > i;) {
+            // Current sum of products at this digit position, plus carry.
+            b = c[j] + yc[i] * xc[j - i - 1] + b;
+            c[j--] = b % 10;
+            // carry
+            b = b / 10 | 0;
+        }
+        c[j] = b;
+    }
+    // Increment result exponent if there is a final carry, otherwise remove leading zero.
+    if (b)
+        ++y.e;
+    else
+        c.shift();
+    // Remove trailing zeros.
+    for (i = c.length; !c[--i];)
+        c.pop();
+    y.c = c;
+    return y;
+};
+/*
+ * Return a string representing the value of this Big in exponential notation rounded to dp fixed
+ * decimal places using rounding mode rm, or Big.RM if rm is not specified.
+ *
+ * dp? {number} Decimal places: integer, 0 to MAX_DP inclusive.
+ * rm? {number} Rounding mode: 0 (down), 1 (half-up), 2 (half-even) or 3 (up).
+ */
+P.toExponential = function (dp, rm) {
+    var x = this, n = x.c[0];
+    if (dp !== UNDEFINED) {
+        if (dp !== ~~dp || dp < 0 || dp > MAX_DP) {
+            throw Error(INVALID_DP);
+        }
+        x = round(new x.constructor(x), ++dp, rm);
+        for (; x.c.length < dp;)
+            x.c.push(0);
+    }
+    return stringify(x, true, !!n);
+};
+/*
+ * Return a string representing the value of this Big in normal notation rounded to dp fixed
+ * decimal places using rounding mode rm, or Big.RM if rm is not specified.
+ *
+ * dp? {number} Decimal places: integer, 0 to MAX_DP inclusive.
+ * rm? {number} Rounding mode: 0 (down), 1 (half-up), 2 (half-even) or 3 (up).
+ *
+ * (-0).toFixed(0) is '0', but (-0.1).toFixed(0) is '-0'.
+ * (-0).toFixed(1) is '0.0', but (-0.01).toFixed(1) is '-0.0'.
+ */
+P.toFixed = function (dp, rm) {
+    var x = this, n = x.c[0];
+    if (dp !== UNDEFINED) {
+        if (dp !== ~~dp || dp < 0 || dp > MAX_DP) {
+            throw Error(INVALID_DP);
+        }
+        x = round(new x.constructor(x), dp + x.e + 1, rm);
+        // x.e may have changed if the value is rounded up.
+        for (dp = dp + x.e + 1; x.c.length < dp;)
+            x.c.push(0);
+    }
+    return stringify(x, false, !!n);
+};
+/*
+ * Return a string representing the value of this Big.
+ * Return exponential notation if this Big has a positive exponent equal to or greater than
+ * Big.PE, or a negative exponent equal to or less than Big.NE.
+ * Omit the sign for negative zero.
+ */
+P.toJSON = P.toString = function () {
+    var x = this, Big = x.constructor;
+    return stringify(x, x.e <= Big.NE || x.e >= Big.PE, !!x.c[0]);
+};
+/*
+ * Return the value of this Big as a primitve number.
+ */
+P.toNumber = function () {
+    var n = Number(stringify(this, true, true));
+    if (this.constructor.strict === true && !this.eq(n.toString())) {
+        throw Error(NAME + 'Imprecise conversion');
+    }
+    return n;
+};
+/*
+ * Return a string representing the value of this Big rounded to sd significant digits using
+ * rounding mode rm, or Big.RM if rm is not specified.
+ * Use exponential notation if sd is less than the number of digits necessary to represent
+ * the integer part of the value in normal notation.
+ *
+ * sd {number} Significant digits: integer, 1 to MAX_DP inclusive.
+ * rm? {number} Rounding mode: 0 (down), 1 (half-up), 2 (half-even) or 3 (up).
+ */
+P.toPrecision = function (sd, rm) {
+    var x = this, Big = x.constructor, n = x.c[0];
+    if (sd !== UNDEFINED) {
+        if (sd !== ~~sd || sd < 1 || sd > MAX_DP) {
+            throw Error(INVALID + 'precision');
+        }
+        x = round(new Big(x), sd, rm);
+        for (; x.c.length < sd;)
+            x.c.push(0);
+    }
+    return stringify(x, sd <= x.e || x.e <= Big.NE || x.e >= Big.PE, !!n);
+};
+/*
+ * Return a string representing the value of this Big.
+ * Return exponential notation if this Big has a positive exponent equal to or greater than
+ * Big.PE, or a negative exponent equal to or less than Big.NE.
+ * Include the sign for negative zero.
+ */
+P.valueOf = function () {
+    var x = this, Big = x.constructor;
+    if (Big.strict === true) {
+        throw Error(NAME + 'valueOf disallowed');
+    }
+    return stringify(x, x.e <= Big.NE || x.e >= Big.PE, true);
+};
+// Export
+export var Big = _Big_();
+/// <reference types="https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/big.js/index.d.ts" />
+export default Big;

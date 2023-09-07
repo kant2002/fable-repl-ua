@@ -1,1 +1,127 @@
-import{toList,toArray,map,filter,delay}from"./Seq.js";import{HashSet}from"./MutableSet.js";import{addToDict,getItemFromDict,tryGetValue,addToSet}from"./MapUtil.js";import{Dictionary}from"./MutableMap.js";import{defaultOf,disposeSafe,getEnumerator}from"./Util.js";import{FSharpRef}from"./Types.js";export function distinct(t,r){return delay((()=>{const e=new HashSet([],r);return filter((t=>addToSet(t,e)),t)}))}export function distinctBy(t,r,e){return delay((()=>{const o=new HashSet([],e);return filter((r=>addToSet(t(r),o)),r)}))}export function except(t,r,e){return delay((()=>{const o=new HashSet(t,e);return filter((t=>addToSet(t,o)),r)}))}export function countBy(t,r,e){return delay((()=>{const o=new Dictionary([],e),n=[],i=getEnumerator(r);try{for(;i["System.Collections.IEnumerator.MoveNext"]();){const r=t(i["System.Collections.Generic.IEnumerator`1.get_Current"]());let e,u=0;e=[tryGetValue(o,r,new FSharpRef((()=>u),(t=>{u=0|t}))),u],e[0]?o.set(r,e[1]+1):(o.set(r,1),n.push(r))}}finally{disposeSafe(i)}return map((t=>[t,getItemFromDict(o,t)]),n)}))}export function groupBy(t,r,e){return delay((()=>{const o=new Dictionary([],e),n=[],i=getEnumerator(r);try{for(;i["System.Collections.IEnumerator.MoveNext"]();){const r=i["System.Collections.Generic.IEnumerator`1.get_Current"](),e=t(r);let u,a=defaultOf();u=[tryGetValue(o,e,new FSharpRef((()=>a),(t=>{a=t}))),a],u[0]?u[1].push(r):(addToDict(o,e,[r]),n.push(e))}}finally{disposeSafe(i)}return map((t=>[t,getItemFromDict(o,t)]),n)}))}export function Array_distinct(t,r){return toArray(distinct(t,r))}export function Array_distinctBy(t,r,e){return toArray(distinctBy(t,r,e))}export function Array_except(t,r,e){return toArray(except(t,r,e))}export function Array_countBy(t,r,e){return toArray(countBy(t,r,e))}export function Array_groupBy(t,r,e){return toArray(map((t=>[t[0],toArray(t[1])]),groupBy(t,r,e)))}export function List_distinct(t,r){return toList(distinct(t,r))}export function List_distinctBy(t,r,e){return toList(distinctBy(t,r,e))}export function List_except(t,r,e){return toList(except(t,r,e))}export function List_countBy(t,r,e){return toList(countBy(t,r,e))}export function List_groupBy(t,r,e){return toList(map((t=>[t[0],toList(t[1])]),groupBy(t,r,e)))}
+import { toList, toArray, map, filter, delay } from "./Seq.js";
+import { HashSet } from "./MutableSet.js";
+import { addToDict, getItemFromDict, tryGetValue, addToSet } from "./MapUtil.js";
+import { Dictionary } from "./MutableMap.js";
+import { defaultOf, disposeSafe, getEnumerator } from "./Util.js";
+import { FSharpRef } from "./Types.js";
+
+export function distinct(xs, comparer) {
+    return delay(() => {
+        const hashSet = new HashSet([], comparer);
+        return filter((x) => addToSet(x, hashSet), xs);
+    });
+}
+
+export function distinctBy(projection, xs, comparer) {
+    return delay(() => {
+        const hashSet = new HashSet([], comparer);
+        return filter((x) => addToSet(projection(x), hashSet), xs);
+    });
+}
+
+export function except(itemsToExclude, xs, comparer) {
+    return delay(() => {
+        const hashSet = new HashSet(itemsToExclude, comparer);
+        return filter((x) => addToSet(x, hashSet), xs);
+    });
+}
+
+export function countBy(projection, xs, comparer) {
+    return delay(() => {
+        const dict = new Dictionary([], comparer);
+        const keys = [];
+        const enumerator = getEnumerator(xs);
+        try {
+            while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
+                const key = projection(enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]());
+                let matchValue;
+                let outArg = 0;
+                matchValue = [tryGetValue(dict, key, new FSharpRef(() => outArg, (v) => {
+                    outArg = (v | 0);
+                })), outArg];
+                if (matchValue[0]) {
+                    dict.set(key, matchValue[1] + 1);
+                }
+                else {
+                    dict.set(key, 1);
+                    void (keys.push(key));
+                }
+            }
+        }
+        finally {
+            disposeSafe(enumerator);
+        }
+        return map((key_1) => [key_1, getItemFromDict(dict, key_1)], keys);
+    });
+}
+
+export function groupBy(projection, xs, comparer) {
+    return delay(() => {
+        const dict = new Dictionary([], comparer);
+        const keys = [];
+        const enumerator = getEnumerator(xs);
+        try {
+            while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
+                const x = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
+                const key = projection(x);
+                let matchValue;
+                let outArg = defaultOf();
+                matchValue = [tryGetValue(dict, key, new FSharpRef(() => outArg, (v) => {
+                    outArg = v;
+                })), outArg];
+                if (matchValue[0]) {
+                    void (matchValue[1].push(x));
+                }
+                else {
+                    addToDict(dict, key, [x]);
+                    void (keys.push(key));
+                }
+            }
+        }
+        finally {
+            disposeSafe(enumerator);
+        }
+        return map((key_1) => [key_1, getItemFromDict(dict, key_1)], keys);
+    });
+}
+
+export function Array_distinct(xs, comparer) {
+    return toArray(distinct(xs, comparer));
+}
+
+export function Array_distinctBy(projection, xs, comparer) {
+    return toArray(distinctBy(projection, xs, comparer));
+}
+
+export function Array_except(itemsToExclude, xs, comparer) {
+    return toArray(except(itemsToExclude, xs, comparer));
+}
+
+export function Array_countBy(projection, xs, comparer) {
+    return toArray(countBy(projection, xs, comparer));
+}
+
+export function Array_groupBy(projection, xs, comparer) {
+    return toArray(map((tupledArg) => [tupledArg[0], toArray(tupledArg[1])], groupBy(projection, xs, comparer)));
+}
+
+export function List_distinct(xs, comparer) {
+    return toList(distinct(xs, comparer));
+}
+
+export function List_distinctBy(projection, xs, comparer) {
+    return toList(distinctBy(projection, xs, comparer));
+}
+
+export function List_except(itemsToExclude, xs, comparer) {
+    return toList(except(itemsToExclude, xs, comparer));
+}
+
+export function List_countBy(projection, xs, comparer) {
+    return toList(countBy(projection, xs, comparer));
+}
+
+export function List_groupBy(projection, xs, comparer) {
+    return toList(map((tupledArg) => [tupledArg[0], toList(tupledArg[1])], groupBy(projection, xs, comparer)));
+}
+

@@ -1,1 +1,10 @@
-export function Helpers_allocateArrayFromCons(r,e){return"function"==typeof r?new r(e):new Array(e)}
+
+export function Helpers_allocateArrayFromCons(cons, len) {
+    if ((typeof cons) === "function") {
+        return new cons(len);
+    }
+    else {
+        return new Array(len);
+    }
+}
+

@@ -1,1 +1,185 @@
-import Decimal from"./lib/big.js";import{FSharpRef}from"./Types.js";export default Decimal;export const get_Zero=new Decimal(0);export const get_One=new Decimal(1);export const get_MinusOne=new Decimal(-1);export const get_MaxValue=new Decimal("79228162514264337593543950335");export const get_MinValue=new Decimal("-79228162514264337593543950335");export function compare(t,n){return t.cmp(n)}export function equals(t,n){return!t.cmp(n)}export function abs(t){return t.abs()}export function round(t,n=0){return t.round(n,2)}export function truncate(t){return t.round(0,0)}export function ceiling(t){return t.round(0,t.cmp(0)>=0?3:0)}export function floor(t){return t.round(0,t.cmp(0)>=0?0:3)}export function pow(t,n){return t.pow(n)}export function sqrt(t){return t.sqrt()}export function op_Addition(t,n){return t.add(n)}export function op_Subtraction(t,n){return t.sub(n)}export function op_Multiply(t,n){return t.mul(n)}export function op_Division(t,n){return t.div(n)}export function op_Modulus(t,n){return t.mod(n)}export function op_UnaryNegation(t){const n=new Decimal(t);return n.s=-n.s||0,n}export function op_UnaryPlus(t){return t}export const add=op_Addition;export const subtract=op_Subtraction;export const multiply=op_Multiply;export const divide=op_Division;export const remainder=op_Modulus;export const negate=op_UnaryNegation;export function toString(t){return t.toString()}export function tryParse(t,n){try{return n.contents=new Decimal(t.trim()),!0}catch(t){return!1}}export function parse(t){const n=new FSharpRef(get_Zero);if(tryParse(t,n))return n.contents;throw new Error("Input string was not in a correct format.")}export function toNumber(t){return+t}function decimalToHex(t,n){const r=new Uint8Array(n/4|0);let e=1;for(let n=0;n<t.length;n++){let o=t[n];for(let t=0;t<e;t++){const n=10*r[t]+o|0;r[t]=15&n,o=n>>4}0!==o&&(r[e++]=o)}return r.slice(0,e)}function hexToDecimal(t,n){const r=new Uint8Array(301*n/1e3+1|0);let e=1;for(let n=t.length-1;n>=0;n--){let o=t[n];for(let t=0;t<e;t++){const n=16*r[t]+o|0;r[t]=n%10|0,o=n/10|0}for(;o>0;)r[e++]=o%10|0,o=o/10|0}return r.slice(0,e)}function setInt32Bits(t,n,r){for(let e=0;e<8;e++)t[r+e]=n>>4*e&15}function getInt32Bits(t,n){let r=0;for(let e=0;e<8;e++)r|=t[n+e]<<4*e;return r}export function fromIntArray(t){return fromInts(t[0],t[1],t[2],t[3])}export function fromInts(t,n,r,e){return fromParts(t,n,r,e<0,e>>16&127)}export function fromParts(t,n,r,e,o){const i=new Uint8Array(24);setInt32Bits(i,t,0),setInt32Bits(i,n,8),setInt32Bits(i,r,16);const c=hexToDecimal(i,96);o&=127;const u=new Decimal(0);return u.c=Array.from(c.reverse()),u.e=c.length-o-1,u.s=e?-1:1,new Decimal(u)}export function getBits(t){const n=decimalToHex(Uint8Array.from(t.c),96),r=getInt32Bits(n,0),e=getInt32Bits(n,8),o=getInt32Bits(n,16),i=t.toString(),c=i.indexOf(".");return[r,e,o,(127&(c<0?0:i.length-c-1))<<16|(t.s<0?2147483648:0)]}
+import Decimal from "./lib/big.js";
+import { FSharpRef } from "./Types.js";
+export default Decimal;
+export const get_Zero = new Decimal(0);
+export const get_One = new Decimal(1);
+export const get_MinusOne = new Decimal(-1);
+export const get_MaxValue = new Decimal("79228162514264337593543950335");
+export const get_MinValue = new Decimal("-79228162514264337593543950335");
+export function compare(x, y) {
+    return x.cmp(y);
+}
+export function equals(x, y) {
+    return !x.cmp(y);
+}
+export function abs(x) {
+    return x.abs();
+}
+export function round(x, digits = 0) {
+    return x.round(digits, 2 /* ROUND_HALF_EVEN */);
+}
+export function truncate(x) {
+    return x.round(0, 0 /* ROUND_DOWN */);
+}
+export function ceiling(x) {
+    return x.round(0, x.cmp(0) >= 0 ? 3 /* ROUND_UP */ : 0 /* ROUND_DOWN */);
+}
+export function floor(x) {
+    return x.round(0, x.cmp(0) >= 0 ? 0 /* ROUND_DOWN */ : 3 /* ROUND_UP */);
+}
+export function pow(x, n) {
+    return x.pow(n);
+}
+export function sqrt(x) {
+    return x.sqrt();
+}
+export function op_Addition(x, y) {
+    return x.add(y);
+}
+export function op_Subtraction(x, y) {
+    return x.sub(y);
+}
+export function op_Multiply(x, y) {
+    return x.mul(y);
+}
+export function op_Division(x, y) {
+    return x.div(y);
+}
+export function op_Modulus(x, y) {
+    return x.mod(y);
+}
+export function op_UnaryNegation(x) {
+    const x2 = new Decimal(x);
+    x2.s = -x2.s || 0;
+    return x2;
+}
+export function op_UnaryPlus(x) {
+    return x;
+}
+export const add = op_Addition;
+export const subtract = op_Subtraction;
+export const multiply = op_Multiply;
+export const divide = op_Division;
+export const remainder = op_Modulus;
+export const negate = op_UnaryNegation;
+export function toString(x) {
+    return x.toString();
+}
+export function tryParse(str, defValue) {
+    try {
+        defValue.contents = new Decimal(str.trim());
+        return true;
+    }
+    catch (_a) {
+        return false;
+    }
+}
+export function parse(str) {
+    const defValue = new FSharpRef(get_Zero);
+    if (tryParse(str, defValue)) {
+        return defValue.contents;
+    }
+    else {
+        throw new Error("Input string was not in a correct format.");
+    }
+}
+export function toNumber(x) {
+    return +x;
+}
+function decimalToHex(dec, bitSize) {
+    const hex = new Uint8Array(bitSize / 4 | 0);
+    let hexCount = 1;
+    for (let d = 0; d < dec.length; d++) {
+        let value = dec[d];
+        for (let i = 0; i < hexCount; i++) {
+            const digit = hex[i] * 10 + value | 0;
+            hex[i] = digit & 0xF;
+            value = digit >> 4;
+        }
+        if (value !== 0) {
+            hex[hexCount++] = value;
+        }
+    }
+    return hex.slice(0, hexCount); // digits in reverse order
+}
+function hexToDecimal(hex, bitSize) {
+    const dec = new Uint8Array(bitSize * 301 / 1000 + 1 | 0);
+    let decCount = 1;
+    for (let d = hex.length - 1; d >= 0; d--) {
+        let carry = hex[d];
+        for (let i = 0; i < decCount; i++) {
+            const val = dec[i] * 16 + carry | 0;
+            dec[i] = (val % 10) | 0;
+            carry = (val / 10) | 0;
+        }
+        while (carry > 0) {
+            dec[decCount++] = (carry % 10) | 0;
+            carry = (carry / 10) | 0;
+        }
+    }
+    return dec.slice(0, decCount); // digits in reverse order
+}
+function setInt32Bits(hexDigits, bits, offset) {
+    for (let i = 0; i < 8; i++) {
+        hexDigits[offset + i] = (bits >> (i * 4)) & 0xF;
+    }
+}
+function getInt32Bits(hexDigits, offset) {
+    let bits = 0;
+    for (let i = 0; i < 8; i++) {
+        bits = bits | (hexDigits[offset + i] << (i * 4));
+    }
+    return bits;
+}
+export function fromIntArray(bits) {
+    return fromInts(bits[0], bits[1], bits[2], bits[3]);
+}
+export function fromInts(low, mid, high, signExp) {
+    const isNegative = signExp < 0;
+    const scale = (signExp >> 16) & 0x7F;
+    return fromParts(low, mid, high, isNegative, scale);
+}
+export function fromParts(low, mid, high, isNegative, scale) {
+    const bitSize = 96;
+    const hexDigits = new Uint8Array(bitSize / 4);
+    setInt32Bits(hexDigits, low, 0);
+    setInt32Bits(hexDigits, mid, 8);
+    setInt32Bits(hexDigits, high, 16);
+    const decDigits = hexToDecimal(hexDigits, bitSize);
+    scale = scale & 0x7F;
+    const big = new Decimal(0);
+    big.c = Array.from(decDigits.reverse());
+    big.e = decDigits.length - scale - 1;
+    big.s = isNegative ? -1 : 1;
+    const d = new Decimal(big);
+    return d;
+}
+export function getBits(d) {
+    const bitSize = 96;
+    const decDigits = Uint8Array.from(d.c);
+    const hexDigits = decimalToHex(decDigits, bitSize);
+    const low = getInt32Bits(hexDigits, 0);
+    const mid = getInt32Bits(hexDigits, 8);
+    const high = getInt32Bits(hexDigits, 16);
+    const decStr = d.toString();
+    const dotPos = decStr.indexOf(".");
+    const scale = dotPos < 0 ? 0 : decStr.length - dotPos - 1;
+    const signExp = ((scale & 0x7F) << 16) | (d.s < 0 ? 0x80000000 : 0);
+    return [low, mid, high, signExp];
+}
+// export function makeRangeStepFunction(step: Decimal, last: Decimal) {
+//   const stepComparedWithZero = step.cmp(get_Zero);
+//   if (stepComparedWithZero === 0) {
+//     throw new Error("The step of a range cannot be zero");
+//   }
+//   const stepGreaterThanZero = stepComparedWithZero > 0;
+//   return (x: Decimal) => {
+//     const comparedWithLast = x.cmp(last);
+//     if ((stepGreaterThanZero && comparedWithLast <= 0)
+//       || (!stepGreaterThanZero && comparedWithLast >= 0)) {
+//       return [x, op_Addition(x, step)];
+//     } else {
+//       return undefined;
+//     }
+//   };
+// }

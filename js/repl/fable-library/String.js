@@ -1,1 +1,540 @@
-import{toString as dateToString}from"./Date.js";import{compare as numericCompare,isNumeric,multiply,toExponential,toFixed,toHex,toPrecision}from"./Numeric.js";import{escape}from"./RegExp.js";import{toString}from"./Types.js";const fsFormatRegExp=/(^|[^%])%([0+\- ]*)(\*|\d+)?(?:\.(\d+))?(\w)/g,interpolateRegExp=/(?:(^|[^%])%([0+\- ]*)(\d+)?(?:\.(\d+))?(\w))?%P\(\)/g,formatRegExp=/\{(\d+)(,-?\d+)?(?:\:([a-zA-Z])(\d{0,2})|\:(.+?))?\}/g;function isLessThan(t,e){return numericCompare(t,e)<0}function cmp(t,e,n){function r(t){return!0===t||1===t||3===t||5===t}return null==t?null==e?0:-1:null==e?1:4===(o=n)||5===o?(r(n)&&(t=t.toLowerCase(),e=e.toLowerCase()),t===e?0:t<e?-1:1):(r(n)&&(t=t.toLocaleLowerCase(),e=e.toLocaleLowerCase()),t.localeCompare(e));var o}export function compare(...t){switch(t.length){case 2:return cmp(t[0],t[1],!1);case 3:return cmp(t[0],t[1],t[2]);case 4:return cmp(t[0],t[1],!0===t[2]);case 5:return cmp(t[0].substr(t[1],t[4]),t[2].substr(t[3],t[4]),!1);case 6:return cmp(t[0].substr(t[1],t[4]),t[2].substr(t[3],t[4]),t[5]);case 7:return cmp(t[0].substr(t[1],t[4]),t[2].substr(t[3],t[4]),!0===t[5]);default:throw new Error("String.compare: Unsupported number of parameters")}}export function compareOrdinal(t,e){return cmp(t,e,4)}export function compareTo(t,e){return cmp(t,e,0)}export function startsWith(t,e,n){return t.length>=e.length&&0===cmp(t.substr(0,e.length),e,n)}export function indexOfAny(t,e,...n){if(null==t||""===t)return-1;const r=n.length>0?n[0]:0;if(r<0)throw new Error("Start index cannot be negative");const o=n.length>1?n[1]:t.length-r;if(o<0)throw new Error("Length cannot be negative");if(o>t.length-r)throw new Error("Invalid startIndex and length");t=t.substr(r,o);for(const n of e){const e=t.indexOf(n);if(e>-1)return e+r}return-1}export function printf(t){return{input:t,cont:fsFormat(t)}}export function interpolate(t,e){let n=0,r=0,o="";interpolateRegExp.lastIndex=0;let i=interpolateRegExp.exec(t);for(;i;){const s=i.index+(i[1]||"").length;o+=t.substring(r,s).replace(/%%/g,"%");const[,,a,u,l,c]=i;r=interpolateRegExp.lastIndex,o+=formatReplacement(e[n++],a,u,l,c),interpolateRegExp.lastIndex=r-1,i=interpolateRegExp.exec(t)}return o+=t.substring(r).replace(/%%/g,"%"),o}function continuePrint(t,e){return"string"==typeof e?t(e):e.cont(t)}export function toConsole(t){return continuePrint((t=>console.log(t)),t)}export function toConsoleError(t){return continuePrint((t=>console.error(t)),t)}export function toText(t){return continuePrint((t=>t),t)}export function toFail(t){return continuePrint((t=>{throw new Error(t)}),t)}function formatReplacement(t,e,n,r,o){let i="";if(e=e||"",o=o||"",isNumeric(t))switch("x"!==o.toLowerCase()&&(isLessThan(t,0)?(t=multiply(t,-1),i="-"):e.indexOf(" ")>=0?i=" ":e.indexOf("+")>=0&&(i="+")),r=null==r?null:parseInt(r,10),o){case"f":case"F":t=toFixed(t,r=null!=r?r:6);break;case"g":case"G":t=null!=r?toPrecision(t,r):toPrecision(t);break;case"e":case"E":t=null!=r?toExponential(t,r):toExponential(t);break;case"x":t=toHex(t);break;case"X":t=toHex(t).toUpperCase();break;default:t=String(t)}else t=t instanceof Date?dateToString(t):toString(t);if(n="number"==typeof n?n:parseInt(n,10),isNaN(n))t=i+t;else{const r=e.indexOf("0")>=0,o=e.indexOf("-")>=0,s=o||!r?" ":"0";t="0"===s?i+(t=pad(t,n-i.length,s,o)):pad(i+t,n,s,o)}return t}function createPrinter(t,e,n,r="",o=-1){return(...i)=>{let s=r;const a=e.slice(),u=n.slice();for(const t of i){const[,,e,n,r,i]=u[0];let l=n;if(o>=0)l=o,o=-1;else if("*"===l){if(t<0)throw new Error("Non-negative number required");o=t;continue}s+=a[0],s+=formatReplacement(t,e,l,r,i),a.splice(0,1),u.splice(0,1)}return 0===u.length?(s+=a[0],t(s)):createPrinter(t,a,u,s,o)}}export function fsFormat(t){return e=>{fsFormatRegExp.lastIndex=0;const n=[],r=[];let o=0,i=fsFormatRegExp.exec(t);for(;i;){const e=i.index+(i[1]||"").length;n.push(t.substring(o,e).replace(/%%/g,"%")),r.push(i),o=fsFormatRegExp.lastIndex,fsFormatRegExp.lastIndex-=1,i=fsFormatRegExp.exec(t)}return 0===n.length?e(t.replace(/%%/g,"%")):(n.push(t.substring(o).replace(/%%/g,"%")),createPrinter(e,n,r))}}export function format(t,...e){let n;return"object"==typeof t?(n=String(e[0]),e.shift()):n=t,n.replace(formatRegExp,((t,n,r,o,i,s)=>{if(n<0||n>=e.length)throw new Error("Index must be greater or equal to zero and less than the arguments' length.");let a=e[n];if(isNumeric(a))switch(i=null==i?null:parseInt(i,10),o){case"f":case"F":a=toFixed(a,i=null!=i?i:2);break;case"g":case"G":a=null!=i?toPrecision(a,i):toPrecision(a);break;case"e":case"E":a=null!=i?toExponential(a,i):toExponential(a);break;case"p":case"P":i=null!=i?i:2,a=toFixed(multiply(a,100),i)+" %";break;case"d":case"D":a=null!=i?padLeft(String(a),i,"0"):String(a);break;case"x":case"X":a=null!=i?padLeft(toHex(a),i,"0"):toHex(a),"X"===o&&(a=a.toUpperCase());break;default:if(s){let t="";a=s.replace(/([0#,]+)(\.[0#]+)?/,((e,n,r)=>{isLessThan(a,0)&&(a=multiply(a,-1),t="-"),r=null==r?"":r.substring(1),a=toFixed(a,Math.max(r.length,0));let[o,i]=a.split(".");i||(i=""),o=padLeft(o,n.replace(/,/g,"").replace(/^#+/,"").length,"0");const s=r.replace(/#+$/,"").length;if(s>i.length?i=padRight(i,s,"0"):s<i.length&&(i=i.substring(0,s)+i.substring(s).replace(/0+$/,"")),n.indexOf(",")>0){const t=o.length%3,e=Math.floor(o.length/3);let n=t>0?o.substr(0,t)+(e>0?",":""):"";for(let r=0;r<e;r++)n+=o.substr(t+3*r,3)+(r<e-1?",":"");o=n}return i.length>0?o+"."+i:o})),a=t+a}}else a=a instanceof Date?dateToString(a,s||o):toString(a);return r=parseInt((r||" ").substring(1),10),isNaN(r)||(a=pad(String(a),Math.abs(r)," ",r<0)),a}))}export function endsWith(t,e){const n=t.lastIndexOf(e);return n>=0&&n===t.length-e.length}export function initialize(t,e){if(t<0)throw new Error("String length must be non-negative");const n=new Array(t);for(let r=0;r<t;r++)n[r]=e(r);return n.join("")}export function insert(t,e,n){if(e<0||e>t.length)throw new Error("startIndex is negative or greater than the length of this instance.");return t.substring(0,e)+n+t.substring(e)}export function isNullOrEmpty(t){return"string"!=typeof t||0===t.length}export function isNullOrWhiteSpace(t){return"string"!=typeof t||/^\s*$/.test(t)}export function concat(...t){return t.map((t=>String(t))).join("")}export function join(t,e){return Array.isArray(e)?e.join(t):Array.from(e).join(t)}export function joinWithIndices(t,e,n,r){const o=n+r;if(o>e.length)throw new Error("Index and count must refer to a location within the buffer.");return e.slice(n,o).join(t)}function notSupported(t){throw new Error("The environment doesn't support '"+t+"', please use a polyfill.")}export function toBase64String(t){let e="";for(let n=0;n<t.length;n++)e+=String.fromCharCode(t[n]);return"function"==typeof btoa?btoa(e):notSupported("btoa")}export function fromBase64String(t){const e="function"==typeof atob?atob(t):notSupported("atob"),n=new Uint8Array(e.length);for(let t=0;t<e.length;t++)n[t]=e.charCodeAt(t);return n}function pad(t,e,n,r){n=n||" ",e-=t.length;for(let o=0;o<e;o++)t=r?t+n:n+t;return t}export function padLeft(t,e,n){return pad(t,e,n)}export function padRight(t,e,n){return pad(t,e,n,!0)}export function remove(t,e,n){if(e>=t.length)throw new Error("startIndex must be less than length of string");if("number"==typeof n&&e+n>t.length)throw new Error("Index and count must refer to a location within the string.");return t.slice(0,e)+("number"==typeof n?t.substr(e+n):"")}export function replace(t,e,n){return t.replace(new RegExp(escape(e),"g"),n)}export function replicate(t,e){return initialize(t,(()=>e))}export function getCharAtIndex(t,e){if(e<0||e>=t.length)throw new Error("Index was outside the bounds of the array.");return t[e]}export function split(t,e,n,r){if(r="number"==typeof r?r:0,(n="number"==typeof n?n:void 0)&&n<0)throw new Error("Count cannot be less than zero");if(0===n)return[];const o=1==(1&r),i=2==(2&r);e=(e=(e=e||[]).filter((t=>t)).map(escape)).length>0?e:["\\s"];const s=[],a=new RegExp(e.join("|"),"g");let u=!0,l=0;do{const e=a.exec(t);if(null===e){const e=i?t.substring(l).trim():t.substring(l);(!o||e.length>0)&&s.push(e),u=!1}else{const r=i?t.substring(l,e.index).trim():t.substring(l,e.index);(!o||r.length>0)&&(null!=n&&s.length+1===n?(s.push(i?t.substring(l).trim():t.substring(l)),u=!1):s.push(r)),l=a.lastIndex}}while(u);return s}export function trim(t,...e){if(0===e.length)return t.trim();const n="["+escape(e.join(""))+"]+";return t.replace(new RegExp("^"+n),"").replace(new RegExp(n+"$"),"")}export function trimStart(t,...e){return 0===e.length?t.trimStart():t.replace(new RegExp("^["+escape(e.join(""))+"]+"),"")}export function trimEnd(t,...e){return 0===e.length?t.trimEnd():t.replace(new RegExp("["+escape(e.join(""))+"]+$"),"")}export function filter(t,e){return e.split("").filter((e=>t(e))).join("")}export function substring(t,e,n){if(e+(n||0)>t.length)throw new Error("Invalid startIndex and/or length");return null!=n?t.substr(e,n):t.substr(e)}export function fmt(t,...e){return{strs:t,args:e}}export function fmtWith(t){return(e,...n)=>({strs:e,args:n,fmts:t})}export function getFormat(t){return t.fmts?t.strs.reduce(((e,n,r)=>e+`{${String(r-1)+t.fmts[r-1]}}`+n)):t.strs.reduce(((t,e,n)=>t+`{${n-1}}`+e))}
+import { toString as dateToString } from "./Date.js";
+import { compare as numericCompare, isNumeric, multiply, toExponential, toFixed, toHex, toPrecision } from "./Numeric.js";
+import { escape } from "./RegExp.js";
+import { toString } from "./Types.js";
+const fsFormatRegExp = /(^|[^%])%([0+\- ]*)(\*|\d+)?(?:\.(\d+))?(\w)/g;
+const interpolateRegExp = /(?:(^|[^%])%([0+\- ]*)(\d+)?(?:\.(\d+))?(\w))?%P\(\)/g;
+const formatRegExp = /\{(\d+)(,-?\d+)?(?:\:([a-zA-Z])(\d{0,2})|\:(.+?))?\}/g;
+function isLessThan(x, y) {
+    return numericCompare(x, y) < 0;
+}
+function cmp(x, y, ic) {
+    function isIgnoreCase(i) {
+        return i === true ||
+            i === 1 /* StringComparison.CurrentCultureIgnoreCase */ ||
+            i === 3 /* StringComparison.InvariantCultureIgnoreCase */ ||
+            i === 5 /* StringComparison.OrdinalIgnoreCase */;
+    }
+    function isOrdinal(i) {
+        return i === 4 /* StringComparison.Ordinal */ ||
+            i === 5 /* StringComparison.OrdinalIgnoreCase */;
+    }
+    if (x == null) {
+        return y == null ? 0 : -1;
+    }
+    if (y == null) {
+        return 1;
+    } // everything is bigger than null
+    if (isOrdinal(ic)) {
+        if (isIgnoreCase(ic)) {
+            x = x.toLowerCase();
+            y = y.toLowerCase();
+        }
+        return (x === y) ? 0 : (x < y ? -1 : 1);
+    }
+    else {
+        if (isIgnoreCase(ic)) {
+            x = x.toLocaleLowerCase();
+            y = y.toLocaleLowerCase();
+        }
+        return x.localeCompare(y);
+    }
+}
+export function compare(...args) {
+    switch (args.length) {
+        case 2: return cmp(args[0], args[1], false);
+        case 3: return cmp(args[0], args[1], args[2]);
+        case 4: return cmp(args[0], args[1], args[2] === true);
+        case 5: return cmp(args[0].substr(args[1], args[4]), args[2].substr(args[3], args[4]), false);
+        case 6: return cmp(args[0].substr(args[1], args[4]), args[2].substr(args[3], args[4]), args[5]);
+        case 7: return cmp(args[0].substr(args[1], args[4]), args[2].substr(args[3], args[4]), args[5] === true);
+        default: throw new Error("String.compare: Unsupported number of parameters");
+    }
+}
+export function compareOrdinal(x, y) {
+    return cmp(x, y, 4 /* StringComparison.Ordinal */);
+}
+export function compareTo(x, y) {
+    return cmp(x, y, 0 /* StringComparison.CurrentCulture */);
+}
+export function startsWith(str, pattern, ic) {
+    if (str.length >= pattern.length) {
+        return cmp(str.substr(0, pattern.length), pattern, ic) === 0;
+    }
+    return false;
+}
+export function indexOfAny(str, anyOf, ...args) {
+    if (str == null || str === "") {
+        return -1;
+    }
+    const startIndex = (args.length > 0) ? args[0] : 0;
+    if (startIndex < 0) {
+        throw new Error("Start index cannot be negative");
+    }
+    const length = (args.length > 1) ? args[1] : str.length - startIndex;
+    if (length < 0) {
+        throw new Error("Length cannot be negative");
+    }
+    if (length > str.length - startIndex) {
+        throw new Error("Invalid startIndex and length");
+    }
+    str = str.substr(startIndex, length);
+    for (const c of anyOf) {
+        const index = str.indexOf(c);
+        if (index > -1) {
+            return index + startIndex;
+        }
+    }
+    return -1;
+}
+export function printf(input) {
+    return {
+        input,
+        cont: fsFormat(input),
+    };
+}
+export function interpolate(str, values) {
+    let valIdx = 0;
+    let strIdx = 0;
+    let result = "";
+    interpolateRegExp.lastIndex = 0;
+    let match = interpolateRegExp.exec(str);
+    while (match) {
+        // The first group corresponds to the no-escape char (^|[^%]), the actual pattern starts in the next char
+        // Note: we don't use negative lookbehind because some browsers don't support it yet
+        const matchIndex = match.index + (match[1] || "").length;
+        result += str.substring(strIdx, matchIndex).replace(/%%/g, "%");
+        const [, , flags, padLength, precision, format] = match;
+        // Save interpolateRegExp.lastIndex before running formatReplacement because the values
+        // may also involve interpolation and make use of interpolateRegExp (see #3078)
+        strIdx = interpolateRegExp.lastIndex;
+        result += formatReplacement(values[valIdx++], flags, padLength, precision, format);
+        // Move interpolateRegExp.lastIndex one char behind to make sure we match the no-escape char next time
+        interpolateRegExp.lastIndex = strIdx - 1;
+        match = interpolateRegExp.exec(str);
+    }
+    result += str.substring(strIdx).replace(/%%/g, "%");
+    return result;
+}
+function continuePrint(cont, arg) {
+    return typeof arg === "string" ? cont(arg) : arg.cont(cont);
+}
+export function toConsole(arg) {
+    // Don't remove the lambda here, see #1357
+    return continuePrint((x) => console.log(x), arg);
+}
+export function toConsoleError(arg) {
+    return continuePrint((x) => console.error(x), arg);
+}
+export function toText(arg) {
+    return continuePrint((x) => x, arg);
+}
+export function toFail(arg) {
+    return continuePrint((x) => {
+        throw new Error(x);
+    }, arg);
+}
+function formatReplacement(rep, flags, padLength, precision, format) {
+    let sign = "";
+    flags = flags || "";
+    format = format || "";
+    if (isNumeric(rep)) {
+        if (format.toLowerCase() !== "x") {
+            if (isLessThan(rep, 0)) {
+                rep = multiply(rep, -1);
+                sign = "-";
+            }
+            else {
+                if (flags.indexOf(" ") >= 0) {
+                    sign = " ";
+                }
+                else if (flags.indexOf("+") >= 0) {
+                    sign = "+";
+                }
+            }
+        }
+        precision = precision == null ? null : parseInt(precision, 10);
+        switch (format) {
+            case "f":
+            case "F":
+                precision = precision != null ? precision : 6;
+                rep = toFixed(rep, precision);
+                break;
+            case "g":
+            case "G":
+                rep = precision != null ? toPrecision(rep, precision) : toPrecision(rep);
+                break;
+            case "e":
+            case "E":
+                rep = precision != null ? toExponential(rep, precision) : toExponential(rep);
+                break;
+            case "x":
+                rep = toHex(rep);
+                break;
+            case "X":
+                rep = toHex(rep).toUpperCase();
+                break;
+            default: // AOid
+                rep = String(rep);
+                break;
+        }
+    }
+    else if (rep instanceof Date) {
+        rep = dateToString(rep);
+    }
+    else {
+        rep = toString(rep);
+    }
+    padLength = typeof padLength === "number" ? padLength : parseInt(padLength, 10);
+    if (!isNaN(padLength)) {
+        const zeroFlag = flags.indexOf("0") >= 0; // Use '0' for left padding
+        const minusFlag = flags.indexOf("-") >= 0; // Right padding
+        const ch = minusFlag || !zeroFlag ? " " : "0";
+        if (ch === "0") {
+            rep = pad(rep, padLength - sign.length, ch, minusFlag);
+            rep = sign + rep;
+        }
+        else {
+            rep = pad(sign + rep, padLength, ch, minusFlag);
+        }
+    }
+    else {
+        rep = sign + rep;
+    }
+    return rep;
+}
+function createPrinter(cont, _strParts, _matches, _result = "", padArg = -1) {
+    return (...args) => {
+        // Make copies of the values passed by reference because the function can be used multiple times
+        let result = _result;
+        const strParts = _strParts.slice();
+        const matches = _matches.slice();
+        for (const arg of args) {
+            const [, , flags, _padLength, precision, format] = matches[0];
+            let padLength = _padLength;
+            if (padArg >= 0) {
+                padLength = padArg;
+                padArg = -1;
+            }
+            else if (padLength === "*") {
+                if (arg < 0) {
+                    throw new Error("Non-negative number required");
+                }
+                padArg = arg;
+                continue;
+            }
+            result += strParts[0];
+            result += formatReplacement(arg, flags, padLength, precision, format);
+            strParts.splice(0, 1);
+            matches.splice(0, 1);
+        }
+        if (matches.length === 0) {
+            result += strParts[0];
+            return cont(result);
+        }
+        else {
+            return createPrinter(cont, strParts, matches, result, padArg);
+        }
+    };
+}
+export function fsFormat(str) {
+    return (cont) => {
+        fsFormatRegExp.lastIndex = 0;
+        const strParts = [];
+        const matches = [];
+        let strIdx = 0;
+        let match = fsFormatRegExp.exec(str);
+        while (match) {
+            // The first group corresponds to the no-escape char (^|[^%]), the actual pattern starts in the next char
+            // Note: we don't use negative lookbehind because some browsers don't support it yet
+            const matchIndex = match.index + (match[1] || "").length;
+            strParts.push(str.substring(strIdx, matchIndex).replace(/%%/g, "%"));
+            matches.push(match);
+            strIdx = fsFormatRegExp.lastIndex;
+            // Likewise we need to move fsFormatRegExp.lastIndex one char behind to make sure we match the no-escape char next time
+            fsFormatRegExp.lastIndex -= 1;
+            match = fsFormatRegExp.exec(str);
+        }
+        if (strParts.length === 0) {
+            return cont(str.replace(/%%/g, "%"));
+        }
+        else {
+            strParts.push(str.substring(strIdx).replace(/%%/g, "%"));
+            return createPrinter(cont, strParts, matches);
+        }
+    };
+}
+export function format(str, ...args) {
+    let str2;
+    if (typeof str === "object") {
+        // Called with culture info
+        str2 = String(args[0]);
+        args.shift();
+    }
+    else {
+        str2 = str;
+    }
+    return str2.replace(formatRegExp, (_, idx, padLength, format, precision, pattern) => {
+        if (idx < 0 || idx >= args.length) {
+            throw new Error("Index must be greater or equal to zero and less than the arguments' length.");
+        }
+        let rep = args[idx];
+        if (isNumeric(rep)) {
+            precision = precision == null ? null : parseInt(precision, 10);
+            switch (format) {
+                case "f":
+                case "F":
+                    precision = precision != null ? precision : 2;
+                    rep = toFixed(rep, precision);
+                    break;
+                case "g":
+                case "G":
+                    rep = precision != null ? toPrecision(rep, precision) : toPrecision(rep);
+                    break;
+                case "e":
+                case "E":
+                    rep = precision != null ? toExponential(rep, precision) : toExponential(rep);
+                    break;
+                case "p":
+                case "P":
+                    precision = precision != null ? precision : 2;
+                    rep = toFixed(multiply(rep, 100), precision) + " %";
+                    break;
+                case "d":
+                case "D":
+                    rep = precision != null ? padLeft(String(rep), precision, "0") : String(rep);
+                    break;
+                case "x":
+                case "X":
+                    rep = precision != null ? padLeft(toHex(rep), precision, "0") : toHex(rep);
+                    if (format === "X") {
+                        rep = rep.toUpperCase();
+                    }
+                    break;
+                default:
+                    if (pattern) {
+                        let sign = "";
+                        rep = pattern.replace(/([0#,]+)(\.[0#]+)?/, (_, intPart, decimalPart) => {
+                            if (isLessThan(rep, 0)) {
+                                rep = multiply(rep, -1);
+                                sign = "-";
+                            }
+                            decimalPart = decimalPart == null ? "" : decimalPart.substring(1);
+                            rep = toFixed(rep, Math.max(decimalPart.length, 0));
+                            let [repInt, repDecimal] = rep.split(".");
+                            repDecimal || (repDecimal = "");
+                            const leftZeroes = intPart.replace(/,/g, "").replace(/^#+/, "").length;
+                            repInt = padLeft(repInt, leftZeroes, "0");
+                            const rightZeros = decimalPart.replace(/#+$/, "").length;
+                            if (rightZeros > repDecimal.length) {
+                                repDecimal = padRight(repDecimal, rightZeros, "0");
+                            }
+                            else if (rightZeros < repDecimal.length) {
+                                repDecimal = repDecimal.substring(0, rightZeros) + repDecimal.substring(rightZeros).replace(/0+$/, "");
+                            }
+                            // Thousands separator
+                            if (intPart.indexOf(",") > 0) {
+                                const i = repInt.length % 3;
+                                const thousandGroups = Math.floor(repInt.length / 3);
+                                let thousands = i > 0 ? repInt.substr(0, i) + (thousandGroups > 0 ? "," : "") : "";
+                                for (let j = 0; j < thousandGroups; j++) {
+                                    thousands += repInt.substr(i + j * 3, 3) + (j < thousandGroups - 1 ? "," : "");
+                                }
+                                repInt = thousands;
+                            }
+                            return repDecimal.length > 0 ? repInt + "." + repDecimal : repInt;
+                        });
+                        rep = sign + rep;
+                    }
+            }
+        }
+        else if (rep instanceof Date) {
+            rep = dateToString(rep, pattern || format);
+        }
+        else {
+            rep = toString(rep);
+        }
+        padLength = parseInt((padLength || " ").substring(1), 10);
+        if (!isNaN(padLength)) {
+            rep = pad(String(rep), Math.abs(padLength), " ", padLength < 0);
+        }
+        return rep;
+    });
+}
+export function endsWith(str, search) {
+    const idx = str.lastIndexOf(search);
+    return idx >= 0 && idx === str.length - search.length;
+}
+export function initialize(n, f) {
+    if (n < 0) {
+        throw new Error("String length must be non-negative");
+    }
+    const xs = new Array(n);
+    for (let i = 0; i < n; i++) {
+        xs[i] = f(i);
+    }
+    return xs.join("");
+}
+export function insert(str, startIndex, value) {
+    if (startIndex < 0 || startIndex > str.length) {
+        throw new Error("startIndex is negative or greater than the length of this instance.");
+    }
+    return str.substring(0, startIndex) + value + str.substring(startIndex);
+}
+export function isNullOrEmpty(str) {
+    return typeof str !== "string" || str.length === 0;
+}
+export function isNullOrWhiteSpace(str) {
+    return typeof str !== "string" || /^\s*$/.test(str);
+}
+export function concat(...xs) {
+    return xs.map((x) => String(x)).join("");
+}
+export function join(delimiter, xs) {
+    if (Array.isArray(xs)) {
+        return xs.join(delimiter);
+    }
+    else {
+        return Array.from(xs).join(delimiter);
+    }
+}
+export function joinWithIndices(delimiter, xs, startIndex, count) {
+    const endIndexPlusOne = startIndex + count;
+    if (endIndexPlusOne > xs.length) {
+        throw new Error("Index and count must refer to a location within the buffer.");
+    }
+    return xs.slice(startIndex, endIndexPlusOne).join(delimiter);
+}
+function notSupported(name) {
+    throw new Error("The environment doesn't support '" + name + "', please use a polyfill.");
+}
+export function toBase64String(inArray) {
+    let str = "";
+    for (let i = 0; i < inArray.length; i++) {
+        str += String.fromCharCode(inArray[i]);
+    }
+    return typeof btoa === "function" ? btoa(str) : notSupported("btoa");
+}
+export function fromBase64String(b64Encoded) {
+    const binary = typeof atob === "function" ? atob(b64Encoded) : notSupported("atob");
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+}
+function pad(str, len, ch, isRight) {
+    ch = ch || " ";
+    len = len - str.length;
+    for (let i = 0; i < len; i++) {
+        str = isRight ? str + ch : ch + str;
+    }
+    return str;
+}
+export function padLeft(str, len, ch) {
+    return pad(str, len, ch);
+}
+export function padRight(str, len, ch) {
+    return pad(str, len, ch, true);
+}
+export function remove(str, startIndex, count) {
+    if (startIndex >= str.length) {
+        throw new Error("startIndex must be less than length of string");
+    }
+    if (typeof count === "number" && (startIndex + count) > str.length) {
+        throw new Error("Index and count must refer to a location within the string.");
+    }
+    return str.slice(0, startIndex) + (typeof count === "number" ? str.substr(startIndex + count) : "");
+}
+export function replace(str, search, replace) {
+    return str.replace(new RegExp(escape(search), "g"), replace);
+}
+export function replicate(n, x) {
+    return initialize(n, () => x);
+}
+export function getCharAtIndex(input, index) {
+    if (index < 0 || index >= input.length) {
+        throw new Error("Index was outside the bounds of the array.");
+    }
+    return input[index];
+}
+export function split(str, splitters, count, options) {
+    count = typeof count === "number" ? count : undefined;
+    options = typeof options === "number" ? options : 0;
+    if (count && count < 0) {
+        throw new Error("Count cannot be less than zero");
+    }
+    if (count === 0) {
+        return [];
+    }
+    const removeEmpty = (options & 1) === 1;
+    const trim = (options & 2) === 2;
+    splitters = splitters || [];
+    splitters = splitters.filter(x => x).map(escape);
+    splitters = splitters.length > 0 ? splitters : ["\\s"];
+    const splits = [];
+    const reg = new RegExp(splitters.join("|"), "g");
+    let findSplits = true;
+    let i = 0;
+    do {
+        const match = reg.exec(str);
+        if (match === null) {
+            const candidate = trim ? str.substring(i).trim() : str.substring(i);
+            if (!removeEmpty || candidate.length > 0) {
+                splits.push(candidate);
+            }
+            findSplits = false;
+        }
+        else {
+            const candidate = trim ? str.substring(i, match.index).trim() : str.substring(i, match.index);
+            if (!removeEmpty || candidate.length > 0) {
+                if (count != null && splits.length + 1 === count) {
+                    splits.push(trim ? str.substring(i).trim() : str.substring(i));
+                    findSplits = false;
+                }
+                else {
+                    splits.push(candidate);
+                }
+            }
+            i = reg.lastIndex;
+        }
+    } while (findSplits);
+    return splits;
+}
+export function trim(str, ...chars) {
+    if (chars.length === 0) {
+        return str.trim();
+    }
+    const pattern = "[" + escape(chars.join("")) + "]+";
+    return str.replace(new RegExp("^" + pattern), "").replace(new RegExp(pattern + "$"), "");
+}
+export function trimStart(str, ...chars) {
+    return chars.length === 0
+        ? str.trimStart()
+        : str.replace(new RegExp("^[" + escape(chars.join("")) + "]+"), "");
+}
+export function trimEnd(str, ...chars) {
+    return chars.length === 0
+        ? str.trimEnd()
+        : str.replace(new RegExp("[" + escape(chars.join("")) + "]+$"), "");
+}
+export function filter(pred, x) {
+    return x.split("").filter((c) => pred(c)).join("");
+}
+export function substring(str, startIndex, length) {
+    if ((startIndex + (length || 0) > str.length)) {
+        throw new Error("Invalid startIndex and/or length");
+    }
+    return length != null ? str.substr(startIndex, length) : str.substr(startIndex);
+}
+export function fmt(strs, ...args) {
+    return ({ strs, args });
+}
+export function fmtWith(fmts) {
+    return (strs, ...args) => ({ strs, args, fmts });
+}
+export function getFormat(s) {
+    return s.fmts
+        ? s.strs.reduce((acc, newPart, index) => acc + `{${String(index - 1) + s.fmts[index - 1]}}` + newPart)
+        : s.strs.reduce((acc, newPart, index) => acc + `{${index - 1}}` + newPart);
+}

@@ -1,1 +1,113 @@
-import{Choice_tryValueIfChoice1Of2,Choice_tryValueIfChoice2Of2}from"./Choice.js";import{value}from"./Option.js";export class Observer{constructor(e,r,t){this.OnNext=e,this.OnError=r||(e=>{}),this.OnCompleted=t||(()=>{})}}class Observable{constructor(e){this.Subscribe=e}}export function protect(e,r,t){try{return r(e())}catch(e){t(e)}}export function add(e,r){r.Subscribe(new Observer(e))}export function choose(e,r){return new Observable((t=>r.Subscribe(new Observer((r=>protect((()=>e(r)),(e=>{null!=e&&t.OnNext(value(e))}),t.OnError)),t.OnError,t.OnCompleted))))}export function filter(e,r){return choose((r=>e(r)?r:null),r)}export function map(e,r){return new Observable((t=>r.Subscribe(new Observer((r=>{protect((()=>e(r)),t.OnNext,t.OnError)}),t.OnError,t.OnCompleted))))}export function merge(e,r){return new Observable((t=>{let n=!1,o=!1,s=!1;const c=e.Subscribe(new Observer((e=>{n||t.OnNext(e)}),(e=>{n||(n=!0,t.OnError(e))}),(()=>{n||(o=!0,s&&(n=!0,t.OnCompleted()))}))),i=r.Subscribe(new Observer((e=>{n||t.OnNext(e)}),(e=>{n||(n=!0,t.OnError(e))}),(()=>{n||(s=!0,o&&(n=!0,t.OnCompleted()))})));return{Dispose(){c.Dispose(),i.Dispose()}}}))}export function pairwise(e){return new Observable((r=>{let t;return e.Subscribe(new Observer((e=>{null!=t&&r.OnNext([t,e]),t=e}),r.OnError,r.OnCompleted))}))}export function partition(e,r){return[filter(e,r),filter((r=>!e(r)),r)]}export function scan(e,r,t){return new Observable((n=>t.Subscribe(new Observer((t=>{protect((()=>e(r,t)),(e=>{r=e,n.OnNext(e)}),n.OnError)}),n.OnError,n.OnCompleted))))}export function split(e,r){return[choose((r=>Choice_tryValueIfChoice1Of2(e(r))),r),choose((r=>Choice_tryValueIfChoice2Of2(e(r))),r)]}export function subscribe(e,r){return r.Subscribe(new Observer(e))}
+import { Choice_tryValueIfChoice1Of2, Choice_tryValueIfChoice2Of2 } from "./Choice.js";
+import { value } from "./Option.js";
+export class Observer {
+    constructor(onNext, onError, onCompleted) {
+        this.OnNext = onNext;
+        this.OnError = onError || ((_e) => { return; });
+        this.OnCompleted = onCompleted || (() => { return; });
+    }
+}
+class Observable {
+    constructor(subscribe) {
+        this.Subscribe = subscribe;
+    }
+}
+export function protect(f, succeed, fail) {
+    try {
+        return succeed(f());
+    }
+    catch (e) {
+        fail(e);
+    }
+}
+export function add(callback, source) {
+    source.Subscribe(new Observer(callback));
+}
+export function choose(chooser, source) {
+    return new Observable((observer) => source.Subscribe(new Observer((t) => protect(() => chooser(t), (u) => { if (u != null) {
+        observer.OnNext(value(u));
+    } }, observer.OnError), observer.OnError, observer.OnCompleted)));
+}
+export function filter(predicate, source) {
+    return choose((x) => predicate(x) ? x : null, source);
+}
+export function map(mapping, source) {
+    return new Observable((observer) => source.Subscribe(new Observer((t) => {
+        protect(() => mapping(t), observer.OnNext, observer.OnError);
+    }, observer.OnError, observer.OnCompleted)));
+}
+export function merge(source1, source2) {
+    return new Observable((observer) => {
+        let stopped = false;
+        let completed1 = false;
+        let completed2 = false;
+        const h1 = source1.Subscribe(new Observer((v) => { if (!stopped) {
+            observer.OnNext(v);
+        } }, (e) => {
+            if (!stopped) {
+                stopped = true;
+                observer.OnError(e);
+            }
+        }, () => {
+            if (!stopped) {
+                completed1 = true;
+                if (completed2) {
+                    stopped = true;
+                    observer.OnCompleted();
+                }
+            }
+        }));
+        const h2 = source2.Subscribe(new Observer((v) => { if (!stopped) {
+            observer.OnNext(v);
+        } }, (e) => {
+            if (!stopped) {
+                stopped = true;
+                observer.OnError(e);
+            }
+        }, () => {
+            if (!stopped) {
+                completed2 = true;
+                if (completed1) {
+                    stopped = true;
+                    observer.OnCompleted();
+                }
+            }
+        }));
+        return {
+            Dispose() {
+                h1.Dispose();
+                h2.Dispose();
+            },
+        };
+    });
+}
+export function pairwise(source) {
+    return new Observable((observer) => {
+        let last;
+        return source.Subscribe(new Observer((next) => {
+            if (last != null) {
+                observer.OnNext([last, next]);
+            }
+            last = next;
+        }, observer.OnError, observer.OnCompleted));
+    });
+}
+export function partition(predicate, source) {
+    return [filter(predicate, source), filter((x) => !predicate(x), source)];
+}
+export function scan(collector, state, source) {
+    return new Observable((observer) => {
+        return source.Subscribe(new Observer((t) => {
+            protect(() => collector(state, t), (u) => { state = u; observer.OnNext(u); }, observer.OnError);
+        }, observer.OnError, observer.OnCompleted));
+    });
+}
+export function split(splitter, source) {
+    return [
+        choose((v) => Choice_tryValueIfChoice1Of2(splitter(v)), source),
+        choose((v) => Choice_tryValueIfChoice2Of2(splitter(v)), source)
+    ];
+}
+export function subscribe(callback, source) {
+    return source.Subscribe(new Observer(callback));
+}

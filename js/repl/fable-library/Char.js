@@ -1,1 +1,169 @@
-import*as Unicode from"./Unicode.13.0.0.js";function getCategoryFunc(){const t=[...Unicode.rangeDeltas].map((t=>{var e;return(null!==(e=t.codePointAt(0))&&void 0!==e?e:0)-35})),e=[...Unicode.categories].map((t=>{var e;return(null!==(e=t.codePointAt(0))&&void 0!==e?e:0)-35})),r=new Uint32Array(t),o=new Uint8Array(e);for(let t=1;t<r.length;++t)r[t]+=r[t-1];return t=>{let e=r.length,i=0;for(;e-i>1;){const o=Math.floor((e+i)/2),n=r[o];if(t<n)e=o;else{if(t===n){e=i=o;break}n<t&&(i=o)}}return o[i]}}const isControlMask=16384,isDigitMask=256,isLetterMask=31,isLetterOrDigitMask=isLetterMask|isDigitMask,isUpperMask=1,isLowerMask=2,isNumberMask=1792,isPunctuationMask=33292288,isSeparatorMask=14336,isSymbolMask=503316480,isWhiteSpaceMask=14336,unicodeCategoryFunc=getCategoryFunc();function charCodeAt(t,e){if(e>=0&&e<t.length)return t.charCodeAt(e);throw new Error("Index out of range.")}export const getUnicodeCategory=t=>getUnicodeCategory2(t,0);export const isControl=t=>isControl2(t,0);export const isDigit=t=>isDigit2(t,0);export const isLetter=t=>isLetter2(t,0);export const isLetterOrDigit=t=>isLetterOrDigit2(t,0);export const isUpper=t=>isUpper2(t,0);export const isLower=t=>isLower2(t,0);export const isNumber=t=>isNumber2(t,0);export const isPunctuation=t=>isPunctuation2(t,0);export const isSeparator=t=>isSeparator2(t,0);export const isSymbol=t=>isSymbol2(t,0);export const isWhiteSpace=t=>isWhiteSpace2(t,0);export const isHighSurrogate=t=>isHighSurrogate2(t,0);export const isLowSurrogate=t=>isLowSurrogate2(t,0);export const isSurrogate=t=>isSurrogate2(t,0);export function getUnicodeCategory2(t,e){const r=charCodeAt(t,e);return unicodeCategoryFunc(r)}export function isControl2(t,e){return 0!=(1<<getUnicodeCategory2(t,e)&isControlMask)}export function isDigit2(t,e){return 0!=(1<<getUnicodeCategory2(t,e)&isDigitMask)}export function isLetter2(t,e){return 0!=(1<<getUnicodeCategory2(t,e)&isLetterMask)}export function isLetterOrDigit2(t,e){return 0!=(1<<getUnicodeCategory2(t,e)&isLetterOrDigitMask)}export function isUpper2(t,e){return 0!=(1<<getUnicodeCategory2(t,e)&isUpperMask)}export function isLower2(t,e){return 0!=(1<<getUnicodeCategory2(t,e)&isLowerMask)}export function isNumber2(t,e){return 0!=(1<<getUnicodeCategory2(t,e)&isNumberMask)}export function isPunctuation2(t,e){return 0!=(1<<getUnicodeCategory2(t,e)&isPunctuationMask)}export function isSeparator2(t,e){return 0!=(1<<getUnicodeCategory2(t,e)&isSeparatorMask)}export function isSymbol2(t,e){return 0!=(1<<getUnicodeCategory2(t,e)&isSymbolMask)}export function isWhiteSpace2(t,e){if(0!=(1<<getUnicodeCategory2(t,e)&isWhiteSpaceMask))return!0;const r=charCodeAt(t,e);return 9<=r&&r<=13||133===r||160===r}export function isHighSurrogate2(t,e){const r=charCodeAt(t,e);return 55296<=r&&r<=56319}export function isLowSurrogate2(t,e){const r=charCodeAt(t,e);return 56320<=r&&r<=57343}export function isSurrogate2(t,e){const r=charCodeAt(t,e);return 55296<=r&&r<=57343}export function isSurrogatePair(t,e){return"number"==typeof e?isHighSurrogate2(t,e)&&isLowSurrogate2(t,e+1):isHighSurrogate(t)&&isLowSurrogate(e)}export function parse(t){if(1===t.length)return t[0];throw new Error("String must be exactly one character long.")}
+import * as Unicode from "./Unicode.13.0.0.js";
+function getCategoryFunc() {
+    // unpack Unicode codepoint ranges (delta encoded) and general categories
+    const offset = 35; // offsets unprintable characters
+    const a1 = [...Unicode.rangeDeltas].map((ch) => { var _a; return ((_a = ch.codePointAt(0)) !== null && _a !== void 0 ? _a : 0) - offset; });
+    const a2 = [...Unicode.categories].map((ch) => { var _a; return ((_a = ch.codePointAt(0)) !== null && _a !== void 0 ? _a : 0) - offset; });
+    const codepoints = new Uint32Array(a1);
+    const categories = new Uint8Array(a2);
+    for (let i = 1; i < codepoints.length; ++i) {
+        codepoints[i] += codepoints[i - 1];
+    }
+    // binary search in unicode ranges
+    return (cp) => {
+        let hi = codepoints.length;
+        let lo = 0;
+        while (hi - lo > 1) {
+            const mid = Math.floor((hi + lo) / 2);
+            const test = codepoints[mid];
+            if (cp < test) {
+                hi = mid;
+            }
+            else if (cp === test) {
+                hi = lo = mid;
+                break;
+            }
+            else if (test < cp) {
+                lo = mid;
+            }
+        }
+        return categories[lo];
+    };
+}
+const isControlMask = 1 << 14 /* UnicodeCategory.Control */;
+const isDigitMask = 1 << 8 /* UnicodeCategory.DecimalDigitNumber */;
+const isLetterMask = 0
+    | 1 << 0 /* UnicodeCategory.UppercaseLetter */
+    | 1 << 1 /* UnicodeCategory.LowercaseLetter */
+    | 1 << 2 /* UnicodeCategory.TitlecaseLetter */
+    | 1 << 3 /* UnicodeCategory.ModifierLetter */
+    | 1 << 4 /* UnicodeCategory.OtherLetter */;
+const isLetterOrDigitMask = isLetterMask | isDigitMask;
+const isUpperMask = 1 << 0 /* UnicodeCategory.UppercaseLetter */;
+const isLowerMask = 1 << 1 /* UnicodeCategory.LowercaseLetter */;
+const isNumberMask = 0
+    | 1 << 8 /* UnicodeCategory.DecimalDigitNumber */
+    | 1 << 9 /* UnicodeCategory.LetterNumber */
+    | 1 << 10 /* UnicodeCategory.OtherNumber */;
+const isPunctuationMask = 0
+    | 1 << 18 /* UnicodeCategory.ConnectorPunctuation */
+    | 1 << 19 /* UnicodeCategory.DashPunctuation */
+    | 1 << 20 /* UnicodeCategory.OpenPunctuation */
+    | 1 << 21 /* UnicodeCategory.ClosePunctuation */
+    | 1 << 22 /* UnicodeCategory.InitialQuotePunctuation */
+    | 1 << 23 /* UnicodeCategory.FinalQuotePunctuation */
+    | 1 << 24 /* UnicodeCategory.OtherPunctuation */;
+const isSeparatorMask = 0
+    | 1 << 11 /* UnicodeCategory.SpaceSeparator */
+    | 1 << 12 /* UnicodeCategory.LineSeparator */
+    | 1 << 13 /* UnicodeCategory.ParagraphSeparator */;
+const isSymbolMask = 0
+    | 1 << 25 /* UnicodeCategory.MathSymbol */
+    | 1 << 26 /* UnicodeCategory.CurrencySymbol */
+    | 1 << 27 /* UnicodeCategory.ModifierSymbol */
+    | 1 << 28 /* UnicodeCategory.OtherSymbol */;
+const isWhiteSpaceMask = 0
+    | 1 << 11 /* UnicodeCategory.SpaceSeparator */
+    | 1 << 12 /* UnicodeCategory.LineSeparator */
+    | 1 << 13 /* UnicodeCategory.ParagraphSeparator */;
+const unicodeCategoryFunc = getCategoryFunc();
+function charCodeAt(s, index) {
+    if (index >= 0 && index < s.length) {
+        return s.charCodeAt(index);
+    }
+    else {
+        throw new Error("Index out of range.");
+    }
+}
+export const getUnicodeCategory = (s) => getUnicodeCategory2(s, 0);
+export const isControl = (s) => isControl2(s, 0);
+export const isDigit = (s) => isDigit2(s, 0);
+export const isLetter = (s) => isLetter2(s, 0);
+export const isLetterOrDigit = (s) => isLetterOrDigit2(s, 0);
+export const isUpper = (s) => isUpper2(s, 0);
+export const isLower = (s) => isLower2(s, 0);
+export const isNumber = (s) => isNumber2(s, 0);
+export const isPunctuation = (s) => isPunctuation2(s, 0);
+export const isSeparator = (s) => isSeparator2(s, 0);
+export const isSymbol = (s) => isSymbol2(s, 0);
+export const isWhiteSpace = (s) => isWhiteSpace2(s, 0);
+export const isHighSurrogate = (s) => isHighSurrogate2(s, 0);
+export const isLowSurrogate = (s) => isLowSurrogate2(s, 0);
+export const isSurrogate = (s) => isSurrogate2(s, 0);
+export function getUnicodeCategory2(s, index) {
+    const cp = charCodeAt(s, index);
+    return unicodeCategoryFunc(cp);
+}
+export function isControl2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    return (test & isControlMask) !== 0;
+}
+export function isDigit2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    return (test & isDigitMask) !== 0;
+}
+export function isLetter2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    return (test & isLetterMask) !== 0;
+}
+export function isLetterOrDigit2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    return (test & isLetterOrDigitMask) !== 0;
+}
+export function isUpper2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    return (test & isUpperMask) !== 0;
+}
+export function isLower2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    return (test & isLowerMask) !== 0;
+}
+export function isNumber2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    return (test & isNumberMask) !== 0;
+}
+export function isPunctuation2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    return (test & isPunctuationMask) !== 0;
+}
+export function isSeparator2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    return (test & isSeparatorMask) !== 0;
+}
+export function isSymbol2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    return (test & isSymbolMask) !== 0;
+}
+export function isWhiteSpace2(s, index) {
+    const test = 1 << getUnicodeCategory2(s, index);
+    if ((test & isWhiteSpaceMask) !== 0) {
+        return true;
+    }
+    const cp = charCodeAt(s, index);
+    return (0x09 <= cp && cp <= 0x0D) || cp === 0x85 || cp === 0xA0;
+}
+export function isHighSurrogate2(s, index) {
+    const cp = charCodeAt(s, index);
+    return (0xD800 <= cp && cp <= 0xDBFF);
+}
+export function isLowSurrogate2(s, index) {
+    const cp = charCodeAt(s, index);
+    return (0xDC00 <= cp && cp <= 0xDFFF);
+}
+export function isSurrogate2(s, index) {
+    const cp = charCodeAt(s, index);
+    return (0xD800 <= cp && cp <= 0xDFFF);
+}
+export function isSurrogatePair(s, index) {
+    return typeof index === "number"
+        ? isHighSurrogate2(s, index) && isLowSurrogate2(s, index + 1)
+        : isHighSurrogate(s) && isLowSurrogate(index);
+}
+export function parse(input) {
+    if (input.length === 1) {
+        return input[0];
+    }
+    else {
+        throw new Error("String must be exactly one character long.");
+    }
+}

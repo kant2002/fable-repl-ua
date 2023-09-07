@@ -1,1 +1,173 @@
-const littleEndian=!0;function utf16le_encode(e){const t=new Uint8Array(2*e.length),n=new DataView(t.buffer);for(let t=0;t<e.length;t++){const r=e.charCodeAt(t);n.setUint16(2*t,r,littleEndian)}return t}function utf16le_decode(e){const t=ArrayBuffer.isView(e)?e:Uint8Array.from(e),n=new DataView(t.buffer,t.byteOffset,t.byteLength),r=new Array(n.byteLength/2);for(let e=0;e<r.length;e++){const t=n.getUint16(2*e,littleEndian);r[e]=String.fromCharCode(t)}return r.join("")}function utf8_encode(e){let t=0,n=new Uint8Array(3*e.length);for(let r=0;r<e.length;r++){let f=e.charCodeAt(r);if(f>=55296&&f<=56319){const u=r<e.length?e.charCodeAt(r+1):0;u>=56320&&u<=57343?(r+=1,f=1024*(f-55296)+u-56320+65536,f>65535&&(n[t++]=240|f>>>18,n[t++]=128|f>>>12&63,n[t++]=128|f>>>6&63,n[t++]=128|63&f)):(n[t++]=239,n[t++]=191,n[t++]=189)}else f<=127?n[t++]=0|f:f<=2047?(n[t++]=192|f>>>6,n[t++]=128|63&f):(n[t++]=224|f>>>12,n[t++]=128|f>>>6&63,n[t++]=128|63&f)}return n=new Uint8Array(n.buffer.slice(0,t)),n}function utf8_decode(e){let t=0;const n=()=>{const n=e[t++];if(0==(128&n))return n;if(192==(224&n))return(31&n)<<6|63&e[t++];if(224==(240&n))return(15&n)<<12|(63&e[t++])<<6|63&e[t++];if(240==(248&n))return(7&n)<<18|(63&e[t++])<<12|(63&e[t++])<<6|63&e[t++];throw new RangeError("Invalid UTF8 byte: "+n)},r=new Array;for(;t<e.length;){const e=n();r.push(String.fromCodePoint(e))}return r.join("")}class UTF16LE{getBytes(e,t,n){if(e=Array.isArray(e)?e.join(""):e,null!=t&&null!=n?e=e.substring(t,t+n):null!=t&&(e=e.substring(t)),"undefined"!=typeof Buffer){const t=Buffer.from(e,"utf16le");return new Uint8Array(t.buffer,t.byteOffset,t.byteLength)}return utf16le_encode(e)}getString(e,t,n){const r=ArrayBuffer.isView(e)?e:Uint8Array.from(e);let f=new Uint8Array(r.buffer,r.byteOffset,r.byteLength);return null!=t&&null!=n?f=f.subarray(t,t+n):null!=t&&(f=f.subarray(t)),"undefined"!=typeof TextDecoder?new TextDecoder("utf-16le").decode(f):"undefined"!=typeof Buffer?Buffer.from(f).toString("utf16le"):utf16le_decode(f)}}class UTF8{getBytes(e,t,n){if(e=Array.isArray(e)?e.join(""):e,null!=t&&null!=n?e=e.substring(t,t+n):null!=t&&(e=e.substring(t)),"undefined"!=typeof TextEncoder)return(new TextEncoder).encode(e);if("undefined"!=typeof Buffer){const t=Buffer.from(e,"utf8");return new Uint8Array(t.buffer,t.byteOffset,t.byteLength)}return utf8_encode(e)}getString(e,t,n){const r=ArrayBuffer.isView(e)?e:Uint8Array.from(e);let f=new Uint8Array(r.buffer,r.byteOffset,r.byteLength);return null!=t&&null!=n?f=f.subarray(t,t+n):null!=t&&(f=f.subarray(t)),"undefined"!=typeof TextDecoder?(new TextDecoder).decode(f):"undefined"!=typeof Buffer?Buffer.from(f).toString("utf8"):utf8_decode(f)}}const _UTF16=new UTF16LE,_UTF8=new UTF8;export function get_Unicode(){return _UTF16}export function get_UTF8(){return _UTF8}
+const littleEndian = true;
+function utf16le_encode(str) {
+    const bytes = new Uint8Array(str.length * 2);
+    const view = new DataView(bytes.buffer);
+    for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i);
+        view.setUint16(i * 2, code, littleEndian);
+    }
+    return bytes;
+}
+function utf16le_decode(bytes) {
+    const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+    const view = new DataView(array.buffer, array.byteOffset, array.byteLength);
+    const chars = new Array(view.byteLength / 2);
+    for (let i = 0; i < chars.length; i++) {
+        const code = view.getUint16(i * 2, littleEndian);
+        chars[i] = String.fromCharCode(code);
+    }
+    return chars.join("");
+}
+function utf8_encode(str) {
+    let pos = 0;
+    let buf = new Uint8Array(str.length * 3);
+    for (let i = 0; i < str.length; i++) {
+        let code = str.charCodeAt(i);
+        if (code >= 0xD800 && code <= 0xDBFF) {
+            const nextCode = (i < str.length) ? str.charCodeAt(i + 1) : 0;
+            if (nextCode >= 0xDC00 && nextCode <= 0xDFFF) {
+                i += 1;
+                code = (code - 0xD800) * 0x400 + nextCode - 0xDC00 + 0x10000;
+                if (code > 0xFFFF) {
+                    buf[pos++] = (0x1E << 3) | (code >>> 18);
+                    buf[pos++] = (0x2 << 6) | ((code >>> 12) & 0x3F);
+                    buf[pos++] = (0x2 << 6) | ((code >>> 6) & 0x3F);
+                    buf[pos++] = (0x2 << 6) | (code & 0x3F);
+                }
+            }
+            else {
+                buf[pos++] = 0xEF;
+                buf[pos++] = 0xBF;
+                buf[pos++] = 0xBD;
+            }
+        }
+        else if (code <= 0x007F) {
+            buf[pos++] = (0x0 << 7) | code;
+        }
+        else if (code <= 0x07FF) {
+            buf[pos++] = (0x6 << 5) | (code >>> 6);
+            buf[pos++] = (0x2 << 6) | (code & 0x3F);
+        }
+        else {
+            buf[pos++] = (0xE << 4) | (code >>> 12);
+            buf[pos++] = (0x2 << 6) | ((code >>> 6) & 0x3F);
+            buf[pos++] = (0x2 << 6) | (code & 0x3F);
+        }
+    }
+    buf = new Uint8Array(buf.buffer.slice(0, pos));
+    return buf;
+}
+function utf8_decode(bytes) {
+    let pos = 0;
+    const decodeUtf8 = () => {
+        const i1 = bytes[pos++];
+        if ((i1 & 0x80) === 0) {
+            return i1;
+        }
+        else if ((i1 & 0xE0) === 0xC0) {
+            const i2 = bytes[pos++];
+            return ((i1 & 0x1F) << 6) | (i2 & 0x3F);
+        }
+        else if ((i1 & 0xF0) === 0xE0) {
+            const i2 = bytes[pos++];
+            const i3 = bytes[pos++];
+            return ((i1 & 0x0F) << 12) | ((i2 & 0x3F) << 6) | (i3 & 0x3F);
+        }
+        else if ((i1 & 0xF8) === 0xF0) {
+            const i2 = bytes[pos++];
+            const i3 = bytes[pos++];
+            const i4 = bytes[pos++];
+            return ((i1 & 0x07) << 18) | ((i2 & 0x3F) << 12) | ((i3 & 0x3F) << 6) | (i4 & 0x3F);
+        }
+        else {
+            throw new RangeError("Invalid UTF8 byte: " + i1);
+        }
+    };
+    const chars = new Array();
+    while (pos < bytes.length) {
+        const code = decodeUtf8();
+        chars.push(String.fromCodePoint(code));
+    }
+    return chars.join("");
+}
+class UTF16LE {
+    getBytes(str, index, count) {
+        str = Array.isArray(str) ? str.join("") : str;
+        if (index != null && count != null) {
+            str = str.substring(index, index + count);
+        }
+        else if (index != null) {
+            str = str.substring(index);
+        }
+        if (typeof Buffer !== "undefined") {
+            const bytes = Buffer.from(str, "utf16le");
+            return new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+        }
+        else {
+            return utf16le_encode(str); // polyfill
+        }
+    }
+    getString(bytes, index, count) {
+        const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+        let buffer = new Uint8Array(array.buffer, array.byteOffset, array.byteLength);
+        if (index != null && count != null) {
+            buffer = buffer.subarray(index, index + count);
+        }
+        else if (index != null) {
+            buffer = buffer.subarray(index);
+        }
+        if (typeof TextDecoder !== "undefined") {
+            return new TextDecoder("utf-16le").decode(buffer);
+        }
+        else if (typeof Buffer !== "undefined") {
+            return Buffer.from(buffer).toString("utf16le");
+        }
+        else {
+            return utf16le_decode(buffer); // polyfill
+        }
+    }
+}
+class UTF8 {
+    getBytes(str, index, count) {
+        str = Array.isArray(str) ? str.join("") : str;
+        if (index != null && count != null) {
+            str = str.substring(index, index + count);
+        }
+        else if (index != null) {
+            str = str.substring(index);
+        }
+        if (typeof TextEncoder !== "undefined") {
+            return new TextEncoder().encode(str);
+        }
+        else if (typeof Buffer !== "undefined") {
+            const bytes = Buffer.from(str, "utf8");
+            return new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+        }
+        else {
+            return utf8_encode(str); // polyfill
+        }
+    }
+    getString(bytes, index, count) {
+        const array = ArrayBuffer.isView(bytes) ? bytes : Uint8Array.from(bytes);
+        let buffer = new Uint8Array(array.buffer, array.byteOffset, array.byteLength);
+        if (index != null && count != null) {
+            buffer = buffer.subarray(index, index + count);
+        }
+        else if (index != null) {
+            buffer = buffer.subarray(index);
+        }
+        if (typeof TextDecoder !== "undefined") {
+            return new TextDecoder().decode(buffer);
+        }
+        else if (typeof Buffer !== "undefined") {
+            return Buffer.from(buffer).toString("utf8");
+        }
+        else {
+            return utf8_decode(buffer); // polyfill
+        }
+    }
+}
+const _UTF16 = new UTF16LE();
+const _UTF8 = new UTF8();
+export function get_Unicode() { return _UTF16; }
+export function get_UTF8() { return _UTF8; }

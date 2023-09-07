@@ -1,1 +1,669 @@
-export function isArrayLike(e){return Array.isArray(e)||ArrayBuffer.isView(e)}export function isIterable(e){return null!=e&&"object"==typeof e&&Symbol.iterator in e}export function isEnumerable(e){return null!=e&&"function"==typeof e.GetEnumerator}export function isComparer(e){return null!=e&&"function"==typeof e.Compare}export function isComparable(e){return null!=e&&"function"==typeof e.CompareTo}export function isEquatable(e){return null!=e&&"function"==typeof e.Equals}export function isHashable(e){return null!=e&&"function"==typeof e.GetHashCode}export function isDisposable(e){return null!=e&&"function"==typeof e.Dispose}export function disposeSafe(e){isDisposable(e)&&e.Dispose()}export function defaultOf(){return null}export function sameConstructor(e,t){var r,n;return(null===(r=Object.getPrototypeOf(e))||void 0===r?void 0:r.constructor)===(null===(n=Object.getPrototypeOf(t))||void 0===n?void 0:n.constructor)}export class Enumerable{constructor(e){this.en=e}GetEnumerator(){return this.en}[Symbol.iterator](){return this}next(){const e=this.en["System.Collections.IEnumerator.MoveNext"]();return{done:!e,value:e?this.en["System.Collections.Generic.IEnumerator`1.get_Current"]():void 0}}}export class Enumerator{constructor(e){this.iter=e,this.current=defaultOf()}"System.Collections.Generic.IEnumerator`1.get_Current"(){return this.current}"System.Collections.IEnumerator.get_Current"(){return this.current}"System.Collections.IEnumerator.MoveNext"(){const e=this.iter.next();return this.current=e.value,!e.done}"System.Collections.IEnumerator.Reset"(){throw new Error("JS iterators cannot be reset")}Dispose(){}}export function toEnumerable(e){return isEnumerable(e)?e:new Enumerable(new Enumerator(e[Symbol.iterator]()))}export function getEnumerator(e){return isEnumerable(e)?e.GetEnumerator():new Enumerator(e[Symbol.iterator]())}export function toIterator(e){return{[Symbol.iterator](){return this},next(){const t=e["System.Collections.IEnumerator.MoveNext"]();return{done:!t,value:t?e["System.Collections.Generic.IEnumerator`1.get_Current"]():void 0}}}}export function enumerableToIterator(e){return toIterator(toEnumerable(e).GetEnumerator())}export class Comparer{constructor(e){this.Compare=e||compare}}export function comparerFromEqualityComparer(e){return isComparer(e)?new Comparer(e.Compare):new Comparer(((t,r)=>{const n=e.GetHashCode(t),o=e.GetHashCode(r);return n===o?e.Equals(t,r)?0:-1:n<o?-1:1}))}export function assertEqual(e,t,r){if(!equals(e,t))throw Object.assign(new Error(r||`Expected: ${t} - Actual: ${e}`),{actual:e,expected:t})}export function assertNotEqual(e,t,r){if(equals(e,t))throw Object.assign(new Error(r||`Expected: ${t} - Actual: ${e}`),{actual:e,expected:t})}export class Lazy{constructor(e){this.factory=e,this.isValueCreated=!1}get Value(){return this.isValueCreated||(this.createdValue=this.factory(),this.isValueCreated=!0),this.createdValue}get IsValueCreated(){return this.isValueCreated}}export function lazyFromValue(e){return new Lazy((()=>e))}export function padWithZeros(e,t){let r=e.toString(10);for(;r.length<t;)r="0"+r;return r}export function padLeftAndRightWithZeros(e,t,r){let n=e.toString(10);for(;n.length<t;)n="0"+n;for(;n.length<r;)n+="0";return n}export function dateOffset(e){const t=e;return"number"==typeof t.offset?t.offset:1===e.kind?0:-6e4*e.getTimezoneOffset()}export function int16ToString(e,t){return(e=e<0&&null!=t&&10!==t?65535+e+1:e).toString(t)}export function int32ToString(e,t){return(e=e<0&&null!=t&&10!==t?4294967295+e+1:e).toString(t)}export class ObjectRef{static id(e){return ObjectRef.idMap.has(e)||ObjectRef.idMap.set(e,++ObjectRef.count),ObjectRef.idMap.get(e)}}ObjectRef.idMap=new WeakMap,ObjectRef.count=0;export function stringHash(e){let t=0,r=5381;const n=e.length;for(;t<n;)r=33*r^e.charCodeAt(t++);return r}export function numberHash(e){return 2654435761*e|0}export function combineHashCodes(e){return 0===e.length?0:e.reduce(((e,t)=>(e<<5)+e^t))}export function physicalHash(e){if(null==e)return 0;switch(typeof e){case"boolean":return e?1:0;case"number":return numberHash(e);case"string":return stringHash(e);default:return numberHash(ObjectRef.id(e))}}export function identityHash(e){return isHashable(e)?e.GetHashCode():physicalHash(e)}export function dateHash(e){return e.getTime()}export function arrayHash(e){const t=e.length,r=new Array(t);for(let n=0;n<t;n++)r[n]=structuralHash(e[n]);return combineHashCodes(r)}export function structuralHash(e){var t;if(null==e)return 0;switch(typeof e){case"boolean":return e?1:0;case"number":return numberHash(e);case"string":return stringHash(e);default:return isHashable(e)?e.GetHashCode():isArrayLike(e)?arrayHash(e):e instanceof Date?dateHash(e):(null===(t=Object.getPrototypeOf(e))||void 0===t?void 0:t.constructor)===Object?combineHashCodes(Object.values(e).map((e=>structuralHash(e)))):numberHash(ObjectRef.id(e))}}export function fastStructuralHash(e){return stringHash(String(e))}export function safeHash(e){return identityHash(e)}export function equalArraysWith(e,t,r){if(null==e)return null==t;if(null==t)return!1;if(e.length!==t.length)return!1;for(let n=0;n<e.length;n++)if(!r(e[n],t[n]))return!1;return!0}export function equalArrays(e,t){return equalArraysWith(e,t,equals)}function equalObjects(e,t){const r=Object.keys(e),n=Object.keys(t);if(r.length!==n.length)return!1;r.sort(),n.sort();for(let o=0;o<r.length;o++)if(r[o]!==n[o]||!equals(e[r[o]],t[n[o]]))return!1;return!0}export function equals(e,t){var r;return e===t||(null==e?null==t:null!=t&&(isEquatable(e)?e.Equals(t):isArrayLike(e)?isArrayLike(t)&&equalArrays(e,t):"object"==typeof e&&(e instanceof Date?t instanceof Date&&0===compareDates(e,t):(null===(r=Object.getPrototypeOf(e))||void 0===r?void 0:r.constructor)===Object&&equalObjects(e,t))))}export function compareDates(e,t){let r,n;return"offset"in e&&"offset"in t?(r=e.getTime(),n=t.getTime()):(r=e.getTime()+dateOffset(e),n=t.getTime()+dateOffset(t)),r===n?0:r<n?-1:1}export function comparePrimitives(e,t){return e===t?0:e<t?-1:1}export function compareArraysWith(e,t,r){if(null==e)return null==t?0:1;if(null==t)return-1;if(e.length!==t.length)return e.length<t.length?-1:1;for(let n=0,o=0;n<e.length;n++)if(o=r(e[n],t[n]),0!==o)return o;return 0}export function compareArrays(e,t){return compareArraysWith(e,t,compare)}function compareObjects(e,t){const r=Object.keys(e),n=Object.keys(t);if(r.length!==n.length)return r.length<n.length?-1:1;r.sort(),n.sort();for(let o=0,u=0;o<r.length;o++){const a=r[o];if(a!==n[o])return a<n[o]?-1:1;if(u=compare(e[a],t[a]),0!==u)return u}return 0}export function compare(e,t){var r;return e===t?0:null==e?null==t?0:-1:null==t?1:isComparable(e)?e.CompareTo(t):isArrayLike(e)?isArrayLike(t)?compareArrays(e,t):-1:"object"!=typeof e?e<t?-1:1:e instanceof Date?t instanceof Date?compareDates(e,t):-1:(null===(r=Object.getPrototypeOf(e))||void 0===r?void 0:r.constructor)===Object?compareObjects(e,t):-1}export function min(e,t,r){return e(t,r)<0?t:r}export function max(e,t,r){return e(t,r)>0?t:r}export function clamp(e,t,r,n){return e(t,r)<0?r:e(t,n)>0?n:t}export function createAtom(e){let t=e;return(...e)=>{if(0===e.length)return t;t=e[0]}}export function createObj(e){const t={};for(const r of e)t[r[0]]=r[1];return t}export function jsOptions(e){const t={};return e(t),t}export function round(e,t=0){const r=Math.pow(10,t),n=+(t?e*r:e).toFixed(8),o=Math.floor(n),u=n-o,a=u>.5-1e-8&&u<.5+1e-8?o%2==0?o:o+1:Math.round(n);return t?a/r:a}export function sign(e){return e>0?1:e<0?-1:0}export function unescapeDataString(e){return decodeURIComponent(e.replace(/\+/g,"%20"))}export function escapeDataString(e){return encodeURIComponent(e).replace(/!/g,"%21").replace(/'/g,"%27").replace(/\(/g,"%28").replace(/\)/g,"%29").replace(/\*/g,"%2A")}export function escapeUriString(e){return encodeURI(e)}export function count(e){if(isArrayLike(e))return e.length;{let t=0;for(const r of e)t++;return t}}export function clear(e){isArrayLike(e)?e.splice(0):e.clear()}const CURRIED=Symbol("curried");export function uncurry(e,t){if(null==t||t.length>1)return t;const r=(...r)=>{let n=t;for(let t=0;t<e;t++)n=n(r[t]);return n};return r[CURRIED]=t,r}function _curry(e,t,r){return n=>1===t?r(...e.concat([n])):_curry(e.concat([n]),t-1,r)}export function curry(e,t){return null==t||1===t.length?t:CURRIED in t?t[CURRIED]:_curry([],e,t)}export function checkArity(e,t){return t.length>e?(...e)=>(...r)=>t.apply(void 0,e.concat(r)):t}export function partialApply(e,t,r){if(null!=t){if(CURRIED in t){t=t[CURRIED];for(let e=0;e<r.length;e++)t=t(r[e]);return t}return _curry(r,e,t)}}export function mapCurriedArgs(e,t){function r(e,t,n,o){const u=n[o];if(0!==u){const e=u[0],r=u[1];e>1&&(t=curry(e,t)),r>1&&(t=uncurry(r,t))}const a=e(t);return o+1===n.length?a:e=>r(a,e,n,o+1)}return n=>r(e,n,t,0)}export function copyToArray(e,t,r,n,o){if(ArrayBuffer.isView(e)&&ArrayBuffer.isView(r))r.set(e.subarray(t,t+o),n);else for(let u=0;u<o;++u)r[n+u]=e[t+u]}
+// tslint:disable:ban-types
+// Using a class here for better compatibility with TS files importing Some
+export class Some {
+    constructor(value) {
+        this.value = value;
+    }
+    toJSON() {
+        return this.value;
+    }
+    // Don't add "Some" for consistency with erased options
+    toString() {
+        return String(this.value);
+    }
+    GetHashCode() {
+        return structuralHash(this.value);
+    }
+    Equals(other) {
+        if (other == null) {
+            return false;
+        }
+        else {
+            return equals(this.value, other instanceof Some ? other.value : other);
+        }
+    }
+    CompareTo(other) {
+        if (other == null) {
+            return 1;
+        }
+        else {
+            return compare(this.value, other instanceof Some ? other.value : other);
+        }
+    }
+}
+export function value(x) {
+    if (x == null) {
+        throw new Error("Option has no value");
+    }
+    else {
+        return x instanceof Some ? x.value : x;
+    }
+}
+export function isArrayLike(x) {
+    return Array.isArray(x) || ArrayBuffer.isView(x);
+}
+export function isIterable(x) {
+    return x != null && typeof x === "object" && Symbol.iterator in x;
+}
+export function isEnumerable(x) {
+    return x != null && typeof x.GetEnumerator === "function";
+}
+export function isComparer(x) {
+    return x != null && typeof x.Compare === "function";
+}
+export function isComparable(x) {
+    return x != null && typeof x.CompareTo === "function";
+}
+export function isEquatable(x) {
+    return x != null && typeof x.Equals === "function";
+}
+export function isHashable(x) {
+    return x != null && typeof x.GetHashCode === "function";
+}
+export function isDisposable(x) {
+    return x != null && typeof x.Dispose === "function";
+}
+export function disposeSafe(x) {
+    if (isDisposable(x)) {
+        x.Dispose();
+    }
+}
+export function defaultOf() {
+    return null;
+}
+export function sameConstructor(x, y) {
+    var _a, _b;
+    return ((_a = Object.getPrototypeOf(x)) === null || _a === void 0 ? void 0 : _a.constructor) === ((_b = Object.getPrototypeOf(y)) === null || _b === void 0 ? void 0 : _b.constructor);
+}
+export class Enumerable {
+    constructor(en) {
+        this.en = en;
+    }
+    GetEnumerator() { return this.en; }
+    [Symbol.iterator]() {
+        return this;
+    }
+    next() {
+        const hasNext = this.en["System.Collections.IEnumerator.MoveNext"]();
+        const current = hasNext ? this.en["System.Collections.Generic.IEnumerator`1.get_Current"]() : undefined;
+        return { done: !hasNext, value: current };
+    }
+}
+export class Enumerator {
+    constructor(iter) {
+        this.iter = iter;
+        this.current = defaultOf();
+    }
+    ["System.Collections.Generic.IEnumerator`1.get_Current"]() {
+        return this.current;
+    }
+    ["System.Collections.IEnumerator.get_Current"]() {
+        return this.current;
+    }
+    ["System.Collections.IEnumerator.MoveNext"]() {
+        const cur = this.iter.next();
+        this.current = cur.value;
+        return !cur.done;
+    }
+    ["System.Collections.IEnumerator.Reset"]() {
+        throw new Error("JS iterators cannot be reset");
+    }
+    Dispose() {
+        return;
+    }
+}
+export function toEnumerable(e) {
+    if (isEnumerable(e)) {
+        return e;
+    }
+    else {
+        return new Enumerable(new Enumerator(e[Symbol.iterator]()));
+    }
+}
+export function getEnumerator(e) {
+    if (isEnumerable(e)) {
+        return e.GetEnumerator();
+    }
+    else {
+        return new Enumerator(e[Symbol.iterator]());
+    }
+}
+export function toIterator(en) {
+    return {
+        [Symbol.iterator]() {
+            return this;
+        },
+        next() {
+            const hasNext = en["System.Collections.IEnumerator.MoveNext"]();
+            const current = hasNext ? en["System.Collections.Generic.IEnumerator`1.get_Current"]() : undefined;
+            return { done: !hasNext, value: current };
+        },
+    };
+}
+export function enumerableToIterator(e) {
+    return toIterator(toEnumerable(e).GetEnumerator());
+}
+export class Comparer {
+    constructor(f) {
+        this.Compare = f || compare;
+    }
+}
+export function comparerFromEqualityComparer(comparer) {
+    // Sometimes IEqualityComparer also implements IComparer
+    if (isComparer(comparer)) {
+        return new Comparer(comparer.Compare);
+    }
+    else {
+        return new Comparer((x, y) => {
+            const xhash = comparer.GetHashCode(x);
+            const yhash = comparer.GetHashCode(y);
+            if (xhash === yhash) {
+                return comparer.Equals(x, y) ? 0 : -1;
+            }
+            else {
+                return xhash < yhash ? -1 : 1;
+            }
+        });
+    }
+}
+export function assertEqual(actual, expected, msg) {
+    if (!equals(actual, expected)) {
+        throw Object.assign(new Error(msg || `Expected: ${expected} - Actual: ${actual}`), {
+            actual,
+            expected,
+        });
+    }
+}
+export function assertNotEqual(actual, expected, msg) {
+    if (equals(actual, expected)) {
+        throw Object.assign(new Error(msg || `Expected: ${expected} - Actual: ${actual}`), {
+            actual,
+            expected,
+        });
+    }
+}
+export class Lazy {
+    constructor(factory) {
+        this.factory = factory;
+        this.isValueCreated = false;
+    }
+    get Value() {
+        if (!this.isValueCreated) {
+            this.createdValue = this.factory();
+            this.isValueCreated = true;
+        }
+        return this.createdValue;
+    }
+    get IsValueCreated() {
+        return this.isValueCreated;
+    }
+}
+export function lazyFromValue(v) {
+    return new Lazy(() => v);
+}
+export function padWithZeros(i, length) {
+    let str = i.toString(10);
+    while (str.length < length) {
+        str = "0" + str;
+    }
+    return str;
+}
+export function padLeftAndRightWithZeros(i, lengthLeft, lengthRight) {
+    let str = i.toString(10);
+    while (str.length < lengthLeft) {
+        str = "0" + str;
+    }
+    while (str.length < lengthRight) {
+        str = str + "0";
+    }
+    return str;
+}
+export function dateOffset(date) {
+    const date1 = date;
+    return typeof date1.offset === "number"
+        ? date1.offset
+        : (date.kind === 1 /* DateKind.UTC */
+            ? 0 : date.getTimezoneOffset() * -60000);
+}
+export function int16ToString(i, radix) {
+    i = i < 0 && radix != null && radix !== 10 ? 0xFFFF + i + 1 : i;
+    return i.toString(radix);
+}
+export function int32ToString(i, radix) {
+    i = i < 0 && radix != null && radix !== 10 ? 0xFFFFFFFF + i + 1 : i;
+    return i.toString(radix);
+}
+export class ObjectRef {
+    static id(o) {
+        if (!ObjectRef.idMap.has(o)) {
+            ObjectRef.idMap.set(o, ++ObjectRef.count);
+        }
+        return ObjectRef.idMap.get(o);
+    }
+}
+ObjectRef.idMap = new WeakMap();
+ObjectRef.count = 0;
+export function stringHash(s) {
+    let i = 0;
+    let h = 5381;
+    const len = s.length;
+    while (i < len) {
+        h = (h * 33) ^ s.charCodeAt(i++);
+    }
+    return h;
+}
+export function numberHash(x) {
+    return x * 2654435761 | 0;
+}
+// From https://stackoverflow.com/a/37449594
+export function combineHashCodes(hashes) {
+    if (hashes.length === 0) {
+        return 0;
+    }
+    return hashes.reduce((h1, h2) => {
+        return ((h1 << 5) + h1) ^ h2;
+    });
+}
+export function physicalHash(x) {
+    if (x == null) {
+        return 0;
+    }
+    switch (typeof x) {
+        case "boolean":
+            return x ? 1 : 0;
+        case "number":
+            return numberHash(x);
+        case "string":
+            return stringHash(x);
+        default:
+            return numberHash(ObjectRef.id(x));
+    }
+}
+export function identityHash(x) {
+    if (isHashable(x)) {
+        return x.GetHashCode();
+    }
+    else {
+        return physicalHash(x);
+    }
+}
+export function dateHash(x) {
+    return x.getTime();
+}
+export function arrayHash(x) {
+    const len = x.length;
+    const hashes = new Array(len);
+    for (let i = 0; i < len; i++) {
+        hashes[i] = structuralHash(x[i]);
+    }
+    return combineHashCodes(hashes);
+}
+export function structuralHash(x) {
+    var _a;
+    if (x == null) {
+        return 0;
+    }
+    switch (typeof x) {
+        case "boolean":
+            return x ? 1 : 0;
+        case "number":
+            return numberHash(x);
+        case "string":
+            return stringHash(x);
+        default: {
+            if (isHashable(x)) {
+                return x.GetHashCode();
+            }
+            else if (isArrayLike(x)) {
+                return arrayHash(x);
+            }
+            else if (x instanceof Date) {
+                return dateHash(x);
+            }
+            else if (((_a = Object.getPrototypeOf(x)) === null || _a === void 0 ? void 0 : _a.constructor) === Object) {
+                // TODO: check call-stack to prevent cyclic objects?
+                const hashes = Object.values(x).map((v) => structuralHash(v));
+                return combineHashCodes(hashes);
+            }
+            else {
+                // Classes don't implement GetHashCode by default, but must use identity hashing
+                return numberHash(ObjectRef.id(x));
+                // return stringHash(String(x));
+            }
+        }
+    }
+}
+// Intended for custom numeric types, like long or decimal
+export function fastStructuralHash(x) {
+    return stringHash(String(x));
+}
+// Intended for declared types that may or may not implement GetHashCode
+export function safeHash(x) {
+    // return x == null ? 0 : isHashable(x) ? x.GetHashCode() : numberHash(ObjectRef.id(x));
+    return identityHash(x);
+}
+export function equalArraysWith(x, y, eq) {
+    if (x == null) {
+        return y == null;
+    }
+    if (y == null) {
+        return false;
+    }
+    if (x.length !== y.length) {
+        return false;
+    }
+    for (let i = 0; i < x.length; i++) {
+        if (!eq(x[i], y[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+export function equalArrays(x, y) {
+    return equalArraysWith(x, y, equals);
+}
+function equalObjects(x, y) {
+    const xKeys = Object.keys(x);
+    const yKeys = Object.keys(y);
+    if (xKeys.length !== yKeys.length) {
+        return false;
+    }
+    xKeys.sort();
+    yKeys.sort();
+    for (let i = 0; i < xKeys.length; i++) {
+        if (xKeys[i] !== yKeys[i] || !equals(x[xKeys[i]], y[yKeys[i]])) {
+            return false;
+        }
+    }
+    return true;
+}
+export function equals(x, y) {
+    var _a;
+    if (x === y) {
+        return true;
+    }
+    else if (x == null) {
+        return y == null;
+    }
+    else if (y == null) {
+        return false;
+    }
+    else if (isEquatable(x)) {
+        return x.Equals(y);
+    }
+    else if (isArrayLike(x)) {
+        return isArrayLike(y) && equalArrays(x, y);
+    }
+    else if (typeof x !== "object") {
+        return false;
+    }
+    else if (x instanceof Date) {
+        return (y instanceof Date) && compareDates(x, y) === 0;
+    }
+    else {
+        return ((_a = Object.getPrototypeOf(x)) === null || _a === void 0 ? void 0 : _a.constructor) === Object && equalObjects(x, y);
+    }
+}
+export function compareDates(x, y) {
+    let xtime;
+    let ytime;
+    // DateTimeOffset and DateTime deals with equality differently.
+    if ("offset" in x && "offset" in y) {
+        xtime = x.getTime();
+        ytime = y.getTime();
+    }
+    else {
+        xtime = x.getTime() + dateOffset(x);
+        ytime = y.getTime() + dateOffset(y);
+    }
+    return xtime === ytime ? 0 : (xtime < ytime ? -1 : 1);
+}
+export function comparePrimitives(x, y) {
+    return x === y ? 0 : (x < y ? -1 : 1);
+}
+export function compareArraysWith(x, y, comp) {
+    if (x == null) {
+        return y == null ? 0 : 1;
+    }
+    if (y == null) {
+        return -1;
+    }
+    if (x.length !== y.length) {
+        return x.length < y.length ? -1 : 1;
+    }
+    for (let i = 0, j = 0; i < x.length; i++) {
+        j = comp(x[i], y[i]);
+        if (j !== 0) {
+            return j;
+        }
+    }
+    return 0;
+}
+export function compareArrays(x, y) {
+    return compareArraysWith(x, y, compare);
+}
+function compareObjects(x, y) {
+    const xKeys = Object.keys(x);
+    const yKeys = Object.keys(y);
+    if (xKeys.length !== yKeys.length) {
+        return xKeys.length < yKeys.length ? -1 : 1;
+    }
+    xKeys.sort();
+    yKeys.sort();
+    for (let i = 0, j = 0; i < xKeys.length; i++) {
+        const key = xKeys[i];
+        if (key !== yKeys[i]) {
+            return key < yKeys[i] ? -1 : 1;
+        }
+        else {
+            j = compare(x[key], y[key]);
+            if (j !== 0) {
+                return j;
+            }
+        }
+    }
+    return 0;
+}
+export function compare(x, y) {
+    var _a;
+    if (x === y) {
+        return 0;
+    }
+    else if (x == null) {
+        return y == null ? 0 : -1;
+    }
+    else if (y == null) {
+        return 1;
+    }
+    else if (isComparable(x)) {
+        return x.CompareTo(y);
+    }
+    else if (isArrayLike(x)) {
+        return isArrayLike(y) ? compareArrays(x, y) : -1;
+    }
+    else if (typeof x !== "object") {
+        return x < y ? -1 : 1;
+    }
+    else if (x instanceof Date) {
+        return y instanceof Date ? compareDates(x, y) : -1;
+    }
+    else {
+        return ((_a = Object.getPrototypeOf(x)) === null || _a === void 0 ? void 0 : _a.constructor) === Object ? compareObjects(x, y) : -1;
+    }
+}
+export function min(comparer, x, y) {
+    return comparer(x, y) < 0 ? x : y;
+}
+export function max(comparer, x, y) {
+    return comparer(x, y) > 0 ? x : y;
+}
+export function clamp(comparer, value, min, max) {
+    return (comparer(value, min) < 0) ? min : (comparer(value, max) > 0) ? max : value;
+}
+export function createAtom(value) {
+    let atom = value;
+    return (...args) => {
+        if (args.length === 0) {
+            return atom;
+        }
+        else {
+            atom = args[0];
+        }
+    };
+}
+export function createObj(fields) {
+    const obj = {};
+    for (const kv of fields) {
+        obj[kv[0]] = kv[1];
+    }
+    return obj;
+}
+export function jsOptions(mutator) {
+    const opts = {};
+    mutator(opts);
+    return opts;
+}
+export function round(value, digits = 0) {
+    const m = Math.pow(10, digits);
+    const n = +(digits ? value * m : value).toFixed(8);
+    const i = Math.floor(n);
+    const f = n - i;
+    const e = 1e-8;
+    const r = (f > 0.5 - e && f < 0.5 + e) ? ((i % 2 === 0) ? i : i + 1) : Math.round(n);
+    return digits ? r / m : r;
+}
+export function sign(x) {
+    return x > 0 ? 1 : x < 0 ? -1 : 0;
+}
+export function unescapeDataString(s) {
+    // https://stackoverflow.com/a/4458580/524236
+    return decodeURIComponent((s).replace(/\+/g, "%20"));
+}
+export function escapeDataString(s) {
+    return encodeURIComponent(s).replace(/!/g, "%21")
+        .replace(/'/g, "%27")
+        .replace(/\(/g, "%28")
+        .replace(/\)/g, "%29")
+        .replace(/\*/g, "%2A");
+}
+export function escapeUriString(s) {
+    return encodeURI(s);
+}
+// ICollection.Clear and Count members can be called on Arrays
+// or Dictionaries so we need a runtime check (see #1120)
+export function count(col) {
+    if (isArrayLike(col)) {
+        return col.length;
+    }
+    else {
+        let count = 0;
+        for (const _ of col) {
+            count++;
+        }
+        return count;
+    }
+}
+export function clear(col) {
+    if (isArrayLike(col)) {
+        col.splice(0);
+    }
+    else {
+        col.clear();
+    }
+}
+const CURRIED = Symbol("curried");
+export function uncurry(arity, f) {
+    // f may be a function option with None value
+    if (f == null) {
+        return f;
+    }
+    const f2 = value(f);
+    if (f2.length > 1) {
+        return f2;
+    }
+    const uncurried = (...args) => {
+        let res = f2;
+        for (let i = 0; i < arity; i++) {
+            res = res(args[i]);
+        }
+        return res;
+    };
+    uncurried[CURRIED] = f2;
+    return uncurried;
+}
+function _curry(args, arity, f) {
+    return (arg) => arity === 1
+        ? f(...args.concat([arg]))
+        // Note it's important to generate a new args array every time
+        // because a partially applied function can be run multiple times
+        : _curry(args.concat([arg]), arity - 1, f);
+}
+export function curry(arity, f) {
+    if (f == null) {
+        return f;
+    }
+    const f2 = value(f);
+    if (f2.length === 1) {
+        return f2;
+    }
+    else if (CURRIED in f2) {
+        return f2[CURRIED];
+    }
+    else {
+        return _curry([], arity, f2);
+    }
+}
+export function checkArity(arity, f) {
+    return f.length > arity
+        ? (...args1) => (...args2) => f.apply(undefined, args1.concat(args2))
+        : f;
+}
+export function partialApply(arity, f, args) {
+    if (f == null) {
+        return undefined;
+    }
+    else if (CURRIED in f) {
+        f = f[CURRIED];
+        for (let i = 0; i < args.length; i++) {
+            f = f(args[i]);
+        }
+        return f;
+    }
+    else {
+        return _curry(args, arity, f);
+    }
+}
+export function mapCurriedArgs(fn, mappings) {
+    function mapArg(fn, arg, mappings, idx) {
+        const mapping = mappings[idx];
+        if (mapping !== 0) {
+            const expectedArity = mapping[0];
+            const actualArity = mapping[1];
+            if (expectedArity > 1) {
+                arg = curry(expectedArity, arg);
+            }
+            if (actualArity > 1) {
+                arg = uncurry(actualArity, arg);
+            }
+        }
+        const res = fn(arg);
+        if (idx + 1 === mappings.length) {
+            return res;
+        }
+        else {
+            return (arg) => mapArg(res, arg, mappings, idx + 1);
+        }
+    }
+    return (arg) => mapArg(fn, arg, mappings, 0);
+}
+// More performant method to copy arrays, see #2352
+export function copyToArray(source, sourceIndex, target, targetIndex, count) {
+    if (ArrayBuffer.isView(source) && ArrayBuffer.isView(target)) {
+        target.set(source.subarray(sourceIndex, sourceIndex + count), targetIndex);
+    }
+    else {
+        for (let i = 0; i < count; ++i) {
+            target[targetIndex + i] = source[sourceIndex + i];
+        }
+    }
+}

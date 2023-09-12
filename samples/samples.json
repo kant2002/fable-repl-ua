@@ -28,32 +28,32 @@
                     {
                         "type": "menu-item",
                         "label": "Півтон - Програмуєма музика",
-                        "fsharpCode": "games/undertone.fs",
-                        "htmlCode": "games/undertone.html"
+                        "fsharpCode": "ігри/півтон.fs",
+                        "htmlCode": "ігри/півтон.html"
                     },
                     {
                         "type": "menu-item",
                         "label": "Ф# Колонія мурах. Редакція Фабле",
-                        "fsharpCode": "games/ants.fs",
-                        "htmlCode": "games/ants.html"
+                        "fsharpCode": "ігри/мурахи.fs",
+                        "htmlCode": "ігри/мурахи.html"
                     },
                     {
                         "type": "menu-item",
                         "label": "Супер Фабле Маріо",
-                        "fsharpCode": "games/mario.fs",
-                        "htmlCode": "games/mario.html"
+                        "fsharpCode": "ігри/маріо.fs",
+                        "htmlCode": "ігри/маріо.html"
                     },
                     {
                         "type": "menu-item",
                         "label": "Гра Озмо",
-                        "fsharpCode": "games/ozmo.fs",
-                        "htmlCode": "games/ozmo.html"
+                        "fsharpCode": "ігри/озмо.fs",
+                        "htmlCode": "ігри/озмо.html"
                     },
                     {
                         "type": "menu-item",
                         "label": "Пакман",
-                        "fsharpCode": "games/pacman.fs",
-                        "htmlCode": "games/pacman.html"
+                        "fsharpCode": "ігри/пакман.fs",
+                        "htmlCode": "ігри/пакман.html"
                     }
                 ]
             },

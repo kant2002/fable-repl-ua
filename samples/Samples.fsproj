@@ -49,10 +49,11 @@
     <Compile Include="fulma/columns.fs" /> -->
     <Compile Include="ui/spreadsheet.fs" />
     <Compile Include="ui/webcomponent.fs" />
-    <Compile Include="games/mario.fs" />
-    <Compile Include="games/ozmo.fs" />
-    <Compile Include="games/pacman.fs" />
-    <Compile Include="games/ants.fs" />
+    <Compile Include="ігри\маріо.fs" />
+    <Compile Include="ігри\озмо.fs" />
+    <Compile Include="ігри\пакман.fs" />
+    <Compile Include="ігри\півтон.fs" />
+    <Compile Include="ігри\мурахи.fs" />
     <Compile Include="visual/basic-canvas.fs" />
     <Compile Include="visual/mandelbrot.fs" />
     <Compile Include="visual/raytracer.fs" />

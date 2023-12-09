@@ -1,231 +1,234 @@
-module Tour.Unions
+module Тур.Об'еднання
 
-// From https://docs.microsoft.com/en-us/dotnet/fsharp/tour
-// Visit the link above for more information on each topic
-// You can also find more learning resources at https://fsharp.org/
+// Із https://docs.microsoft.com/en-us/dotnet/fsharp/tour
+// Щоб дізнатися більше про кожну тему, перейдіть за посиланням вище
+// Ви також можете знайти більше навчальних ресурсів за адресою https://fsharp.org/
+// (лише англійською)
 
-module DiscriminatedUnions =
+module РозділяючіОб'еднання =
 
-    /// The following represents the suit of a playing card.
-    type Suit =
-        | Hearts
-        | Clubs
-        | Diamonds
-        | Spades
+    /// Тип нижче представляє масть гральної карти.
+    type Масть =
+        | Чирва
+        | Піка
+        | Бубна
+        | Трефа
 
-    /// A Discriminated Union can also be used to represent the rank of a playing card.
-    type Rank =
-        /// Represents the rank of cards 2 .. 10
-        | Value of int
-        | Ace
-        | King
-        | Queen
-        | Jack
+    /// Розділяючі Об'еднання може бути використовано для ранга карти A Discriminated Union can also be used to represent the rank of a playing card.
+    type Ранг =
+        /// Представляє усі ранги карт від 2 до 10
+        | Значення of int
+        | Туз
+        | Король
+        | Дама
+        | Валет
 
-        /// Discriminated Unions can also implement object-oriented members.
-        static member GetAllRanks() =
-            [ yield Ace
-              for i in 2 .. 10 do yield Value i
-              yield Jack
-              yield Queen
-              yield King ]
+        /// Розділяючі Об'еднання також можуть реалізовувати об'єктно орієнтовні члени.
+        static member ВзятиУсіРанги() =
+            [ yield Туз
+              for i in 2 .. 10 do yield Значення i
+              yield Валет
+              yield Дама
+              yield Король ]
 
-    /// This is a record type that combines a Suit and a Rank.
-    /// It's common to use both Records and Discriminated Unions when representing data.
-    type Card = { Suit: Suit; Rank: Rank }
+    /// Це тип запису який комбінує Масть і Ранг.
+    /// Це дуже типово використовувати як Записи так і Розділяючиоб'еднання коли моделюєш дані.
+    type Карта = { Масть: Масть; Ранг: Ранг }
 
-    /// This computes a list representing all the cards in the deck.
-    let fullDeck =
-        [ for suit in [ Hearts; Diamonds; Clubs; Spades] do
-              for rank in Rank.GetAllRanks() do
-                  yield { Suit=suit; Rank=rank } ]
+    /// Ця декларація обчислить список представляючий усі карти у колоді.
+    let повнаКолода =
+        [ for масть in [ Чирва; Бубна; Піка; Трефа] do
+              for ранг in Ранг.ВзятиУсіРанги() do
+                  yield { Масть=масть; Ранг=ранг } ]
 
-    /// This example converts a 'Card' object to a string.
-    let showPlayingCard (c: Card) =
-        let rankString =
-            match c.Rank with
-            | Ace -> "Ace"
-            | King -> "King"
-            | Queen -> "Queen"
-            | Jack -> "Jack"
-            | Value n -> string n
-        let suitString =
-            match c.Suit with
-            | Clubs -> "clubs"
-            | Diamonds -> "diamonds"
-            | Spades -> "spades"
-            | Hearts -> "hearts"
-        rankString  + " of " + suitString
+    /// Цей приклад конвертує об'єкт 'Карта' до рядка.
+    let показатиГральнуКарту (к: Карта) =
+        let рядокРанга =
+            match к.Ранг with
+            | Туз -> "Туз"
+            | Король -> "Король"
+            | Дама -> "Дама"
+            | Валет -> "Валет"
+            | Значення ч -> string ч
+        let рядокМасті =
+            match к.Масть with
+            | Піка -> "пік"
+            | Бубна -> "бубен"
+            | Трефа -> "треф"
+            | Чирва -> "чирвей"
+        рядокРанга  + " " + рядокМасті
 
-    /// This example prints all the cards in a playing deck.
-    let printAllCards() =
-        for card in fullDeck do
-            printfn "%s" (showPlayingCard card)
+    /// Цей приклад надрукує усі карти у гральній колоді.
+    let надрукуватиУсіКарти() =
+        for карта in повнаКолода do
+            printfn "%s" (показатиГральнуКарту карта)
 
 
-    // Single-case DUs are often used for domain modeling.  This can buy you extra type safety
-    // over primitive types such as strings and ints.
+    // РО із одиничним варіантом часто використовуюється для моделювання зон контролю(domain modelling). Це може дати вам додаткову This can buy you extra type safety
+    // безпеку типів над примітивними типами такими як рядки або цілі.
     //
-    // Single-case DUs cannot be implicitly converted to or from the type they wrap.
-    // For example, a function which takes in an Address cannot accept a string as that input,
-    // or vice versa.
-    type Address = Address of string
-    type Name = Name of string
-    type SSN = SSN of int
+    // РО із одиничним варіантом не можуть неявно конвертуватися у, або із типу який вони огортають.
+    // Наприклад, фцнкція яка приймає Адреса не може прийняти рядок як вхідні дані,
+    // або навпаки.
+    type Адреса = Адреса of string
+    type Ім'я = Ім'я of string
+    type ІІН = ІІН of int
 
-    // You can easily instantiate a single-case DU as follows.
-    let address = Address "111 Alf Way"
-    let name = Name "Alf"
-    let ssn = SSN 1234567890
+    // Ви можете легко створити екземпляр РО із одиничним варіантом наступним чином.
+    let адреса = Адреса "111 Alf Way"
+    let ім'я = Ім'я "Alf"
+    let іін = ІІН 1234567890
 
-    /// When you need the value, you can unwrap the underlying value with a simple function.
-    let unwrapAddress (Address a) = a
-    let unwrapName (Name n) = n
-    let unwrapSSN (SSN s) = s
+    /// Коли вам потрібно значення, ви можете розгорнути значення що лежить у основі за допомогою простої функції.
+    let розгорнутиАдресу (Адреса а) = а
+    let розгорнутиІм'я (Ім'я і) = і
+    let розгорнутиІІН (ІІН с) = с
 
-    // Printing single-case DUs is simple with unwrapping functions.
-    printfn "Address: %s, Name: %s, and SSN: %d" (address |> unwrapAddress) (name |> unwrapName) (ssn |> unwrapSSN)
+    // Друкування РО із одиничним варіантом це просто із допомогою розгортаючих функцій.
+    printfn "Адреса: %s, Ім'я: %s та ІІН: %d" (адреса |> розгорнутиАдресу) (ім'я |> розгорнутиІм'я) (іін |> розгорнутиІІН)
 
 
-    /// Discriminated Unions also support recursive definitions.
+    /// Розділяючи Об'єднання також підтримують рекурсивні визначення.
     ///
-    /// This represents a Binary Search Tree, with one case being the Empty tree,
-    /// and the other being a Node with a value and two subtrees.
-    type BST<'T> =
-        | Empty
-        | Node of value:'T * left: BST<'T> * right: BST<'T>
+    /// Цей тип представляє Бінарне Дерево Пошуку, із одним варіантом Пусте дерево,
+    /// та іншим варіантом Вузел із значенням і двома піддеревами.
+    type БДП<'Т> =
+        | Пусте
+        | Вузел of значення:'Т * лівий: БДП<'Т> * правий: БДП<'Т>
 
-    /// Check if an item exists in the binary search tree.
-    /// Searches recursively using Pattern Matching.  Returns true if it exists; otherwise, false.
-    let rec exists item bst =
-        match bst with
-        | Empty -> false
-        | Node (x, left, right) ->
-            if item = x then true
-            elif item < x then (exists item left) // Check the left subtree.
-            else (exists item right) // Check the right subtree.
+    /// Перевіряє чи існує елементі у бінарному дереві пошука.
+    /// Шукає рекурсивно використовуючи Відповідність Шаблону.  Повертає істина якщо він існіє; інакше, лож.
+    let rec існує елемент бпд =
+        match бпд with
+        | Пусте -> false
+        | Вузел (з, ліве, праве) ->
+            if елемент = з then true
+            elif елемент < з then (існує елемент ліве) // Перевірити ліве піддерево.
+            else (існує елемент праве) // Перевірити праве піддерево.
 
-    /// Inserts an item in the Binary Search Tree.
-    /// Finds the place to insert recursively using Pattern Matching, then inserts a new node.
-    /// If the item is already present, it does not insert anything.
-    let rec insert item bst =
-        match bst with
-        | Empty -> Node(item, Empty, Empty)
-        | Node(x, left, right) as node ->
-            if item = x then node // No need to insert, it already exists; return the node.
-            elif item < x then Node(x, insert item left, right) // Call into left subtree.
-            else Node(x, left, insert item right) // Call into right subtree.
+    /// Вставляє елемент у Бінарне Дерево Пошуку.
+    /// Знаходить місце для вставки рекурсивно використовуючи Відповідність Шаблону, потім вставляє новий вузел.
+    /// Якщо елемент вже існує, функція не вставляє нічого.
+    let rec вставити елемент бдп =
+        match бдп with
+        | Пусте -> Вузел(елемент, Пусте, Пусте)
+        | Вузел(з, ліве, праве) as вузел ->
+            if елемент = з then вузел // Не треба вставляти, він вже існує; повернути вузел.
+            elif елемент < з then Вузел(з, вставити елемент ліве, праве) // Викликати у ліве піддерево.
+            else Вузел(з, ліве, вставити елемент праве) // Викликати у праве піддерево.
 
 
-module PatternMatching =
+module ВідповідністьШаблону =
     open System
 
-    /// A record for a person's first and last name
-    type Person = {
-        First : string
-        Last  : string
+    /// Запис для ім'я так фамілії людини
+    type Людина = {
+        Ім'я : string
+        Фамілія  : string
     }
 
-    /// A Discriminated Union of 3 different kinds of employees
-    type Employee =
-        | Engineer of engineer: Person
-        | Manager of manager: Person * reports: List<Employee>
-        | Executive of executive: Person * reports: List<Employee> * assistant: Employee
+    /// Розділяюче Об'єднання трьох різних видів співробітників
+    type Співробітник =
+        | Інжинер of інжинер: Людина
+        | Керівник of керівник: Людина * підлеглі: List<Співробітник>
+        | Виконавчий of виконавчий: Людина * підлеглі: List<Співробітник> * помічник: Співробітник
 
-    /// Count everyone underneath the employee in the management hierarchy,
-    /// including the employee. The matches bind names to the properties
-    /// of the cases so that those names can be used inside the match branches.
-    /// Note that the names used for binding do not need to be the same as the
-    /// names given in the DU definition above.
-    let rec countReports(emp : Employee) =
-        1 + match emp with
-            | Engineer(person) ->
+    /// Підраховує усіх під співробітником у ієрархії керування,
+    /// включючи співробітника. Співставлення зв'язує імена із властивостями
+    /// варіантів таким чином щоб ці імена можна було використовувати всередині гілок співставлення.
+    /// Зауважте що імені використані при зв'язуванні не повинні бути тими самими іменами яка були
+    /// дані у визначенні РО вищче.
+    let rec підрахуватиПідлеглих(спів : Співробітник) =
+        1 + match спів with
+            | Інжинер(людина) ->
                 0
-            | Manager(person, reports) ->
-                reports |> List.sumBy countReports
-            | Executive(person, reports, assistant) ->
-                (reports |> List.sumBy countReports) + countReports assistant
+            | Керівник(людина, підлеглі) ->
+                підлеглі |> List.sumBy підрахуватиПідлеглих
+            | Виконавчий(людина, підлеглі, помічник) ->
+                (підлеглі |> List.sumBy підрахуватиПідлеглих) + підрахуватиПідлеглих помічник
 
 
-    /// Find all managers/executives named "Dave" who do not have any reports.
-    /// This uses the 'function' shorthand to as a lambda expression.
-    let rec findDaveWithOpenPosition(emps : List<Employee>) =
-        emps
+    /// Знайти усіх менеджерів/виконавчих із ім'ям "Богдан" у яких немає ніяких підлеглих.
+    /// Приклад використовує скорочення 'function' для лямбда виразу.
+    let rec знайтиБогданаІзВідкритимиПозіціями(спів : List<Співробітник>) =
+        спів
         |> List.filter(function
-                       | Manager({First = "Dave"}, []) -> true // [] matches an empty list.
-                       | Executive({First = "Dave"}, [], _) -> true
-                       | _ -> false) // '_' is a wildcard pattern that matches anything.
-                                     // This handles the "or else" case.
+                       | Керівник({Ім'я = "Богдан"}, []) -> true // [] співставляє пустий список.
+                       | Виконавчий({Ім'я = "Богдан"}, [], _) -> true
+                       | _ -> false) // '_' це шаблон підстановки який співставляє будь-що.
+                                     // Він обробляє випадок "інакше".
 
 
     /// You can also use the shorthand function construct for pattern matching,
     /// which is useful when you're writing functions which make use of Partial Application.
-    let private parseHelper f = f >> function
-        | (true, item) -> Some item
+    let private помічникРозбору ф = ф >> function
+        | (true, елемент) -> Some елемент
         | (false, _) -> None
 
-    let parseDateTimeOffset: string -> _ = parseHelper DateTimeOffset.TryParse
+    let розібратиДатуЧасСдвиг: string -> _ = помічникРозбору DateTimeOffset.TryParse
 
-    let result = parseDateTimeOffset "1970-01-01"
-    match result with
-    | Some dto -> printfn "It parsed!"
-    | None -> printfn "It didn't parse!"
+    let результат = розібратиДатуЧасСдвиг "1970-01-01"
+    match результат with
+    | Some опд -> printfn "Воно розібралося!"
+    | None -> printfn "Воно не розібралося!"
 
-    // Define some more functions which parse with the helper function.
-    let parseInt: string -> _  = parseHelper Int32.TryParse
-    let parseDouble: string -> _  = parseHelper Double.TryParse
-    let parseTimeSpan: string -> _  = parseHelper TimeSpan.TryParse
+    // Визначемо більше функції які розбирають за допомогою вспоміжної функції.
+    let розібратиЦіл: string -> _  = помічникРозбору Int32.TryParse
+    let розібратиДвойне: string -> _  = помічникРозбору Double.TryParse
+    let розібратиВідрізокЧасу: string -> _  = помічникРозбору TimeSpan.TryParse
 
 
-    // Active Patterns are another powerful construct to use with pattern matching.
-    // They allow you to partition input data into custom forms, decomposing them at the pattern match call site.
+    // Активні Шаблони це інша потужна конструкія для використання із відповідністю шаблону.
+    // Вони дозволяють вам розділяти вхідні дані на довільні форми, декомпозуючи їх у місці виклику відповідності шаблону.
     //
-    // To learn more, see: https://docs.microsoft.com/dotnet/fsharp/language-reference/active-patterns
-    let (|Int|_|) = parseInt
-    let (|Double|_|) = parseDouble
-    let (|Date|_|) = parseDateTimeOffset
-    let (|TimeSpan|_|) = parseTimeSpan
+    // Щоб дізнатися більше, дивиться: https://docs.microsoft.com/dotnet/fsharp/language-reference/active-patterns
+    // (лише англійською)
+    let (|Ціл|_|) = розібратиЦіл
+    let (|Двойне|_|) = розібратиДвойне
+    let (|Дата|_|) = розібратиДатуЧасСдвиг
+    let (|ВідрізокЧасу|_|) = розібратиВідрізокЧасу
 
-    /// Pattern Matching via 'function' keyword and Active Patterns often looks like this.
-    let printParseResult = function
-        | Int x -> printfn "%d" x
-        | Double x -> printfn "%f" x
-        | Date d -> printfn "%s" (d.ToString())
-        | TimeSpan t -> printfn "%s" (t.ToString())
-        | _ -> printfn "Nothing was parse-able!"
+    /// Відповідність Шаблону через ключове слово 'function' та Активні Шаблони зазвичай виглядає так.
+    let надрукуватиРезультатРозбору = function
+        | Ціл з -> printfn "%d" з
+        | Двойне з -> printfn "%f" з
+        | Дата д -> printfn "%s" (д.ToString())
+        | ВідрізокЧасу ч -> printfn "%s" (ч.ToString())
+        | _ -> printfn "Нічого що можна розібрати!"
 
-    // Call the printer with some different values to parse.
-    printParseResult "12"
-    printParseResult "12.045"
-    printParseResult "12/28/2016"
-    printParseResult "9:01PM"
-    printParseResult "banana!"
+    // Викликає друкувальника із деякими різними значеннями для розбору.
+    надрукуватиРезультатРозбору "12"
+    надрукуватиРезультатРозбору "12.045"
+    надрукуватиРезультатРозбору "12/28/2016"
+    надрукуватиРезультатРозбору "9:01PM"
+    надрукуватиРезультатРозбору "banana!"
 
 
-module OptionValues =
-    /// Option values are any kind of value tagged with either 'Some' or 'None'.
-    /// They are used extensively in F# code to represent the cases where many other
-    /// languages would use null references.
+module ОпціональніЗначення =
+    /// Опціональні значення це будь які значення помічені або 'Some' або 'None'.
+    /// Вони широко використовуються у F# коді для того щоб представляти варіанти де багато інших мов би використовували
+    /// посилання на нулл.
     ///
-    /// To learn more, see: https://docs.microsoft.com/dotnet/fsharp/language-reference/options
+    /// Щоб дізнатися більше, дивиться: https://docs.microsoft.com/dotnet/fsharp/language-reference/options
+    /// (лише англійською)
 
-    /// First, define a zip code defined via Single-case Discriminated Union.
-    type ZipCode = ZipCode of string
+    /// Спочатку, визначемо індекс як Розподіляюче Об'єднання із Одним Варіантом.
+    type Індекс = Індекс of string
 
-    /// Next, define a type where the ZipCode is optional.
-    type Customer = { ZipCode: ZipCode option }
+    /// Далі, визначемо тип деІндекс є необов'язковим.
+    type Клієнт = { Індекс: Індекс option }
 
-    /// Next, define an interface type the represents an object to compute the shipping zone for the customer's zip code,
-    /// given implementations for the 'getState' and 'getShippingZone' abstract methods.
-    type IShippingCalculator =
-        abstract GetState : ZipCode -> string option
-        abstract GetShippingZone : string -> int
+    /// Далі, визначемо тип інтерфейсу який представляє об'єкт для обчислення зони доставки за індексом клієнта,
+    /// маючи реалізаціі для абстрактних методів 'getState' та 'getShippingZone' abstract methods.
+    type ІКалькуляторДоставки =
+        abstract ВзятиОбласть : Індекс -> string option
+        abstract ВзятиЗонуДоставки : string -> int
 
-    /// Next, calculate a shipping zone for a customer using a calculator instance.
-    /// This uses combinators in the Option module to allow a functional pipeline for
-    /// transforming data with Optionals.
-    let CustomerShippingZone (calculator: IShippingCalculator, customer: Customer) =
-        customer.ZipCode
-        |> Option.bind calculator.GetState
-        |> Option.map calculator.GetShippingZone
+    /// Далі, розрахуємо зону доставки для клієнта використовуючи екземпляр калькулятора.
+    /// Це приклад використовує комбінатори у модуля Option щоб забезпечити функціональний конвеєр для
+    /// трансформації даних із Опціоналами.
+    let ЗонаДоставкиКлієнта (калькулятор: ІКалькуляторДоставки, клієнт: Клієнт) =
+        клієнт.Індекс
+        |> Option.bind калькулятор.ВзятиОбласть
+        |> Option.map калькулятор.ВзятиЗонуДоставки
 

@@ -1,4 +1,4 @@
-module Tour.Primitives
+module Тур.Примітиви
 
 // Із https://docs.microsoft.com/en-us/dotnet/fsharp/tour
 // Щоб дізнатися більше про кожну тему, перейдіть за посиланням вище

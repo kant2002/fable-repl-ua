@@ -1,91 +1,92 @@
 module Tour.Classes
 
-// From https://docs.microsoft.com/en-us/dotnet/fsharp/tour
-// Visit the link above for more information on each topic
-// You can also find more learning resources at https://fsharp.org/
+// Із https://docs.microsoft.com/en-us/dotnet/fsharp/tour
+// Щоб дізнатися більше про кожну тему, перейдіть за посиланням вище
+// Ви також можете знайти більше навчальних ресурсів за адресою https://fsharp.org/
+// (лише англійською)
 
-/// Classes are a way of defining new object types in F#, and support standard Object-oriented constructs.
-/// They can have a variety of members (methods, properties, events, etc.)
+/// Класи це спосіб визначити новий тип об'єктів у F#, і підтримувати стандартні Об'єктно оріентовані конструкції.
+/// Вони можуть мати різномаїть членів (методи, властивості, події, тощо)
 ///
-/// To learn more about Classes, see: https://docs.microsoft.com/dotnet/fsharp/language-reference/classes
+/// Щоб дізнатися про Класи, дивиться: https://docs.microsoft.com/dotnet/fsharp/language-reference/classes
 ///
-/// To learn more about Members, see: https://docs.microsoft.com/dotnet/fsharp/language-reference/members
+/// Щоб дізнатися про Членів, дивиться: https://docs.microsoft.com/dotnet/fsharp/language-reference/members
 
-/// A simple two-dimensional Vector class.
+/// Простий двовимірний класс Вектор.
 ///
-/// The class's constructor is on the first line,
-/// and takes two arguments: dx and dy, both of type 'double'.
-type Vector2D(dx : double, dy : double) =
+/// Конструктор класа на першому рядку,
+/// він приймає два аргумента: dx та dy, обидва типу 'double'.
+type Вектор2D(dx : double, dy : double) =
 
-    /// This internal field stores the length of the vector, computed when the
-    /// object is constructed
-    let length = sqrt (dx*dx + dy*dy)
+    /// Це внутрішне поле зберігає довжину вектора, обчислюючи її коли
+    /// об'єкт створюється
+    let довжина = sqrt (dx*dx + dy*dy)
 
-    // 'this' specifies a name for the object's self-identifier.
-    // In instance methods, it must appear before the member name.
-    member this.DX = dx
+    // 'я' вказує ім'я для ідентіфікатора самого себе для об'єкту.
+    // У методах екземпляру, він повинен йти перед назвою члена.
+    member я.DX = dx
 
-    member this.DY = dy
+    member я.DY = dy
 
-    member this.Length = length
+    member я.Довжина = довжина
 
-    /// This member is a method.  The previous members were properties.
-    member this.Scale(k) = Vector2D(k * this.DX, k * this.DY)
+    /// Цей член метод.  Попередні члени були властивостями.
+    member this.Масштабувати(k) = Вектор2D(k * this.DX, k * this.DY)
 
-/// This is how you instantiate the Vector2D class.
-let vector1 = Vector2D(3.0, 4.0)
+/// Ви створюєте екземпляр класу Вектор2D таким чином.
+let вектор1 = Вектор2D(3.0, 4.0)
 
-/// Get a new scaled vector object, without modifying the original object.
-let vector2 = vector1.Scale(10.0)
+/// Отримати новий масштабований об'єкт вектора, без зміни першоначального об'єкта.
+let вектор2 = вектор1.Масштабувати(10.0)
 
-printfn "Length of vector1: %f\nLength of vector2: %f" vector1.Length vector2.Length
+printfn "Довжина вектор1: %f\nДовжина вектор2: %f" вектор1.Довжина вектор2.Довжина
 
 
-/// Generic classes allow types to be defined with respect to a set of type parameters.
-/// In the following, 'T is the type parameter for the class.
+/// Узагальнені класи дозволяють визначати типи відносно набору параметрів типів.
+/// У наступного типа, 'T це параметр типа для класу.
 ///
-/// To learn more, see: https://docs.microsoft.com/dotnet/fsharp/language-reference/generics/
+/// Щоб дізнатися більше, дивиться: https://docs.microsoft.com/dotnet/fsharp/language-reference/generics/
 
-type StateTracker<'T>(initialElement: 'T) =
+type ВідслідковувачСтану<'T>(початковийЕлемент: 'T) =
 
-    /// This internal field store the states in a list.
-    let mutable states = [ initialElement ]
+    /// Це внутрішне поле яке зберігає стани у списку.
+    let mutable стани = [ початковийЕлемент ]
 
-    /// Add a new element to the list of states.
-    member this.UpdateState newState =
-        states <- newState :: states  // use the '<-' operator to mutate the value.
+    /// Додає новий елемент к списку станів.
+    member я.ОновитиСтан новийСтан =
+        стани <- новийСтан :: стани  // use the '<-' operator to mutate the value.
 
-    /// Get the entire list of historical states.
-    member this.History = states
+    /// Повертає повний список історичних станів.
+    member я.Історія = стани
 
-    /// Get the latest state.
-    member this.Current = states.Head
+    /// Повертає останній стан.
+    member this.Поточний = стани.Head
 
-/// An 'int' instance of the state tracker class. Note that the type parameter is inferred.
-let tracker = StateTracker 10
+/// Екземпляр 'int' класу відслідковувача стану. Зверніть увагу що параметр типу виведен.
+let відслідковувач = ВідслідковувачСтану 10
 
-// Add a state
-tracker.UpdateState 17
+// Додати стан
+відслідковувач.ОновитиСтан 17
 
 
-/// Interfaces are object types with only 'abstract' members.
-/// Object types and object expressions can implement interfaces.
+/// Інтерфеййси це типи об'єктів із лише 'абстрактними' членами.
+/// Типи об'єктів і вирази об'єктів можуть реалізовувати інтерфейси.
 ///
-/// To learn more, see: https://docs.microsoft.com/dotnet/fsharp/language-reference/interfaces
+/// Щоб дізнатися більше, дивиться: https://docs.microsoft.com/dotnet/fsharp/language-reference/interfaces
 
-/// This is a type that implements IDisposable.
-type ReadFile(path: string) =
-    member this.ReadLine() = printfn "Reading %s..." path
+/// Це тип який реалізує IDisposable.
+type ПрочитатиФайл(шлях: string) =
+    member я.ПрочитатиРядок() = printfn "Читаємо %s..." шлях
 
-    // This is the implementation of IDisposable members.
+    // Це реалізація членів IDisposable.
     interface System.IDisposable with
-        member this.Dispose() = printfn "Closing %s..." path
+        member я.Dispose() = printfn "Закриваємо %s..." шлях
 
 
-/// This is an object that implements IDisposable via an Object Expression
-/// Unlike other languages such as C# or Java, a new type definition is not needed
-/// to implement an interface.
-let interfaceImplementation =
+/// Це об'єкт який реалізував IDisposable через Вираз Об'єктуі
+/// На відміну від інших мов таких як C# або Java, нове визначення типу не потрібно
+/// для реалізації інтерфейсу.
+let реалізаціяІнтерфейсу =
     { new System.IDisposable with
         member this.Dispose() = printfn "disposed" }
 

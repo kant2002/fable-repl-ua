@@ -1,81 +1,82 @@
 module Tour.TuplesAndRecords
 
-// From https://docs.microsoft.com/en-us/dotnet/fsharp/tour
-// Visit the link above for more information on each topic
-// You can also find more learning resources at https://fsharp.org/
+// Із https://docs.microsoft.com/en-us/dotnet/fsharp/tour
+// Щоб дізнатися більше про кожну тему, перейдіть за посиланням вище
+// Ви також можете знайти більше навчальних ресурсів за адресою https://fsharp.org/
+// (лише англійською)
 
-module Tuples =
+module Кортежі =
 
-    /// A simple tuple of integers.
-    let tuple1 = (1, 2, 3)
+    /// Простий кортеж цілих.
+    let кортеж1 = (1, 2, 3)
 
-    /// A function that swaps the order of two values in a tuple.
+    /// Функція яка міняє порядок двох значень у кортежі.
     ///
-    /// F# Type Inference will automatically generalize the function to have a generic type,
-    /// meaning that it will work with any type.
-    let swapElems (a, b) = (b, a)
+    /// Вивід типів F# буде автоматично узагальнювати функцію щоб вона мала узагальнений тип,
+    /// означачи що вона буде працювати із любим типом.
+    let помінятиЕлементи (a, b) = (b, a)
 
-    printfn "The result of swapping (1, 2) is %A" (swapElems (1,2))
+    printfn "Результат заміни (1, 2) - %A" (помінятиЕлементи (1,2))
 
-    /// A tuple consisting of an integer, a string,
-    /// and a double-precision floating point number.
-    let tuple2 = (1, "fred", 3.1415)
+    /// Кортеж складаючийся із цілого, рядка,
+    /// і числа із плаваючою точкою двойної точності.
+    let кортеж2 = (1, "fred", 3.1415)
 
-    printfn "tuple1: %A\ttuple2: %A" tuple1 tuple2
+    printfn "кортеж1: %A\tкортеж2: %A" кортеж1 кортеж2
 
 
-module RecordTypes =
+module ТипиЗаписів =
 
-    /// This example shows how to define a new record type.
-    type ContactCard =
-        { Name     : string
-          Phone    : string
-          Verified : bool }
+    /// Цей приклад показує як визначити новий тип запису.
+    type ВізітнаКартка =
+        { Ім'я        : string
+          Телефон     : string
+          Перевірений : bool }
 
-    /// This example shows how to instantiate a record type.
-    let contact1 =
-        { Name = "Alf"
-          Phone = "(206) 555-0157"
-          Verified = false }
+    /// Цей приклад показує як створити екземпляр типу записа.
+    let контакт1 =
+        { Ім'я = "Богдан"
+          Телефон = "(206) 555-0157"
+          Перевірений = false }
 
-    /// You can also do this on the same line with ';' separators.
-    let contactOnSameLine = { Name = "Alf"; Phone = "(206) 555-0157"; Verified = false }
+    /// Ви можете також створити новий екземпляр на одному рядку із допомогою розокремлювачів ';'.
+    let контактНаТомуСамомуРядку = { Ім'я = "Alf"; Телефон = "(206) 555-0157"; Перевірений = false }
 
-    /// This example shows how to use "copy-and-update" on record values. It creates
-    /// a new record value that is a copy of contact1, but has different values for
-    /// the 'Phone' and 'Verified' fields.
+    /// Цей приклад показує як використовувати "копію-із-оновленням" на значеннях записів. Він створює
+    /// новий запис який є копією контакт1, але має інші значення для
+    /// полів 'Телефон' та 'Перевірений'.
     ///
-    /// To learn more, see: https://docs.microsoft.com/dotnet/fsharp/language-reference/copy-and-update-record-expressions
-    let contact2 =
-        { contact1 with
-            Phone = "(206) 555-0112"
-            Verified = true }
+    /// Щоб дізнатия більше, дивиться: https://docs.microsoft.com/dotnet/fsharp/language-reference/copy-and-update-record-expressions
+    let контакт2 =
+        { контакт1 with
+            Телефон = "(206) 555-0112"
+            Перевірений = true }
 
-    /// This example shows how to write a function that processes a record value.
-    /// It converts a 'ContactCard' object to a string.
-    let showContactCard (c: ContactCard) =
-        c.Name + " Phone: " + c.Phone + (if not c.Verified then " (unverified)" else "")
+    /// Цей приклад показує як писати функцію яка обробляє значення запису.
+    /// Вона конвертує об'єкт 'ВізітнаКартка' до рядка.
+    let показатиВізітнуКартку (c: ВізітнаКартка) =
+        c.Ім'я + " Телефон: " + c.Телефон + (if not c.Перевірений then " (не перевірений)" else "")
 
-    printfn "Alf's Contact Card: %s" (showContactCard contact1)
+    printfn "Візитна картка Богдана: %s" (показатиВізітнуКартку контакт1)
 
-    /// This is an example of a Record with a member.
-    type ContactCardAlternate =
-        { Name     : string
-          Phone    : string
-          Address  : string
-          Verified : bool }
+    /// Це приклад Запису із членом.
+    type АльтернативнаВізітнаКартка =
+        { Ім'я        : string
+          Телефон     : string
+          Адреса      : string
+          Перевірений : bool }
 
-        /// Members can implement object-oriented members.
-        member this.PrintedContactCard =
-            this.Name + " Phone: " + this.Phone + (if not this.Verified then " (unverified)" else "") + this.Address
+        /// Записи можуть реалізовувати об'єктно орієнтовані члени.
+        member this.НадрукованаВізітнаКартка =
+            this.Ім'я + " Телефон: " + this.Телефон + (if not this.Перевірений then " (не перевірений)" else "") + this.Адреса
 
-    let contactAlternate =
-        { Name = "Alf"
-          Phone = "(206) 555-0157"
-          Verified = false
-          Address = "111 Alf Street" }
+    let альтернативнийКонтакт =
+        { Ім'я = "Богдан"
+          Телефон = "(206) 555-0157"
+          Перевірений = false
+          Адреса = "111 вул. Богдана" }
 
-    // Members are accessed via the '.' operator on an instantiated type.
-    printfn "Alf's alternate contact card is %s" contactAlternate.PrintedContactCard
+    // Члени можуть бути доступні через оператор '.' на інстанцьйованому типі.
+    printfn "Альтернативна візитна картка Богдана: %s" альтернативнийКонтакт.НадрукованаВізітнаКартка
 
 

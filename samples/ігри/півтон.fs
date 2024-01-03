@@ -109,7 +109,7 @@ module Час =
 module Створення =
 
     /// make a period of silence
-    let зробитиТИшу довжина =
+    let зробитиТишу довжина =
         Seq.init довжина (fun _ -> 0.)
 
     /// make a wave using the given function, length and frequency
@@ -352,8 +352,8 @@ module Html =
 
 
 let bpm = 90.
-let crotchet = Час.noteValue bpm Час.чвертка
-let quaver = Час.noteValue bpm Час.вісімка
+let чвертка = Час.noteValue bpm Час.чвертка
+let вісімка = Час.noteValue bpm Час.вісімка
 
 let створитиНоту час нота =
     Створення.зробитиНоту Створення.сінусоїда час нота 4
@@ -363,23 +363,23 @@ let baaBaaBlackSheepChorus =
     seq {
           //C C G G A A AA G
           //Baa baa black sheep have you any wool?
-          yield! створитиНоту crotchet Нота.До
-          yield! створитиНоту crotchet Нота.До
-          yield! створитиНоту crotchet Нота.Соль
-          yield! створитиНоту crotchet Нота.Соль
-          yield! створитиНоту crotchet Нота.Ля
-          yield! створитиНоту crotchet Нота.Ля
-          yield! створитиНоту quaver Нота.Ля
-          yield! створитиНоту quaver Нота.Ля
-          yield! створитиНоту crotchet Нота.Соль
+          yield! створитиНоту чвертка Нота.До
+          yield! створитиНоту чвертка Нота.До
+          yield! створитиНоту чвертка Нота.Соль
+          yield! створитиНоту чвертка Нота.Соль
+          yield! створитиНоту чвертка Нота.Ля
+          yield! створитиНоту чвертка Нота.Ля
+          yield! створитиНоту вісімка Нота.Ля
+          yield! створитиНоту вісімка Нота.Ля
+          yield! створитиНоту чвертка Нота.Соль
           //F F E E D D C
           //Yes sir yes sir three bags full.
-          yield! створитиНоту crotchet Нота.Фа
-          yield! створитиНоту crotchet Нота.Фа
-          yield! створитиНоту crotchet Нота.Мі
-          yield! створитиНоту crotchet Нота.Мі
-          yield! створитиНоту crotchet Нота.Ре
-          yield! створитиНоту crotchet Нота.Ре
-          yield! створитиНоту crotchet Нота.До }
+          yield! створитиНоту чвертка Нота.Фа
+          yield! створитиНоту чвертка Нота.Фа
+          yield! створитиНоту чвертка Нота.Мі
+          yield! створитиНоту чвертка Нота.Мі
+          yield! створитиНоту чвертка Нота.Ре
+          yield! створитиНоту чвертка Нота.Ре
+          yield! створитиНоту чвертка Нота.До }
 
 Html.завантажитиЗвук baaBaaBlackSheepChorus

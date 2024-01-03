@@ -9,219 +9,219 @@ open Fable.Core.JsInterop
 open Browser.Types
 open Browser
 
-module Keyboard =
+module Клавіатура =
 
-    let mutable keysPressed = Set.empty
+    let mutable натиснутіКнопки = Set.empty
 
-    let code x = if keysPressed.Contains(x) then 1 else 0
+    let код x = if натиснутіКнопки.Contains(x) then 1 else 0
 
-    let arrows () =
-        (code "ArrowRight" - code "ArrowLeft", code "ArrowUp" - code "ArrowDown")
+    let стрілки () =
+        (код "ArrowRight" - код "ArrowLeft", код "ArrowUp" - код "ArrowDown")
 
-    let update (e : KeyboardEvent, pressed) =
-        let key = e.key
-        let op = if pressed then Set.add else Set.remove
-        keysPressed <- op key keysPressed
+    let оновити (e : KeyboardEvent, натиснута) =
+        let кнопка = e.key
+        let оп = if натиснута then Set.add else Set.remove
+        натиснутіКнопки <- оп кнопка натиснутіКнопки
 
-    let init () =
-        window.addEventListener("keydown", fun e -> update(e :?> _, true))
-        window.addEventListener("keyup", fun e -> update(e :?> _, false))
+    let ініц () =
+        window.addEventListener("keydown", fun e -> оновити(e :?> _, true))
+        window.addEventListener("keyup", fun e -> оновити(e :?> _, false))
 
 // Main
 
 /// Scale to make it fit in a 1920*1080 screen
-let scale = 0.8
+let масштаб = 0.8
 
 /// The width of the canvas
-let width = 900. * scale
+let ширина = 900. * масштаб
 /// The height of the canvas
-let height = 668. * scale
-/// Height of the floor - the bottom black part
-let floorHeight = 100. * scale
-/// Height of the atmosphere - the yellow gradient
-let atmosHeight = 300. * scale
+let висота = 668. * масштаб
+/// Висота полу - нижня чорна частина
+let висотаПолу = 100. * масштаб
+/// Висота атмосфери - жовтий градієнт
+let висотаАтмос = 300. * масштаб
 
-Keyboard.init()
+Клавіатура.ініц()
 
-let canvas = document.getElementsByTagName("canvas").[0] :?> HTMLCanvasElement
-let ctx = canvas.getContext_2d()
-canvas.width <- width
-canvas.height <- height
+let полотно = document.getElementsByTagName("canvas").[0] :?> HTMLCanvasElement
+let кткст = полотно.getContext_2d()
+полотно.width <- ширина
+полотно.height <- висота
 
-/// Draw gradient between two Y offsets and two colours
-let drawGrd (ctx:CanvasRenderingContext2D)
-    (canvas:HTMLCanvasElement) (y0,y1) (c0,c1) =
-    let grd = ctx.createLinearGradient(0.,y0,0.,y1)
-    grd.addColorStop(0.,c0)
-    grd.addColorStop(1.,c1)
-    ctx.fillStyle <- !^ grd
-    ctx.fillRect(0.,y0, canvas.width, y1- y0)
+/// Намалювати градієнт між двома У здвигами та двома кольорами
+let намалюватиСтк (кткст:CanvasRenderingContext2D)
+    (полотно:HTMLCanvasElement) (y0,y1) (c0,c1) =
+    let стк = кткст.createLinearGradient(0.,y0,0.,y1)
+    стк.addColorStop(0.,c0)
+    стк.addColorStop(1.,c1)
+    кткст.fillStyle <- !^ стк
+    кткст.fillRect(0.,y0, полотно.width, y1- y0)
 
 
 /// Draw background of the Ozmo game
-let drawBg ctx canvas =
-    drawGrd ctx canvas
-        (0.,atmosHeight) ("yellow","orange")
-    drawGrd ctx canvas
-        (atmosHeight, canvas.height-floorHeight)
+let намалюватиФн кткст полотно =
+    намалюватиСтк кткст полотно
+        (0.,висотаАтмос) ("yellow","orange")
+    намалюватиСтк кткст полотно
+        (висотаАтмос, полотно.height-висотаПолу)
         ("grey","white")
-    ctx.fillStyle <- !^ "black"
-    ctx.fillRect
-        ( 0.,canvas.height-floorHeight,
-          canvas.width,floorHeight )
+    кткст.fillStyle <- !^ "black"
+    кткст.fillRect
+        ( 0.,полотно.height-висотаПолу,
+          полотно.width,висотаПолу )
 
 /// Draw the specified text (when game finishes)
-let drawText(text,x,y) =
-    ctx.fillStyle <- !^ "white"
-    ctx.font <- "bold 40pt";
-    ctx.fillText(text, x, y)
+let намалюватиТекст(текст,x,y) =
+    кткст.fillStyle <- !^ "white"
+    кткст.font <- "bold 40pt";
+    кткст.fillText(текст, x, y)
 
 
-type Blob =
+type Крапля =
     { X:float; Y:float;
       vx:float; vy:float;
-      Radius:float; color:string }
+      Радіус:float; кольор:string }
 
-let drawBlob (ctx:CanvasRenderingContext2D)
-    (canvas:HTMLCanvasElement) (blob:Blob) =
-    ctx.beginPath()
-    ctx.arc
-        ( blob.X, canvas.height - (blob.Y + floorHeight + blob.Radius),
-          blob.Radius, 0., 2. * System.Math.PI, false )
-    ctx.fillStyle <- !^ blob.color
-    ctx.fill()
-    ctx.lineWidth <- 3.
-    ctx.strokeStyle <- !^ blob.color
-    ctx.stroke()
+let намалюватиКраплю (кткст:CanvasRenderingContext2D)
+    (полотно:HTMLCanvasElement) (крапля:Крапля) =
+    кткст.beginPath()
+    кткст.arc
+        ( крапля.X, полотно.height - (крапля.Y + висотаПолу + крапля.Радіус),
+          крапля.Радіус, 0., 2. * System.Math.PI, false )
+    кткст.fillStyle <- !^ крапля.кольор
+    кткст.fill()
+    кткст.lineWidth <- 3.
+    кткст.strokeStyle <- !^ крапля.кольор
+    кткст.stroke()
 
 
 /// Apply key effects on Player's blob - changes X speed
-let direct (dx,dy) (blob:Blob) =
-    { blob with vx = blob.vx + (float dx)/4.0 }
+let напрям (dx,dy) (крапля:Крапля) =
+    { крапля with vx = крапля.vx + (float dx)/4.0 }
 
 /// Apply gravity on falling blobs - gets faster every step
-let gravity (blob:Blob) =
-    if blob.Y > 0. then { blob with vy = blob.vy - 0.1 }
-    else blob
+let гравітація (крапля:Крапля) =
+    if крапля.Y > 0. then { крапля with vy = крапля.vy - 0.1 }
+    else крапля
 
 /// Bounde Player's blob off the wall if it hits it
-let bounce (blob:Blob) =
-    let n = width
-    if blob.X < 0. then
-        { blob with X = -blob.X; vx = -blob.vx }
-    elif (blob.X > n) then
-        { blob with X = n - (blob.X - n); vx = -blob.vx }
-    else blob
+let bounce (крапля:Крапля) =
+    let n = ширина
+    if крапля.X < 0. then
+        { крапля with X = -крапля.X; vx = -крапля.vx }
+    elif (крапля.X > n) then
+        { крапля with X = n - (крапля.X - n); vx = -крапля.vx }
+    else крапля
 
 
 /// Move blob by one step - adds X and Y
 /// velocities to the X and Y coordinates
-let move (blob:Blob) =
-    { blob with
-        X = blob.X + blob.vx
-        Y = max 0.0 (blob.Y + blob.vy) }
+let перемістити (крапля:Крапля) =
+    { крапля with
+        X = крапля.X + крапля.vx
+        Y = max 0.0 (крапля.Y + крапля.vy) }
 
 /// Apply step on Player's blob. Composes above functions.
-let step dir blob =
-    blob |> direct dir |> move |> bounce
+let крок напр крапля =
+    крапля |> напрям напр |> перемістити |> bounce
 
-/// Check whether two blobs collide
-let collide (a:Blob) (b:Blob) =
+/// Перевіряє чи дві краплі зтикаються
+let зіткнення (a:Крапля) (b:Крапля) =
     let dx = (a.X - b.X)*(a.X - b.X)
     let dy = (a.Y - b.Y)*(a.Y - b.Y)
-    let dist = sqrt(dx + dy)
-    dist < abs(a.Radius - b.Radius)
+    let діст = sqrt(dx + dy)
+    діст < abs(a.Радіус - b.Радіус)
 
-/// Remove all falling blobs that hit Player's blob
-let absorb (blob:Blob) (drops:Blob list) =
-    drops
+/// Видаляє усі падаючи краплі які зіткнулися із краплею гравця
+let absorb (крапля:Крапля) (краплі:Крапля list) =
+    краплі
     |> List.filter (fun drop ->
-        collide blob drop |> not )
+        зіткнення крапля drop |> not )
 
 
 // Game helpers
 // =============
 
-let grow = "black"
-let shrink = "white"
+let ріст = "black"
+let зменшення = "white"
 
-let newDrop color =
-    { X = JS.Math.random()*width*0.8 + (width*0.1)
-      Y=600.; Radius=10.; vx=0.; vy = 0.0
-      color=color }
+let новаКрапля колір =
+    { X = JS.Math.random()*ширина*0.8 + (ширина*0.1)
+      Y=600.; Радіус=10.; vx=0.; vy = 0.0
+      кольор=колір }
 
-let newGrow () = newDrop grow
-let newShrink () = newDrop shrink
+let новийРіст () = новаКрапля ріст
+let новеЗменшення () = новаКрапля зменшення
 
 /// Update drops and countdown in each step
-let updateDrops drops countdown =
+let updateDrops краплі countdown =
     if countdown > 0 then
-        drops, countdown - 1
+        краплі, countdown - 1
     elif floor(JS.Math.random()*8.) = 0. then
-        let drop =
-            if floor(JS.Math.random()*3.) = 0. then newGrow()
-            else newShrink()
-        drop::drops, 8
-    else drops, countdown
+        let крапля =
+            if floor(JS.Math.random()*3.) = 0. then новийРіст()
+            else новеЗменшення()
+        крапля::краплі, 8
+    else краплі, countdown
 
 
 /// Count growing and shrinking drops in the list
-let countDrops drops =
-    let count color =
-        drops
-        |> List.filter (fun drop -> drop.color = color)
+let підрахуватиКраплі краплі =
+    let кількість колір =
+        краплі
+        |> List.filter (fun крапля -> крапля.кольор = колір)
         |> List.length
-    count grow, count shrink
+    кількість ріст, кількість зменшення
 
 // Asynchronous game loop
 // ========================
 
-let rec game () = async {
-    let blob =
-        { X = 300.; Y=0.; Radius=50.;
-          vx=0.; vy=0.; color="black" }
-    return! update blob [newGrow ()] 0 }
+let rec гра () = async {
+    let крапля =
+        { X = 300.; Y=0.; Радіус=50.;
+          vx=0.; vy=0.; кольор="black" }
+    return! оновити крапля [новийРіст ()] 0 }
 
-and completed () = async {
-    drawText ("COMPLETED",320.,300.)
+and закінчилася () = async {
+    намалюватиТекст ("COMPLETED",320.,300.)
     do! Async.Sleep 10000
-    return! game () }
+    return! гра () }
 
 /// Keeps current state for Player's blob, falling
 /// drops and the countdown since last drop was generated
-and update blob drops countdown = async {
+and оновити калюжа краплі countdown = async {
     // Update the drops & countdown
-    let drops, countdown = updateDrops drops countdown
+    let краплі, countdown = updateDrops краплі countdown
 
     // Count drops, apply physics and count them again
-    let beforeGrow, beforeShrink = countDrops drops
-    let drops =
-        drops
-        |> List.map (gravity >> move)
-        |> absorb blob
-    let afterGrow, afterShrink = countDrops drops
-    let drops = drops |> List.filter (fun blob -> blob.Y > 0.)
+    let доРосту, доЗменшування = підрахуватиКраплі краплі
+    let краплі =
+        краплі
+        |> List.map (гравітація >> перемістити)
+        |> absorb калюжа
+    let післяРосту, післяЗменшення = підрахуватиКраплі краплі
+    let краплі = краплі |> List.filter (fun blob -> blob.Y > 0.)
 
     // Calculate new player's size based on absorbed drops
-    let radius = blob.Radius + float (beforeGrow - afterGrow) *4.
-    let radius = radius - float (beforeShrink - afterShrink) * 4.
-    let radius = max 5.0 radius
+    let радіус = калюжа.Радіус + float (доРосту - післяРосту) *4.
+    let радіус = радіус - float (доЗменшування - післяЗменшення) * 4.
+    let радіус = max 5.0 радіус
 
     // Update radius and apply keyboard events
-    let blob = { blob with Radius = radius }
-    let blob = blob |> step (Keyboard.arrows())
+    let калюжа = { калюжа with Радіус = радіус }
+    let калюжа = калюжа |> крок (Клавіатура.стрілки())
 
     // Render the new game state
-    drawBg ctx canvas
-    for drop in drops do drawBlob ctx canvas drop
-    drawBlob ctx canvas blob
+    намалюватиФн кткст полотно
+    for крапля in краплі do намалюватиКраплю кткст полотно крапля
+    намалюватиКраплю кткст полотно калюжа
 
     // If the game completed, switch state
     // otherwise sleep and update recursively!
-    if blob.Radius > 150. then
-        return! completed()
+    if калюжа.Радіус > 150. then
+        return! закінчилася()
     else
         do! Async.Sleep(int (1000. / 60.))
-        return! update blob drops countdown }
+        return! оновити калюжа краплі countdown }
 
-game () |> Async.StartImmediate
+гра () |> Async.StartImmediate

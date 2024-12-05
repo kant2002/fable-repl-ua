@@ -1,4 +1,4 @@
-module SpreadSheet
+module Таблиця
 
 // Build your own Excel 365 in an hour with F# by Tomas Petricek!
 // Watch the video of the talk here: https://www.youtube.com/watch?v=Bnm71YEt_lI
@@ -336,10 +336,10 @@ type Event =
   | StartEdit of Position
 
 type State =
-  { Rows : int list
-    Active : Position option
-    Cols : char list
-    Cells : Map<Position, string> }
+  { Рядки : int list
+    ЄАктивним : Position option
+    Стовпчики : char list
+    Комірки : Map<Position, string> }
 
 type Movement =
     | MoveTo of Position
@@ -358,17 +358,17 @@ let KeyDirection : Map<string, Direction> = Map.ofList [
 // EVENT HANDLING
 // ----------------------------------------------------------------------------
 
-let update msg state =
+let оновлення msg state =
   match msg with
   | StartEdit(pos) ->
-      { state with Active = Some pos }, []
+      { state with ЄАктивним = Some pos }, []
 
   | UpdateValue(pos, value) ->
       let newCells =
           if value = ""
-              then Map.remove pos state.Cells
-              else Map.add pos value state.Cells
-      { state with Cells = newCells }, []
+              then Map.remove pos state.Комірки
+              else Map.add pos value state.Комірки
+      { state with Комірки = newCells }, []
 
 // ----------------------------------------------------------------------------
 // RENDERING
@@ -385,11 +385,11 @@ let getPosition ((col, row): Position) (direction: Direction) : Position =
     | Right -> (char((int col) + 1), row)
 
 let getMovement (state: State) (direction: Direction) : Movement =
-    match state.Active with
+    match state.ЄАктивним with
     | None -> Invalid
     | (Some position) ->
         let (col, row) = getPosition position direction
-        if List.contains col state.Cols && List.contains row state.Rows
+        if List.contains col state.Стовпчики && List.contains row state.Рядки
             then MoveTo (col, row)
             else Invalid
 
@@ -417,43 +417,42 @@ let renderView trigger pos (value:option<_>) =
     [ Text (Option.defaultValue "#ERR" value) ]
 
 let renderCell trigger pos state =
-  let value = Map.tryFind pos state.Cells
-  if state.Active = Some pos then
+  let value = Map.tryFind pos state.Комірки
+  if state.ЄАктивним = Some pos then
     renderEditor trigger pos state (Option.defaultValue "" value)
   else
     let value =
       match value with
       | Some value ->
-          parse value |> Option.bind (evaluate Set.empty state.Cells) |> Option.map string
+          parse value |> Option.bind (evaluate Set.empty state.Комірки) |> Option.map string
       | _ -> Some ""
     renderView trigger pos value
 
-let view state trigger =
-  let empty = h?td [] []
-  let header htext = h?th [] [Text htext]
-  let headers = state.Cols |> List.map (fun h -> header (string h))
-  let headers = empty::headers
+let відображення стан гачок =
+  let пусті = h?td [] []
+  let заголовок htext = h?th [] [Text htext]
+  let заголовки = стан.Стовпчики |> List.map (fun заг -> заголовок (string заг))
+  let заголовки = пусті::заголовки
 
-  let row cells = h?tr [] cells
-  let cells n =
-    let cells = state.Cols |> List.map (fun h -> renderCell trigger (h, n) state)
-    header (string n) :: cells
-  let rows = state.Rows |> List.map (fun r -> h?tr [] (cells r))
+  let комірки н =
+    let комірки = стан.Стовпчики |> List.map (fun заг -> renderCell гачок (заг, н) стан)
+    заголовок (string н) :: комірки
+  let рядки = стан.Рядки |> List.map (fun р -> h?tr [] (комірки р))
 
   h?table [] [
-    h?tr [] headers
-    h?tbody [] rows
+    h?tr [] заголовки
+    h?tbody [] рядки
   ]
 
 // ----------------------------------------------------------------------------
 // ENTRY POINT
 // ----------------------------------------------------------------------------
 
-let initial () =
-  { Cols = ['A' .. 'K']
-    Rows = [1 .. 15]
-    Active = None
-    Cells = Map.empty },
+let початкові () =
+  { Стовпчики = ['A' .. 'K']
+    Рядки = [1 .. 15]
+    ЄАктивним = None
+    Комірки = Map.empty },
   []
 
-app "main" initial update view
+app "main" початкові оновлення відображення

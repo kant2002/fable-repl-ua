@@ -1,10 +1,10 @@
-module WebComponent
+module ВебКомпонент
 
-// Web Components with Fable by Onur Gümüş (Twitter @OnurGumusDev)
-// Check the custom tag in the HTML tab and read this thread for more info:
+// Веб Компоненти із Fable від Onur Gümüş (Twitter @OnurGumusDev)
+// Перевірте тег користувача у вкладинці HTML і прочитайте цю гілку для більшої інформації:
 // https://twitter.com/OnurGumusDev/status/1329019698667790337
 
-// For a more high-level library to create Web Components, try Fable.Lit:
+// Для більш високорівневої бібліотеки для будування Веб Компонентів, спробуйте Fable.Lit:
 // https://fable.io/Fable.Lit/docs/web-components.html
 
 open Fable.Core
@@ -22,10 +22,10 @@ type HTMLTemplateElementType =
     [<EmitConstructor>]
     abstract Create: unit -> HTMLTemplateElement
 
-let template: HTMLTemplateElement =
+let шаблон: HTMLTemplateElement =
     downcast document.createElement ("template")
 
-template.innerHTML <-
+шаблон.innerHTML <-
     """
   <style>
     .container {
@@ -59,17 +59,17 @@ template.innerHTML <-
 
 [<Global>]
 module customElements =
-    let define (elementName: string, ty: obj) = jsNative
+    let define (назваЕлементу: string, ty: obj) = jsNative
 
 [<Global>]
 type ShadowRoot() =
     member this.appendChild(el: Browser.Types.Node) = jsNative
     member this.querySelector(selector: string): Browser.Types.HTMLElement = jsNative
 
-let inline attachStatic<'T> (name: string) (f: obj): unit = jsConstructor<'T>?name <- f
+let inline приєднатиСтатичне<'T> (назва: string) (f: obj): unit = jsConstructor<'T>?назва <- f
 
-let inline attachStaticGetter<'T, 'V> (name: string) (f: unit -> 'V): unit =
-    JS.Constructors.Object.defineProperty (jsConstructor<'T>, name, !!{| get = f |})
+let inline приєднатиСтатичнийГеттер<'T, 'V> (назва: string) (f: unit -> 'V): unit =
+    JS.Constructors.Object.defineProperty (jsConstructor<'T>, назва, !!{| get = f |})
     |> ignore
 
 [<Global; AbstractClass>]
@@ -84,21 +84,21 @@ type HTMLElement() =
 type Button() =
     inherit HTMLElement()
 
-    let shadowRoot: ShadowRoot = base.attachShadow ({| mode = "open" |})
+    let тіньовийКорень: ShadowRoot = base.attachShadow ({| mode = "open" |})
 
     do
-        let clone = template.content.cloneNode (true)
-        shadowRoot.appendChild (clone)
+        let клон = шаблон.content.cloneNode (true)
+        тіньовийКорень.appendChild (клон)
 
-    let button = shadowRoot.querySelector ("button")
+    let кнопка = тіньовийКорень.querySelector ("button")
 
-    member this.render() =
-        button.innerHTML <- this.getAttribute ("label")
+    member this.перемалювати() =
+        кнопка.innerHTML <- this.getAttribute ("мітка")
 
-    override _.connectedCallback() = printf "connected callback"
+    override _.connectedCallback() = printf "обратний виклик підключено"
 
-    override this.attributeChangedCallback(name, oldVal, newVal) = this.render ()
+    override this.attributeChangedCallback(name, oldVal, newVal) = this.перемалювати ()
 
-attachStaticGetter<Button, _> "observedAttributes" (fun () -> [| "label" |])
+приєднатиСтатичнийГеттер<Button, _> "observedAttributes" (fun () -> [| "мітка" |])
 
 customElements.define ("my-button", jsConstructor<Button>)

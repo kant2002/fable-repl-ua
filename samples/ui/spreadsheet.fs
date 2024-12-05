@@ -27,47 +27,47 @@ module Elmish =
     // F# representation of DOM and rendering using VirtualDom
     // ------------------------------------------------------------------------------------------------
 
-    type DomAttribute =
-        | EventHandler of (Event -> unit)
-        | Attribute of string
-        | Property of string
+    type АтрібутДом =
+        | ОбробникПодій of (Event -> unit)
+        | Атрібут of string
+        | Властивість of string
 
-    type DomNode =
-        | Text of string
-        | Element of tag:string * attributes:(string * DomAttribute)[] * children : DomNode[]
+    type ВузелДом =
+        | Текст of string
+        | Елемент of тег:string * атрібути:(string * АтрібутДом)[] * діти : ВузелДом[]
 
-    let createTree tag args children =
-        let attrs = ResizeArray<_>()
-        let props = ResizeArray<_>()
-        for k, v in args do
-            match k, v with
-            | "style", Attribute v
-            | "style", Property v ->
-                    let args = v.Split(';') |> Array.map (fun a ->
-                        let sep = a.IndexOf(':')
-                        if sep > 0 then a.Substring(0, sep), box (a.Substring(sep+1))
-                        else a, box "" )
-                    props.Add ("style", JsInterop.createObj args)
-            | "class", Attribute v
-            | "class", Property v ->
-                    attrs.Add (k, box v)
-            | k, Attribute v ->
-                    attrs.Add (k, box v)
-            | k, Property v ->
-                    props.Add (k, box v)
-            | k, EventHandler f ->
-                    props.Add (k, box f)
-        let attrs = JsInterop.createObj attrs
-        let props = JsInterop.createObj (Seq.append ["attributes", attrs] props)
-        let elem = Virtualdom.h(tag, props, children)
-        elem
+    let створитиДерево тег арги діти =
+        let атріби = ResizeArray<_>()
+        let властив = ResizeArray<_>()
+        for к, зн in арги do
+            match к, зн with
+            | "style", Атрібут зн
+            | "style", Властивість зн ->
+                    let args = зн.Split(';') |> Array.map (fun а ->
+                        let sep = а.IndexOf(':')
+                        if sep > 0 then а.Substring(0, sep), box (а.Substring(sep+1))
+                        else а, box "" )
+                    властив.Add ("style", JsInterop.createObj args)
+            | "class", Атрібут зн
+            | "class", Властивість зн ->
+                    атріби.Add (к, box зн)
+            | к, Атрібут зн ->
+                    атріби.Add (к, box зн)
+            | к, Властивість зн ->
+                    властив.Add (к, box зн)
+            | к, ОбробникПодій ф ->
+                    властив.Add (к, box ф)
+        let атріби = JsInterop.createObj атріби
+        let властив = JsInterop.createObj (Seq.append ["attributes", атріби] властив)
+        let елем = Virtualdom.h(тег, властив, діти)
+        елем
 
-    let rec render node =
-        match node with
-        | Text(s) ->
-                box s
-        | Element(tag, attrs, children) ->
-                createTree tag attrs (Array.map render children)
+    let rec відобразити вузел =
+        match вузел with
+        | Текст(с) ->
+                box с
+        | Елемент(tag, attrs, children) ->
+                створитиДерево tag attrs (Array.map відобразити children)
 
     // ------------------------------------------------------------------------------------------------
     // Helpers for dynamic property access & for creating HTML elements
@@ -77,13 +77,13 @@ module Elmish =
         [<Emit("$0[$1]")>]
         static member (?) (d:Dynamic, s:string) : Dynamic = jsNative
 
-    let text s = Text(s)
-    let (=>) k v = k, Property(v)
-    let (=!>) k f = k, EventHandler(fun e -> f e)
+    let текст s = Текст(s)
+    let (=>) k v = k, Властивість(v)
+    let (=!>) k f = k, ОбробникПодій(fun e -> f e)
 
     type El() =
         static member (?) (_:El, n:string) = fun a b ->
-            Element(n, Array.ofList a, Array.ofList b)
+            Елемент(n, Array.ofList a, Array.ofList b)
 
     let h = El()
 
@@ -91,84 +91,84 @@ module Elmish =
     // Entry point - create event and update on trigger
     // ------------------------------------------------------------------------------------------------
 
-    type Cmd<'Msg> = (('Msg -> unit) -> unit) list
+    type Кмд<'Msg> = (('Msg -> unit) -> unit) list
 
     type SingleObservable<'T>() =
-        let mutable listener: IObserver<'T> option = None
+        let mutable слухач: IObserver<'T> option = None
         member _.Trigger v =
-            match listener with
-            | Some lis -> lis.OnNext v
+            match слухач with
+            | Some слух -> слух.OnNext v
             | None -> ()
         interface IObservable<'T> with
             member _.Subscribe w =
-                listener <- Some w
+                слухач <- Some w
                 { new IDisposable with
                     member _.Dispose() = () }
 
-    let app id (init: unit -> 'Model * Cmd<'Msg>) update view =
-        let event = new Event<'Msg>()
-        let trigger e = event.Trigger(e)
-        let model, cmds = init()
-        let mutable state = model
-        let mutable tree = view state trigger |> render
-        let mutable container = Virtualdom.create(tree)
-        document.getElementById(id).appendChild(container) |> ignore
+    let апка ід (ініц: unit -> 'Model * Кмд<'Msg>) оновити відображення =
+        let подія = new Event<'Msg>()
+        let гачок e = подія.Trigger(e)
+        let модель, кмди = ініц()
+        let mutable стан = модель
+        let mutable дерево = відображення стан гачок |> відобразити
+        let mutable контейнер = Virtualdom.create(дерево)
+        document.getElementById(ід).appendChild(контейнер) |> ignore
 
-        let handleEvent evt =
-            let model, cmds = update evt state
-            let newTree = view model trigger |> render
-            let patches = Virtualdom.diff(tree, newTree)
-            container <- Virtualdom.patch(container, patches)
-            tree <- newTree
-            state <- model
-            for cmd in cmds do
-                cmd trigger
+        let обробитиПодію под =
+            let модель, кмди = оновити под стан
+            let новеДерево = відображення модель гачок |> відобразити
+            let латки = Virtualdom.diff(дерево, новеДерево)
+            контейнер <- Virtualdom.patch(контейнер, латки)
+            дерево <- новеДерево
+            стан <- модель
+            for кмд in кмди do
+                кмд гачок
 
-        event.Publish.Add(handleEvent)
-        for cmd in cmds do
-            cmd trigger
+        подія.Publish.Add(обробитиПодію)
+        for кмд in кмди do
+            кмд гачок
 
-module Parsec =
-    type ParseStream<'T> = int * list<'T>
-    type Parser<'T, 'R> = Parser of (ParseStream<'T> -> option<ParseStream<'T> * 'R>)
+module Парсек =
+    type ПотікПарсеру<'T> = int * list<'T>
+    type Парсер<'T, 'R> = Парсер of (ПотікПарсеру<'T> -> option<ПотікПарсеру<'T> * 'R>)
 
     /// Returned by the `slot` function to create a parser slot that is filled later
-    type ParserSetter<'T, 'R> =
-      { Set : Parser<'T, 'R> -> unit }
+    type ВстановлювачПарсеру<'T, 'R> =
+      { Set : Парсер<'T, 'R> -> unit }
 
     /// Ignore the result of the parser
-    let ignore (Parser p) = Parser(fun input ->
-      p input |> Option.map (fun (i, r) -> i, ()))
+    let ігнорувати (Парсер п) = Парсер(fun вхід ->
+      п вхід |> Option.map (fun (i, r) -> i, ()))
 
     /// Creates a delayed parser whose actual parser is set later
-    let slot () =
-      let mutable slot = None
-      { Set = fun (Parser p) -> slot <- Some p },
-      Parser(fun input ->
-        match slot with
-        | Some slot -> slot input
+    let слот () =
+      let mutable слот = None
+      { Set = fun (Парсер p) -> слот <- Some p },
+      Парсер(fun вхід ->
+        match слот with
+        | Some слот -> слот вхід
         | None -> failwith "Slot not initialized")
 
     /// If the input matches the specified prefix, produce the specified result
-    let prefix (prefix:list<'C>) result = Parser(fun (offset, input) ->
-      let rec loop (word:list<'C>) input =
-        match word, input with
-        | c::word, i::input when c = i -> loop word input
+    let префікс (префікс:list<'C>) result = Парсер(fun (offset, вхід) ->
+      let rec цикл (word:list<'C>) вхід =
+        match word, вхід with
+        | c::word, i::вхід when c = i -> цикл word вхід
         | [], input -> Some(input)
         | _ -> None
 
-      match loop prefix input with
-      | Some(input) -> Some((offset+List.length prefix, input), result)
+      match цикл префікс вхід with
+      | Some(вхід) -> Some((offset+List.length префікс, вхід), result)
       | _ -> None)
 
     /// Parser that succeeds when either of the two arguments succeed
-    let (<|>) (Parser p1) (Parser p2) = Parser(fun input ->
-      match p1 input with
-      | Some(input, res) -> Some(input, res)
-      | _ -> p2 input)
+    let (<|>) (Парсер p1) (Парсер p2) = Парсер(fun вхід ->
+      match p1 вхід with
+      | Some(вхід, рез) -> Some(вхід, рез)
+      | _ -> p2 вхід)
 
     /// Run two parsers in sequence and return the result as a tuple
-    let (<*>) (Parser p1) (Parser p2) = Parser(fun input ->
+    let (<*>) (Парсер p1) (Парсер p2) = Парсер(fun input ->
       match p1 input with
       | Some(input, res1) ->
           match p2 input with
@@ -177,7 +177,7 @@ module Parsec =
       | _ -> None)
 
     /// Transforms the result of the parser using the specified function
-    let map f (Parser p) = Parser(fun input ->
+    let map f (Парсер p) = Парсер(fun input ->
       p input |> Option.map (fun (input, res) -> input, f res))
 
     /// Run two parsers in sequence and return the result of the second one
@@ -187,255 +187,255 @@ module Parsec =
     let (<<*>) p1 p2 = p1 <*> p2 |> map fst
 
     /// Succeed without consuming input
-    let unit res = Parser(fun input -> Some(input, res))
+    let unit res = Парсер(fun input -> Some(input, res))
 
     /// Parse using the first parser and then call a function to produce
     /// next parser and parse the rest of the input with the next parser
-    let bind f (Parser p) = Parser(fun input ->
+    let зв'язати f (Парсер p) = Парсер(fun input ->
       match p input with
       | Some(input, res) ->
-          let (Parser g) = f res
+          let (Парсер g) = f res
           match g input with
           | Some(input, res) -> Some(input, res)
           | _ -> None
       | _ -> None)
 
     /// Parser that tries to use a specified parser, but returns None if it fails
-    let optional (Parser p) = Parser(fun input ->
-      match p input with
-      | None -> Some(input, None)
+    let опціонально (Парсер п) = Парсер(fun вхід ->
+      match п вхід with
+      | None -> Some(вхід, None)
       | Some(input, res) -> Some(input, Some res) )
 
     /// Parser that succeeds if the input matches a predicate
-    let pred p = Parser(function
-      | offs, c::input when p c -> Some((offs+1, input), c)
+    let пред п = Парсер(function
+      | offs, c::input when п c -> Some((offs+1, input), c)
       | _ -> None)
 
     /// Parser that succeeds if the predicate returns Some value
-    let choose p = Parser(function
-      | offs, c::input -> p c |> Option.map (fun c -> (offs + 1, input), c)
+    let вибір п = Парсер(function
+      | offs, c::input -> п c |> Option.map (fun c -> (offs + 1, input), c)
       | _ -> None)
 
     /// Parse zero or more repetitions using the specified parser
-    let zeroOrMore (Parser p) =
+    let нульАбоБільше (Парсер п) =
       let rec loop acc input =
-        match p input with
+        match п input with
         | Some(input, res) -> loop (res::acc) input
         | _ -> Some(input, List.rev acc)
-      Parser(loop [])
+      Парсер(loop [])
 
     /// Parse one or more repetitions using the specified parser
-    let oneOrMore p =
-      (p <*> (zeroOrMore p))
+    let одинАбоБільше п =
+      (п <*> (нульАбоБільше п))
       |> map (fun (c, cs) -> c::cs)
 
 
-    let anySpace = zeroOrMore (pred (fun t -> t = ' '))
+    let будьЯкийПробіл = нульАбоБільше (пред (fun t -> t = ' '))
 
-    let char tok = pred (fun t -> t = tok)
+    let символ ток = пред (fun t -> t = ток)
 
-    let separated sep p =
-      p <*> zeroOrMore (sep <*> p)
+    let розділений роз п =
+      п <*> нульАбоБільше (роз <*> п)
       |> map (fun (a1, args) -> a1::(List.map snd args))
 
-    let separatedThen sep p1 p2 =
-      p1 <*> zeroOrMore (sep <*> p2)
+    let розділенийПотім роз п1 п2 =
+      п1 <*> нульАбоБільше (роз <*> п2)
       |> map (fun (a1, args) -> a1::(List.map snd args))
 
-    let separatedOrEmpty sep p =
-      optional (separated sep p)
+    let розділенийАбоПустий роз п =
+      опціонально (розділений роз п)
       |> map (fun l -> defaultArg l [])
 
-    let number = pred (fun t -> t <= '9' && t >= '0')
+    let цифра = пред (fun t -> t <= '9' && t >= '0')
 
-    let integer = oneOrMore number |> map (fun nums ->
+    let ціле = одинАбоБільше цифра |> map (fun nums ->
       nums |> List.fold (fun res n -> res * 10 + (int n - int '0')) 0)
 
-    let letter = pred (fun t ->
+    let літера = пред (fun t ->
       (t <= 'Z' && t >= 'A') || (t <= 'z' && t >= 'a'))
 
-    let run (Parser(f)) input =
-      match f (0, List.ofSeq input) with
-      | Some((i, _), res) when i = Seq.length input -> Some res
+    let запустити (Парсер(f)) вхід =
+      match f (0, List.ofSeq вхід) with
+      | Some((i, _), рез) when i = Seq.length вхід -> Some рез
       | _ -> None
 
-module Evaluator =
-    open Parsec
+module Обчислювач =
+    open Парсек
 
     // ----------------------------------------------------------------------------
     // DOMAIN MODEL
     // ----------------------------------------------------------------------------
 
-    type Position = char * int
+    type Позиція = char * int
 
-    type Expr =
-      | Reference of Position
-      | Number of int
-      | Binary of Expr * char * Expr
+    type Вираз =
+      | Посилання of Позиція
+      | Число of int
+      | Бінарна of Вираз * char * Вираз
 
     // ----------------------------------------------------------------------------
-    // PARSER
+    // Парсер
     // ----------------------------------------------------------------------------
 
     // Basics: operators (+, -, *, /), cell reference (e.g. A10), number (e.g. 123)
-    let operator = char '+' <|> char '-' <|> char '*' <|> char '/'
-    let reference = letter <*> integer |> map Reference
-    let number = integer |> map Number
+    let оператор = символ '+' <|> символ '-' <|> символ '*' <|> символ '/'
+    let посилання = літера <*> ціле |> map Посилання
+    let число = ціле |> map Число
 
     // Nested operator uses need to be parethesized, for example (1 + (3 * 4)).
     // <expr> is a binary operator without parentheses, number, reference or
     // nested brackets, while <term> is always bracketed or primitive. We need
     // to use `expr` recursively, which is handled via mutable slots.
-    let exprSetter, expr = slot ()
-    let brack = char '(' <*>> anySpace <*>> expr <<*> anySpace <<*> char ')'
-    let term = number <|> reference <|> brack
-    let binary = term <<*> anySpace <*> operator <<*> anySpace <*> term |> map (fun ((l,op), r) -> Binary(l, op, r))
-    let exprAux = binary <|> term
-    exprSetter.Set exprAux
+    let встановлювачВираз, вираз = слот ()
+    let дужк = символ '(' <*>> будьЯкийПробіл <*>> вираз <<*> будьЯкийПробіл <<*> символ ')'
+    let терм = число <|> посилання <|> дужк
+    let бінарний = терм <<*> будьЯкийПробіл <*> оператор <<*> будьЯкийПробіл <*> терм |> map (fun ((л,оп), п) -> Бінарна(л, оп, п))
+    let виразВспом = бінарний <|> терм
+    встановлювачВираз.Set виразВспом
 
     // Formula starts with `=` followed by expression
     // Equation you can write in a cell is either number or a formula
-    let formula = char '=' <*>> anySpace <*>> expr
-    let equation = anySpace <*>> (formula <|> number) <<*> anySpace
+    let формула = символ '=' <*>> будьЯкийПробіл <*>> вираз
+    let рівняння = будьЯкийПробіл <*>> (формула <|> число) <<*> будьЯкийПробіл
 
     // Run the parser on a given input
-    let parse input = run equation input
+    let розібрати вхід = запустити рівняння вхід
 
     // ----------------------------------------------------------------------------
-    // EVALUATOR
+    // обчилювач
     // ----------------------------------------------------------------------------
 
-    let rec evaluate visited (cells:Map<Position, string>) expr =
-      match expr with
-      | Number num ->
-          Some num
+    let rec обчислити пройдене (комірки:Map<Позиція, string>) вираз =
+      match вираз with
+      | Число чис ->
+          Some чис
 
-      | Binary(l, op, r) ->
+      | Бінарна(л, оп, п) ->
           let ops = dict [ '+', (+); '-', (-); '*', (*); '/', (/) ]
-          evaluate visited cells l |> Option.bind (fun l ->
-            evaluate visited cells r |> Option.map (fun r ->
-              ops.[op] l r ))
+          обчислити пройдене комірки л |> Option.bind (fun л ->
+            обчислити пройдене комірки п |> Option.map (fun п ->
+              ops.[оп] л п ))
 
-      | Reference pos when Set.contains pos visited ->
+      | Посилання поз when Set.contains поз пройдене ->
           None
 
-      | Reference pos ->
-          cells.TryFind pos |> Option.bind (fun value ->
-            parse value |> Option.bind (fun parsed ->
-              evaluate (Set.add pos visited) cells parsed))
+      | Посилання поз ->
+          комірки.TryFind поз |> Option.bind (fun value ->
+            розібрати value |> Option.bind (fun розібране ->
+              обчислити (Set.add поз пройдене) комірки розібране))
 
 open Elmish
-open Evaluator
+open Обчислювач
 
 // ----------------------------------------------------------------------------
-// DOMAIN MODEL
+// Домена модель
 // ----------------------------------------------------------------------------
 
-type Event =
-  | UpdateValue of Position * string
-  | StartEdit of Position
+type Подія =
+  | ОновитиЗначення of Позиція * string
+  | ПочатокРедагування of Позиція
 
-type State =
+type Стан =
   { Рядки : int list
-    ЄАктивним : Position option
+    ЄАктивним : Позиція option
     Стовпчики : char list
-    Комірки : Map<Position, string> }
+    Комірки : Map<Позиція, string> }
 
-type Movement =
-    | MoveTo of Position
-    | Invalid
+type Переміщення =
+    | ПереміститиВ of Позиція
+    | Некоректне
 
-type Direction = Up | Down | Left | Right
+type Напрямок = Вверх | Вниз | Вліво | Вправо
 
-let KeyDirection : Map<string, Direction> = Map.ofList [
-  ("ArrowLeft", Left)
-  ("ArrowUp", Up)
-  ("ArrowRight", Right)
-  ("ArrowDown", Down)
+let КнопкиНапрямку : Map<string, Напрямок> = Map.ofList [
+  ("ArrowLeft", Вліво)
+  ("ArrowUp", Вверх)
+  ("ArrowRight", Вправо)
+  ("ArrowDown", Вниз)
 ]
 
 // ----------------------------------------------------------------------------
-// EVENT HANDLING
+// обробка подій
 // ----------------------------------------------------------------------------
 
-let оновлення msg state =
-  match msg with
-  | StartEdit(pos) ->
-      { state with ЄАктивним = Some pos }, []
+let оновлення пов стан =
+  match пов with
+  | ПочатокРедагування(поз) ->
+      { стан with ЄАктивним = Some поз }, []
 
-  | UpdateValue(pos, value) ->
-      let newCells =
-          if value = ""
-              then Map.remove pos state.Комірки
-              else Map.add pos value state.Комірки
-      { state with Комірки = newCells }, []
+  | ОновитиЗначення(поз, значення) ->
+      let новіКомірки =
+          if значення = ""
+              then Map.remove поз стан.Комірки
+              else Map.add поз значення стан.Комірки
+      { стан with Комірки = новіКомірки }, []
 
 // ----------------------------------------------------------------------------
-// RENDERING
+// відображення
 // ----------------------------------------------------------------------------
 
-let getDirection (ke: Browser.Types.KeyboardEvent) : Option<Direction> =
-    Map.tryFind ke.key KeyDirection
+let взятиНапрямок (ke: Browser.Types.KeyboardEvent) : Option<Напрямок> =
+    Map.tryFind ke.key КнопкиНапрямку
 
-let getPosition ((col, row): Position) (direction: Direction) : Position =
-    match direction with
-    | Up -> (col, row - 1)
-    | Down -> (col, row + 1)
-    | Left -> (char((int col) - 1), row)
-    | Right -> (char((int col) + 1), row)
+let взятиПозицію ((стов, ряд): Позиція) (напрямок: Напрямок) : Позиція =
+    match напрямок with
+    | Вверх -> (стов, ряд - 1)
+    | Вниз -> (стов, ряд + 1)
+    | Вліво -> (char((int стов) - 1), ряд)
+    | Вправо -> (char((int стов) + 1), ряд)
 
-let getMovement (state: State) (direction: Direction) : Movement =
-    match state.ЄАктивним with
-    | None -> Invalid
-    | (Some position) ->
-        let (col, row) = getPosition position direction
-        if List.contains col state.Стовпчики && List.contains row state.Рядки
-            then MoveTo (col, row)
-            else Invalid
+let взятиПереміщення (стан: Стан) (напрямок: Напрямок) : Переміщення =
+    match стан.ЄАктивним with
+    | None -> Некоректне
+    | (Some позиція) ->
+        let (стов, ряд) = взятиПозицію позиція напрямок
+        if List.contains стов стан.Стовпчики && List.contains ряд стан.Рядки
+            then ПереміститиВ (стов, ряд)
+            else Некоректне
 
-let getKeyPressEvent state trigger = fun (ke: Browser.Types.Event) ->
-    match getDirection (ke :?> _) with
+let взятиПодіюНатисканняКнопки стан гачок = fun (ke: Browser.Types.Event) ->
+    match взятиНапрямок (ke :?> _) with
     | None -> ()
-    | Some direction ->
-        match getMovement state direction with
-        | Invalid -> ()
-        | MoveTo position -> trigger(StartEdit(position))
+    | Some напрямок ->
+        match взятиПереміщення стан напрямок with
+        | Некоректне -> ()
+        | ПереміститиВ позиція -> гачок(ПочатокРедагування(позиція))
 
-let renderEditor (trigger:Event -> unit) pos state value =
+let відмалюватиРедактор (гачок:Подія -> unit) поз стан значення =
   h?td [ "class" => "selected" ] [
     h?input [
       "autofocus" => "true"
-      "onkeydown" =!> (getKeyPressEvent state trigger)
-      "oninput" =!> (fun e -> trigger (UpdateValue (pos, (e.target :?> Browser.Types.HTMLInputElement).value)))
-      "value" => value ] []
+      "onkeydown" =!> (взятиПодіюНатисканняКнопки стан гачок)
+      "oninput" =!> (fun e -> гачок (ОновитиЗначення (поз, (e.target :?> Browser.Types.HTMLInputElement).value)))
+      "value" => значення ] []
   ]
 
-let renderView trigger pos (value:option<_>) =
+let відмалюватиВідображення гачок поз (значення:option<_>) =
   h?td
-    [ "style" => (if value.IsNone then "background:#ffb0b0" else "background:white")
-      "onclick" =!> (fun _ -> trigger(StartEdit(pos)) ) ]
-    [ Text (Option.defaultValue "#ERR" value) ]
+    [ "style" => (if значення.IsNone then "background:#ffb0b0" else "background:white")
+      "onclick" =!> (fun _ -> гачок(ПочатокРедагування(поз)) ) ]
+    [ Текст (Option.defaultValue "#ERR" значення) ]
 
-let renderCell trigger pos state =
-  let value = Map.tryFind pos state.Комірки
-  if state.ЄАктивним = Some pos then
-    renderEditor trigger pos state (Option.defaultValue "" value)
+let відмалюватиКомірку гачок поз стан =
+  let значення = Map.tryFind поз стан.Комірки
+  if стан.ЄАктивним = Some поз then
+    відмалюватиРедактор гачок поз стан (Option.defaultValue "" значення)
   else
-    let value =
-      match value with
-      | Some value ->
-          parse value |> Option.bind (evaluate Set.empty state.Комірки) |> Option.map string
+    let значення =
+      match значення with
+      | Some значення ->
+          розібрати значення |> Option.bind (обчислити Set.empty стан.Комірки) |> Option.map string
       | _ -> Some ""
-    renderView trigger pos value
+    відмалюватиВідображення гачок поз значення
 
 let відображення стан гачок =
   let пусті = h?td [] []
-  let заголовок htext = h?th [] [Text htext]
+  let заголовок htext = h?th [] [Текст htext]
   let заголовки = стан.Стовпчики |> List.map (fun заг -> заголовок (string заг))
   let заголовки = пусті::заголовки
 
   let комірки н =
-    let комірки = стан.Стовпчики |> List.map (fun заг -> renderCell гачок (заг, н) стан)
+    let комірки = стан.Стовпчики |> List.map (fun заг -> відмалюватиКомірку гачок (заг, н) стан)
     заголовок (string н) :: комірки
   let рядки = стан.Рядки |> List.map (fun р -> h?tr [] (комірки р))
 
@@ -445,7 +445,7 @@ let відображення стан гачок =
   ]
 
 // ----------------------------------------------------------------------------
-// ENTRY POINT
+// точка входу
 // ----------------------------------------------------------------------------
 
 let початкові () =
@@ -455,4 +455,4 @@ let початкові () =
     Комірки = Map.empty },
   []
 
-app "main" початкові оновлення відображення
+апка "main" початкові оновлення відображення

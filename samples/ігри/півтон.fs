@@ -352,15 +352,13 @@ module Html =
 
 
 let bpm = 90.
+let половинка = Час.noteValue bpm Час.половинка
 let чвертка = Час.noteValue bpm Час.чвертка
 let вісімка = Час.noteValue bpm Час.вісімка
 
 let створитиНоту час нота =
     Створення.зробитиНоту Створення.сінусоїда час нота 4
     |> Трансформації.gaussianTapper 0.1
-
-let baaBaaBlackSheepChorus =
-    seq {
 
 let baaBaaBlackSheepChorus =
     seq {

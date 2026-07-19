@@ -1,59 +1,59 @@
-module Mandelbrot
+модуль Mandelbrot
 
-// You can draw a rectangle to zoom in an area (feature added by Avi Avni)
+// You can draw a rectangle to zoom у an area (feature added by Avi Avni)
 
-open Fable.Core
-open Fable.Core.JsInterop
-open Browser.Types
-open Browser
+відкрити Fable.Core
+відкрити Fable.Core.JsInterop
+відкрити Browser.Types
+відкрити Browser
 
-type Complex = { r : double; i : double }
-type Color = { r : uint8; g : uint8; b : uint8; a : uint8 }
+тип Complex = { r : double; i : double }
+тип Color = { r : uint8; g : uint8; b : uint8; a : uint8 }
 
-let maxIter = 255
+нехай maxIter = 255
 
-let height = 1024
-let width = 1024
+нехай height = 1024
+нехай width = 1024
 
-let mutable minX = -2.0
-let mutable maxX = 2.0
-let mutable minY = -1.5
-let mutable maxY = 3.5
-let mutable rectX = 0.0
-let mutable rectY = 0.0
-let mutable rectW = 0.0
-let mutable rectH = 0.0
+нехай змінливий minX = -2.0
+нехай змінливий maxX = 2.0
+нехай змінливий minY = -1.5
+нехай змінливий maxY = 3.5
+нехай змінливий rectX = 0.0
+нехай змінливий rectY = 0.0
+нехай змінливий rectW = 0.0
+нехай змінливий rectH = 0.0
 
-let iteratePoint (s : Complex) (p : Complex) : Complex =
+нехай iteratePoint (s : Complex) (p : Complex) : Complex =
     { r = s.r + p.r*p.r - p.i*p.i; i = s.i + 2.0 * p.i * p.r }
 
-let getIterationCount (p : Complex) =
-    let mutable z = p
-    let mutable i = 0
-    while i < maxIter && (z.r*z.r + z.i*z.i < 4.0) do
+нехай getIterationCount (p : Complex) =
+    нехай змінливий z = p
+    нехай змінливий i = 0
+    while i < maxIter && (z.r*z.r + z.i*z.i < 4.0) зробити
       z <- iteratePoint p z
       i <- i + 1
     i
 
-let getCoord (x : int, y : int) : Complex =
-    let p = { r = float x * (maxX - minX) / float width + minX
+нехай getCoord (x : int, y : int) : Complex =
+    нехай p = { r = float x * (maxX - minX) / float width + minX
             ; i = float y * (maxY - minY) / float height + minY }
     p
 
-let getCoordColor (x : int, y : int) : Color =
-    let p = getCoord (x, y)
-    let i = getIterationCount p
+нехай getCoordColor (x : int, y : int) : Color =
+    нехай p = getCoord (x, y)
+    нехай i = getIterationCount p
     { r = uint8 (255/(i%5)); g = uint8 (255/(i%3)); b = uint8 (255/(i%7)); a = 255uy }
 
-let showSet() =
-    let canvas = document.getElementsByTagName("canvas").[0] :?> HTMLCanvasElement
-    let ctx = canvas.getContext_2d()
+нехай showSet() =
+    нехай canvas = document.getElementsByTagName("canvas").[0] :?> HTMLCanvasElement
+    нехай ctx = canvas.getContext_2d()
 
-    let img = ctx.createImageData(float width, float height)
-    for y = 0 to height-1 do
-        for x = 0 to width-1 do
-            let index = (x + y * width) * 4
-            let color = getCoordColor (x, y)
+    нехай img = ctx.createImageData(float width, float height)
+    для y = 0 to height-1 зробити
+        для x = 0 to width-1 зробити
+            нехай index = (x + y * width) * 4
+            нехай color = getCoordColor (x, y)
             img.data.[index+0] <- color.r
             img.data.[index+1] <- color.g
             img.data.[index+2] <- color.b
@@ -64,25 +64,25 @@ let showSet() =
     ctx.fillRect (rectX, rectY, rectW, rectH)
 
 
-document.addEventListener("mousedown", fun de ->
-    let de = de :?> MouseEvent
+document.addEventListener("mousedown", фун de ->
+    нехай de = de :?> MouseEvent
     rectX <- de.clientX
     rectY <- de.clientY
     rectW <- 0.0
     rectH <- 0.0
     showSet())
 
-document.addEventListener("mousemove", fun de ->
-    let de = de :?> MouseEvent
-    if de.buttons = 1.0 then
+document.addEventListener("mousemove", фун de ->
+    нехай de = de :?> MouseEvent
+    якщо de.buttons = 1.0 тоді
         rectW <- de.clientX - rectX
         rectH <- de.clientY - rectY
         showSet())
 
-document.addEventListener("mouseup", fun de ->
-    let de = de :?> MouseEvent
-    let p1 = getCoord (int rectX, int rectY)
-    let p2 = getCoord (int (rectX + rectW), int (rectY + rectH))
+document.addEventListener("mouseup", фун de ->
+    нехай de = de :?> MouseEvent
+    нехай p1 = getCoord (int rectX, int rectY)
+    нехай p2 = getCoord (int (rectX + rectW), int (rectY + rectH))
     minX <- min p1.r p2.r
     maxX <- max p1.r p2.r
     minY <- min p1.i p2.i

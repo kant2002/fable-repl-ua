@@ -1,12 +1,12 @@
-module Recharts
+модуль Recharts
 
-open Fable.Recharts
-open Fable.Recharts.Props
-module R = Fable.React.Standard
-module P = Fable.React.Props
+відкрити Fable.Recharts
+відкрити Fable.Recharts.Props
+модуль R = Fable.React.Standard
+модуль P = Fable.React.Props
 
-module Data =
-  let data =
+модуль Data =
+  нехай data =
       [| {| name = "Page A"; uv = 4000; pv = 2400; amt = 2400 |}
          {| name = "Page B"; uv = 3000; pv = 1398; amt = 2210 |}
          {| name = "Page C"; uv = 2000; pv = 9800; amt = 2290 |}
@@ -16,7 +16,7 @@ module Data =
          {| name = "Page G"; uv = 3490; pv = 4300; amt = 2100 |}
       |]
 
-  let data01 =
+  нехай data01 =
       [| {| day = "05-01"; weather = "sunny" |}
          {| day = "05-02"; weather = "sunny" |}
          {| day = "05-03"; weather = "cloudy" |}
@@ -28,7 +28,7 @@ module Data =
          {| day = "05-09"; weather = "sunny" |}
       |]
 
-  let data02 =
+  нехай data02 =
       [| {| name = "Page A"; uv = 4000; pv = 2400; amt = 2400 |}
          {| name = "Page B"; uv = 3000; pv = 1398; amt = 2210 |}
          {| name = "Page C"; uv = 2000; pv = 9800; amt = 2290 |}
@@ -36,7 +36,7 @@ module Data =
          {| name = "Page E"; uv = 1890; pv = 4800; amt = 2181 |}
       |]
 
-  let rangeData =
+  нехай rangeData =
       [| {| day = "05-01"; temperature = (-1, 10) |}
          {| day = "05-02"; temperature = (2, 15) |}
          {| day = "05-03"; temperature = (3, 12) |}
@@ -48,12 +48,12 @@ module Data =
          {| day = "05-09"; temperature = (-3, 5) |}
      |]
 
-open Data
+відкрити Data
 
-let margin t r b l =
+нехай margin t r b l =
     Chart.Margin { top = t; bottom = b; right = r; left = l }
 
-let lineChartSample =
+нехай lineChartSample =
     lineChart
         [ margin 5. 20. 5. 0.
           Chart.Width 600.
@@ -74,7 +74,7 @@ let lineChartSample =
           tooltip [] []
         ]
 
-let barChartSample =
+нехай barChartSample =
     barChart
         [ margin 5. 20. 5. 0.
           Chart.Width 600.
@@ -89,7 +89,7 @@ let barChartSample =
           bar [Cartesian.DataKey "uv"; Cartesian.StackId "a"; P.Fill "#82ca9d"] []
         ]
 
-let areaChartSample =
+нехай areaChartSample =
     areaChart
         [ margin 10. 30. 0. 0.
           Chart.Width 730.
@@ -123,9 +123,9 @@ let areaChartSample =
               P.FillOpacity 1 ] []
         ]
 
-open Fable.React
+відкрити Fable.React
 
-let renderApp() =
+нехай renderApp() =
     mountById "container1" lineChartSample
     mountById "container2" barChartSample
     mountById "container3" areaChartSample

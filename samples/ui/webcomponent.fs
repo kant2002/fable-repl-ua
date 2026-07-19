@@ -1,4 +1,4 @@
-module ВебКомпонент
+модуль ВебКомпонент
 
 // Веб Компоненти із Fable від Onur Gümüş (Twitter @OnurGumusDev)
 // Перевірте тег користувача у вкладинці HTML і прочитайте цю гілку для більшої інформації:
@@ -7,22 +7,22 @@ module ВебКомпонент
 // Для більш високорівневої бібліотеки для будування Веб Компонентів, спробуйте Fable.Lit:
 // https://fable.io/Fable.Lit/docs/web-components.html
 
-open Fable.Core
-open Browser
-open Browser.Types
-open Fable.Core.JsInterop
+відкрити Fable.Core
+відкрити Browser
+відкрити Browser.Types
+відкрити Fable.Core.JsInterop
 
 [<AllowNullLiteral>]
-type HTMLTemplateElement =
-    inherit HTMLElement
-    abstract content: DocumentFragment with get, set
+тип HTMLTemplateElement =
+    успадкує HTMLElement
+    абстрактний content: DocumentFragment із get, set
 
 [<AllowNullLiteral>]
-type HTMLTemplateElementType =
+тип HTMLTemplateElementType =
     [<EmitConstructor>]
-    abstract Create: unit -> HTMLTemplateElement
+    абстрактний Create: unit -> HTMLTemplateElement
 
-let шаблон: HTMLTemplateElement =
+нехай шаблон: HTMLTemplateElement =
     downcast document.createElement ("template")
 
 шаблон.innerHTML <-
@@ -58,47 +58,47 @@ let шаблон: HTMLTemplateElement =
 """
 
 [<Global>]
-module customElements =
-    let define (назваЕлементу: string, ty: obj) = jsNative
+модуль customElements =
+    нехай define (назваЕлементу: string, ty: obj) = jsNative
 
 [<Global>]
-type ShadowRoot() =
-    member this.appendChild(el: Browser.Types.Node) = jsNative
-    member this.querySelector(selector: string): Browser.Types.HTMLElement = jsNative
+тип ShadowRoot() =
+    член this.appendChild(el: Browser.Types.Node) = jsNative
+    член this.querySelector(selector: string): Browser.Types.HTMLElement = jsNative
 
-let inline приєднатиСтатичне<'T> (назва: string) (f: obj): unit = jsConstructor<'T>?назва <- f
+нехай інлайн приєднатиСтатичне<'T> (назва: string) (f: obj): unit = jsConstructor<'T>?назва <- f
 
-let inline приєднатиСтатичнийГеттер<'T, 'V> (назва: string) (f: unit -> 'V): unit =
+нехай інлайн приєднатиСтатичнийГеттер<'T, 'V> (назва: string) (f: unit -> 'V): unit =
     JS.Constructors.Object.defineProperty (jsConstructor<'T>, назва, !!{| get = f |})
     |> ignore
 
 [<Global; AbstractClass>]
 [<AllowNullLiteral>]
-type HTMLElement() =
-    member _.getAttribute(attr: string): string = jsNative
-    member _.attachShadow(obj): ShadowRoot = jsNative
-    abstract connectedCallback: unit -> unit
-    abstract attributeChangedCallback: string * obj * obj -> unit
+тип HTMLElement() =
+    член _.getAttribute(attr: string): string = jsNative
+    член _.attachShadow(obj): ShadowRoot = jsNative
+    абстрактний connectedCallback: unit -> unit
+    абстрактний attributeChangedCallback: string * obj * obj -> unit
 
 [<AllowNullLiteral>]
-type Button() =
-    inherit HTMLElement()
+тип Button() =
+    успадкує HTMLElement()
 
-    let тіньовийКорень: ShadowRoot = base.attachShadow ({| mode = "open" |})
+    нехай тіньовийКорень: ShadowRoot = base.attachShadow ({| mode = "відкрити" |})
 
-    do
-        let клон = шаблон.content.cloneNode (true)
+    зробити
+        нехай клон = шаблон.content.cloneNode (true)
         тіньовийКорень.appendChild (клон)
 
-    let кнопка = тіньовийКорень.querySelector ("button")
+    нехай кнопка = тіньовийКорень.querySelector ("button")
 
-    member this.перемалювати() =
+    член this.перемалювати() =
         кнопка.innerHTML <- this.getAttribute ("мітка")
 
     override _.connectedCallback() = printf "обратний виклик підключено"
 
     override this.attributeChangedCallback(name, oldVal, newVal) = this.перемалювати ()
 
-приєднатиСтатичнийГеттер<Button, _> "observedAttributes" (fun () -> [| "мітка" |])
+приєднатиСтатичнийГеттер<Button, _> "observedAttributes" (фун () -> [| "мітка" |])
 
 customElements.define ("my-button", jsConstructor<Button>)

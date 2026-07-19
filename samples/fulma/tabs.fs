@@ -1,10 +1,10 @@
 // More info about Fulma at https://mangelmaxime.github.io/Fulma/
-module Fulma.Tabs
+модуль Fulma.Tabs
 
-open Fable.React
-open Fulma
+відкрити Fable.React
+відкрити Fulma
 
-let basic () =
+нехай basic () =
     Tabs.tabs [ ]
         [ Tabs.tab [ Tabs.Tab.IsActive true ]
             [ a [ ] [ str "Fable" ] ]
@@ -15,7 +15,7 @@ let basic () =
           Tabs.tab [ ]
             [ a [ ] [ str "Hink" ] ] ]
 
-let alignment () =
+нехай alignment () =
     Tabs.tabs [ Tabs.IsCentered ]
         [ Tabs.tab [ Tabs.Tab.IsActive true ]
             [ a [ ] [ str "Fable" ] ]
@@ -26,7 +26,7 @@ let alignment () =
           Tabs.tab [ ]
             [ a [ ] [ str "Hink" ] ] ]
 
-let size () =
+нехай size () =
     Tabs.tabs [ Tabs.Size IsLarge ]
         [ Tabs.tab [ Tabs.Tab.IsActive true ]
             [ a [ ] [ str "Fable" ] ]
@@ -37,7 +37,7 @@ let size () =
           Tabs.tab [ ]
             [ a [ ] [ str "Hink" ] ] ]
 
-let styles () =
+нехай styles () =
     Tabs.tabs [ Tabs.IsFullWidth
                 Tabs.IsBoxed ]
         [ Tabs.tab [ Tabs.Tab.IsActive true ]

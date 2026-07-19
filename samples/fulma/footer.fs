@@ -1,10 +1,10 @@
 // More info about Fulma at https://mangelmaxime.github.io/Fulma/
-module Fulma.Footer
+модуль Fulma.Footer
 
-open Fable.React
-open Fulma
+відкрити Fable.React
+відкрити Fulma
 
-let basic () =
+нехай basic () =
     Footer.footer [ ]
         [ Content.content [ Content.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ]
             [ h1 [ ]

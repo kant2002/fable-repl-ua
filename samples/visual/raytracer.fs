@@ -1,223 +1,223 @@
 // Source: http://www.tryfsharp.org/create/cpoulain/shared/raytracer.fsx
 // slightly modified to avoid some allocations
 
-module RayTracer
+модуль RayTracer
 
 [<Struct>]
-type Vector =
+тип Vector =
     { X: float; Y: float; Z: float }
-    static member (*) (k, v: Vector) = { X = k * v.X; Y = k * v.Y; Z = k * v.Z }
-    static member (-) (v1: Vector, v2: Vector) = { X = v1.X - v2.X; Y = v1.Y - v2.Y; Z = v1.Z - v2.Z }
-    static member (+) (v1: Vector, v2: Vector) = { X = v1.X + v2.X; Y = v1.Y + v2.Y; Z = v1.Z + v2.Z }
-    static member Dot (v1: Vector, v2: Vector) = v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z
-    static member Mag (v: Vector) = sqrt (v.X * v.X + v.Y * v.Y + v.Z * v.Z)
-    static member Norm (v: Vector) =
-        let mag = Vector.Mag v
-        let div = if mag = 0.0 then infinity else 1.0/mag
+    статичний член (*) (k, v: Vector) = { X = k * v.X; Y = k * v.Y; Z = k * v.Z }
+    статичний член (-) (v1: Vector, v2: Vector) = { X = v1.X - v2.X; Y = v1.Y - v2.Y; Z = v1.Z - v2.Z }
+    статичний член (+) (v1: Vector, v2: Vector) = { X = v1.X + v2.X; Y = v1.Y + v2.Y; Z = v1.Z + v2.Z }
+    статичний член Dot (v1: Vector, v2: Vector) = v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z
+    статичний член Mag (v: Vector) = sqrt (v.X * v.X + v.Y * v.Y + v.Z * v.Z)
+    статичний член Norm (v: Vector) =
+        нехай mag = Vector.Mag v
+        нехай div = якщо mag = 0.0 тоді infinity інакше 1.0/mag
         div * v
-    static member Cross (v1: Vector, v2: Vector) =
+    статичний член Cross (v1: Vector, v2: Vector) =
         { X = v1.Y * v2.Z - v1.Z * v2.Y
         ; Y = v1.Z * v2.X - v1.X * v2.Z
         ; Z = v1.X * v2.Y - v1.Y * v2.X }
 
 [<Struct>]
-type Color =
+тип Color =
     { R: float; G: float; B: float }
-    static member Scale (k, v: Color) = { R = k * v.R; G = k * v.G; B = k * v.B }
-    static member (+) (v1: Color, v2: Color) = { R = v1.R + v2.R; G = v1.G + v2.G; B = v1.B + v2.B }
-    static member (*) (v1: Color, v2: Color) = { R = v1.R * v2.R; G = v1.G * v2.G; B = v1.B * v2.B }
-    static member White = { R = 1.0; G = 1.0; B = 1.0 }
-    static member Grey = { R = 0.5; G = 0.5; B = 0.5 }
-    static member Black = { R = 0.0; G = 0.0; B = 0.0 }
-    static member Background = Color.Black
-    static member DefaultColor = Color.Black
+    статичний член Scale (k, v: Color) = { R = k * v.R; G = k * v.G; B = k * v.B }
+    статичний член (+) (v1: Color, v2: Color) = { R = v1.R + v2.R; G = v1.G + v2.G; B = v1.B + v2.B }
+    статичний член (*) (v1: Color, v2: Color) = { R = v1.R * v2.R; G = v1.G * v2.G; B = v1.B * v2.B }
+    статичний член White = { R = 1.0; G = 1.0; B = 1.0 }
+    статичний член Grey = { R = 0.5; G = 0.5; B = 0.5 }
+    статичний член Black = { R = 0.0; G = 0.0; B = 0.0 }
+    статичний член Background = Color.Black
+    статичний член DefaultColor = Color.Black
 
-type Camera (pos: Vector, lookAt: Vector) =
-    let forward = Vector.Norm (lookAt - pos)
-    let down = { X = 0.0; Y = -1.0; Z = 0.0 }
-    let right = 1.5 * Vector.Norm (Vector.Cross (forward, down))
-    let up = 1.5 * Vector.Norm (Vector.Cross (forward, right))
-    member c.Pos     = pos
-    member c.Forward = forward
-    member c.Up      = up
-    member c.Right   = right
+тип Camera (pos: Vector, lookAt: Vector) =
+    нехай forward = Vector.Norm (lookAt - pos)
+    нехай down = { X = 0.0; Y = -1.0; Z = 0.0 }
+    нехай right = 1.5 * Vector.Norm (Vector.Cross (forward, down))
+    нехай up = 1.5 * Vector.Norm (Vector.Cross (forward, right))
+    член c.Pos     = pos
+    член c.Forward = forward
+    член c.Up      = up
+    член c.Right   = right
 
 [<Struct>]
-type Ray =
+тип Ray =
     { Start: Vector;
       Dir: Vector }
 
-type Surface =
-    abstract Diffuse: Vector -> Color
-    abstract Specular: Vector -> Color
-    abstract Reflect: Vector -> float
-    abstract Roughness : float
+тип Surface =
+    абстрактний Diffuse: Vector -> Color
+    абстрактний Specular: Vector -> Color
+    абстрактний Reflect: Vector -> float
+    абстрактний Roughness : float
 
 [<Struct>]
-type Intersection =
+тип Intersection =
     { Thing: SceneObject;
       Ray: Ray;
       Dist: float }
 
 and SceneObject =
-    abstract Surface: Surface
-    abstract Intersect: Ray -> float
-    abstract Normal: Vector -> Vector
+    абстрактний Surface: Surface
+    абстрактний Intersect: Ray -> float
+    абстрактний Normal: Vector -> Vector
 
-type Light =
+тип Light =
     { Pos : Vector;
       Color : Color }
 
-type Scene =
+тип Scene =
     { Things : SceneObject[];
       Lights : Light[];
       Camera : Camera }
 
-module RayTracer =
+модуль RayTracer =
 
-    let maxDepth = 5
+    нехай maxDepth = 5
 
-    let NearestIntersection ray scene =
-        let mutable acc = None
-        for x in scene.Things do
-            let dist = x.Intersect ray
-            if acc.IsNone || dist < acc.Value.Dist then
+    нехай NearestIntersection ray scene =
+        нехай змінливий acc = None
+        для x у scene.Things зробити
+            нехай dist = x.Intersect ray
+            якщо acc.IsNone || dist < acc.Value.Dist тоді
                 acc <- Some { Thing = x; Ray = ray; Dist = dist }
         acc
 
-    let TestRay ray scene =
-        match NearestIntersection ray scene with
+    нехай TestRay ray scene =
+        співстав NearestIntersection ray scene із
         | None -> None
         | Some isect ->
-            if isect.Dist = infinity
-            then None
-            else Some isect.Dist
+            якщо isect.Dist = infinity
+            тоді None
+            інакше Some isect.Dist
 
-    let rec TraceRay ray scene (depth: int) =
-        match NearestIntersection ray scene with
+    нехай rec TraceRay ray scene (depth: int) =
+        співстав NearestIntersection ray scene із
         | None -> Color.Background
         | Some isect ->
-            if isect.Dist = infinity
-            then Color.Background
-            else Shade isect scene depth
+            якщо isect.Dist = infinity
+            тоді Color.Background
+            інакше Shade isect scene depth
 
     and Shade isect scene depth =
-        let d = isect.Ray.Dir
-        let pos = isect.Dist * d + isect.Ray.Start
-        let normal = isect.Thing.Normal (pos)
-        let reflectDir = d - 2.0 * Vector.Dot (normal, d) * normal
-        let naturalcolor = Color.DefaultColor + (GetNaturalColor isect.Thing pos normal reflectDir scene)
-        let reflectedColor =
-            if depth >= maxDepth then Color.Grey
-            else GetReflectionColor (isect.Thing, pos + (0.001*reflectDir), normal, reflectDir, scene, depth)
+        нехай d = isect.Ray.Dir
+        нехай pos = isect.Dist * d + isect.Ray.Start
+        нехай normal = isect.Thing.Normal (pos)
+        нехай reflectDir = d - 2.0 * Vector.Dot (normal, d) * normal
+        нехай naturalcolor = Color.DefaultColor + (GetNaturalColor isect.Thing pos normal reflectDir scene)
+        нехай reflectedColor =
+            якщо depth >= maxDepth тоді Color.Grey
+            інакше GetReflectionColor (isect.Thing, pos + (0.001*reflectDir), normal, reflectDir, scene, depth)
         naturalcolor + reflectedColor
 
     and GetReflectionColor (thing: SceneObject, pos, normal: Vector, rd: Vector, scene: Scene, depth: int) =
         Color.Scale (thing.Surface.Reflect (pos), TraceRay { Start = pos; Dir = rd } scene (depth + 1))
 
     and GetNaturalColor thing pos normal rd scene =
-        let mutable color = Color.DefaultColor
-        for light in scene.Lights do
+        нехай змінливий color = Color.DefaultColor
+        для light у scene.Lights зробити
             color <- AddLight thing pos normal rd scene color light
         color
 
     and AddLight (thing: SceneObject) pos normal rd scene color light =
-        let ldis = light.Pos - pos
-        let livec = Vector.Norm (ldis)
-        let neatIsect = TestRay { Start = pos; Dir = livec } scene
-        let isInShadow =
-            match neatIsect with
+        нехай ldis = light.Pos - pos
+        нехай livec = Vector.Norm (ldis)
+        нехай neatIsect = TestRay { Start = pos; Dir = livec } scene
+        нехай isInShadow =
+            співстав neatIsect із
             | None -> false
             | Some d -> not (d > Vector.Mag (ldis))
-        if isInShadow then color
-        else
-            let illum = Vector.Dot (livec, normal)
-            let lcolor =
-                if illum > 0.0
-                then Color.Scale (illum, light.Color)
-                else Color.DefaultColor
-            let specular = Vector.Dot (livec, Vector.Norm (rd))
-            let scolor =
-                if specular > 0.0
-                then Color.Scale (specular ** thing.Surface.Roughness, light.Color)
-                else Color.DefaultColor
+        якщо isInShadow тоді color
+        інакше
+            нехай illum = Vector.Dot (livec, normal)
+            нехай lcolor =
+                якщо illum > 0.0
+                тоді Color.Scale (illum, light.Color)
+                інакше Color.DefaultColor
+            нехай specular = Vector.Dot (livec, Vector.Norm (rd))
+            нехай scolor =
+                якщо specular > 0.0
+                тоді Color.Scale (specular ** thing.Surface.Roughness, light.Color)
+                інакше Color.DefaultColor
             color + thing.Surface.Diffuse (pos) * lcolor +
                     thing.Surface.Specular (pos) * scolor
 
-    let GetPoint x y width height (camera: Camera) =
-        let RecenterX x =  (float x - (float width / 2.0))  / (2.0 * float width)
-        let RecenterY y = -(float y - (float height / 2.0)) / (2.0 * float height)
+    нехай GetPoint x y width height (camera: Camera) =
+        нехай RecenterX x =  (float x - (float width / 2.0))  / (2.0 * float width)
+        нехай RecenterY y = -(float y - (float height / 2.0)) / (2.0 * float height)
         Vector.Norm (camera.Forward + RecenterX (x) * camera.Right + RecenterY (y) * camera.Up)
 
-    let Render scene (data: byte[]) (x, y, width, height) =
-        let clamp v = min (max (v * 255.0) 0.0) 255.0 |> byte
-        for y = y to height-1 do
-            let stride = y * width
-            for x = x to width-1 do
-                let index = (x + stride) * 4
-                let dir = GetPoint x y width height scene.Camera
-                let ray = { Start = scene.Camera.Pos; Dir = dir }
-                let color = TraceRay ray scene 0
+    нехай Render scene (data: byte[]) (x, y, width, height) =
+        нехай clamp v = min (max (v * 255.0) 0.0) 255.0 |> byte
+        для y = y to height-1 зробити
+            нехай stride = y * width
+            для x = x to width-1 зробити
+                нехай index = (x + stride) * 4
+                нехай dir = GetPoint x y width height scene.Camera
+                нехай ray = { Start = scene.Camera.Pos; Dir = dir }
+                нехай color = TraceRay ray scene 0
                 data.[index+0] <- clamp color.R
                 data.[index+1] <- clamp color.G
                 data.[index+2] <- clamp color.B
                 data.[index+3] <- 255uy
 
-module SceneObjects =
+модуль SceneObjects =
 
-    type Sphere (center, radius, surface) =
-        interface SceneObject with
-            member this.Surface = surface
-            member this.Normal pos = Vector.Norm (pos - center)
-            member this.Intersect ray =
-                let eo = center - ray.Start
-                let v = Vector.Dot (eo, ray.Dir)
-                let dist =
-                    if (v < 0.0) then infinity
-                    else
-                        let disc = radius * radius - (Vector.Dot (eo,eo) - (v*v))
-                        if disc < 0.0
-                        then infinity
-                        else v - (sqrt (disc))
+    тип Sphere (center, radius, surface) =
+        інтерфейс SceneObject із
+            член this.Surface = surface
+            член this.Normal pos = Vector.Norm (pos - center)
+            член this.Intersect ray =
+                нехай eo = center - ray.Start
+                нехай v = Vector.Dot (eo, ray.Dir)
+                нехай dist =
+                    якщо (v < 0.0) тоді infinity
+                    інакше
+                        нехай disc = radius * radius - (Vector.Dot (eo,eo) - (v*v))
+                        якщо disc < 0.0
+                        тоді infinity
+                        інакше v - (sqrt (disc))
                 dist
 
-    type Plane (normal, offset, surface) =
-        interface SceneObject with
-            member this.Surface = surface
-            member this.Normal pos = normal
-            member this.Intersect ray =
-                let denom = Vector.Dot (normal, ray.Dir)
-                let dist =
-                    if denom > 0.0
-                    then infinity
-                    else (Vector.Dot (normal, ray.Start) + offset) / (-denom)
+    тип Plane (normal, offset, surface) =
+        інтерфейс SceneObject із
+            член this.Surface = surface
+            член this.Normal pos = normal
+            член this.Intersect ray =
+                нехай denom = Vector.Dot (normal, ray.Dir)
+                нехай dist =
+                    якщо denom > 0.0
+                    тоді infinity
+                    інакше (Vector.Dot (normal, ray.Start) + offset) / (-denom)
                 dist
 
-module Surfaces =
+модуль Surfaces =
 
-    type Shiny() =
-        interface Surface with
-            member s.Diffuse pos = Color.White
-            member s.Specular pos = Color.Grey
-            member s.Reflect pos = 0.7
-            member s.Roughness = 250.0
+    тип Shiny() =
+        інтерфейс Surface із
+            член s.Diffuse pos = Color.White
+            член s.Specular pos = Color.Grey
+            член s.Reflect pos = 0.7
+            член s.Roughness = 250.0
 
-    type Checkerboard() =
-        interface Surface with
-            member s.Diffuse pos =
-                if (int (floor (pos.Z) + floor (pos.X))) % 2 <> 0
-                then Color.White
-                else Color.Black
-            member s.Specular pos = Color.White
-            member s.Reflect pos =
-                if (int (floor (pos.Z) + floor (pos.X))) % 2 <> 0
-                then 0.1
-                else 0.7
-            member s.Roughness = 150.0
+    тип Checkerboard() =
+        інтерфейс Surface із
+            член s.Diffuse pos =
+                якщо (int (floor (pos.Z) + floor (pos.X))) % 2 <> 0
+                тоді Color.White
+                інакше Color.Black
+            член s.Specular pos = Color.White
+            член s.Reflect pos =
+                якщо (int (floor (pos.Z) + floor (pos.X))) % 2 <> 0
+                тоді 0.1
+                інакше 0.7
+            член s.Roughness = 150.0
 
-module Scenes =
+модуль Scenes =
 
-    let TwoSpheresOnACheckerboard = {
+    нехай TwoSpheresOnACheckerboard = {
         Things = [|
             SceneObjects.Plane ({ X = 0.0; Y = 1.0; Z = 0.0 }, 0.0, Surfaces.Checkerboard())
             SceneObjects.Sphere ({ X = 0.0; Y = 1.0; Z = -0.25 }, 1.0, Surfaces.Shiny())
@@ -233,23 +233,23 @@ module Scenes =
             Camera ({ X = 3.0; Y = 2.0; Z = 4.0 }, { X = -1.0; Y = 0.5; Z = 0.0 })
     }
 
-open Fable.Core.JsInterop
-open Browser.Types
-open Browser
+відкрити Fable.Core.JsInterop
+відкрити Browser.Types
+відкрити Browser
 
-let renderScene scene (x, y, width, height) =
-    let canvas = document.getElementsByTagName("canvas").[0] :?> HTMLCanvasElement
-    let ctx = canvas.getContext_2d()
-    let img = ctx.createImageData(float width, float height)
+нехай renderScene scene (x, y, width, height) =
+    нехай canvas = document.getElementsByTagName("canvas").[0] :?> HTMLCanvasElement
+    нехай ctx = canvas.getContext_2d()
+    нехай img = ctx.createImageData(float width, float height)
     RayTracer.Render scene img.data (x, y, width, height)
     ctx.putImageData(img, float -x, float -y)
 
-let measure f x y =
-    let dtStart = window?performance?now()
-    let res = f x y
-    let elapsed = window?performance?now() - dtStart
+нехай measure f x y =
+    нехай dtStart = window?performance?now()
+    нехай res = f x y
+    нехай elapsed = window?performance?now() - dtStart
     res, elapsed
 
-let x, y, w, h = (0, 0, 512, 512)
-let _, elapsed = measure renderScene Scenes.TwoSpheresOnACheckerboard (x, y, w, h)
+нехай x, y, w, h = (0, 0, 512, 512)
+нехай _, elapsed = measure renderScene Scenes.TwoSpheresOnACheckerboard (x, y, w, h)
 printfn "Ray tracing:\n - rendered image size: (%dx%d)\n - elapsed: %f ms" w h elapsed

@@ -1,10 +1,10 @@
 // More info about Fulma at https://mangelmaxime.github.io/Fulma/
-module Fulma.Hero
+модуль Fulma.Hero
 
-open Fable.React
-open Fulma
+відкрити Fable.React
+відкрити Fulma
 
-let iconInteractive () =
+нехай iconInteractive () =
     Hero.hero [ ]
         [ Hero.body [ ]
             [ Container.container [ Container.IsFluid ]
@@ -13,7 +13,7 @@ let iconInteractive () =
                   Heading.h2 [ Heading.IsSubtitle ]
                     [ str "Subtitle" ] ] ] ]
 
-let centered () =
+нехай centered () =
     Hero.hero [ Hero.Color IsSuccess
                 Hero.IsMedium ]
         [ Hero.head [ ]

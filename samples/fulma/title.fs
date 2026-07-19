@@ -1,10 +1,10 @@
 // More info about Fulma at https://mangelmaxime.github.io/Fulma/
-module Fulma.Title
+модуль Fulma.Title
 
-open Fable.React
-open Fulma
+відкрити Fable.React
+відкрити Fulma
 
-let simpleInteractive () =
+нехай simpleInteractive () =
     div [ ]
         [ Heading.h1 [ ]
             [ str "Title" ]
@@ -12,7 +12,7 @@ let simpleInteractive () =
             [ str "Subtitle" ] ]
 
 
-let sizeInteractive () =
+нехай sizeInteractive () =
     div [ ]
         [ Heading.h1 [ ]
             [ str "Title 1" ]

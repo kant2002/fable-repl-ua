@@ -1,18 +1,18 @@
-module Elmish.Calculator
+модуль Elmish.Calculator
 
 (**
  Calculator sample, by Zaid Ajaj.
  You can find more info about Emish architecture and samples at https://elmish.github.io/
 *)
 
-open Fable.React
-open Fable.React.Props
-open Elmish
-open Elmish.React
+відкрити Fable.React
+відкрити Fable.React.Props
+відкрити Elmish
+відкрити Elmish.React
 
 // Types
-type Input =
-    | Const of int
+тип Input =
+    | Const з int
     | Plus
     | Minus
     | Times
@@ -20,14 +20,14 @@ type Input =
     | Clear
     | Equals
 
-type Model =  InputStack of Input list
+тип Model =  InputStack з Input list
 
-type Messages = PushInput of Input
+тип Messages = PushInput з Input
 
 // State
 
-/// Active pattern that matches with an operation
-let (|Operation|_|) = function
+/// Active pattern that matches із an operation
+нехай (|Operation|_|) = функція
     | Plus -> Some Plus
     | Minus -> Some Minus
     | Times -> Some Times
@@ -35,10 +35,10 @@ let (|Operation|_|) = function
     | _ -> None
 
 /// Given a model, calculate the answer
-let solve (state : Input list) =
-  match state with
+нехай solve (state : Input list) =
+  співстав state із
   | [Const x; Operation op; Const y] ->
-      match op with
+      співстав op із
       | Plus -> Some (x + y)
       | Minus -> Some (x - y)
       | Times -> Some (x * y)
@@ -51,57 +51,57 @@ let solve (state : Input list) =
 /// Given two integers, append the second on the first
 /// concatInts 3 5 -> 35
 /// concatInts 1 1 -> 11
-let concatInts x y = x * 10 + y * (sign x)
+нехай concatInts x y = x * 10 + y * (sign x)
 
-let initialState() : Model = InputStack []
+нехай initialState() : Model = InputStack []
 
-/// Given the input message and the state of the app, calculate the next state. This is known as the update function
-let update (PushInput input) (InputStack xs)  =
-    if input = Clear then InputStack []
-    else
-    match xs with
+/// Given the input message and the state з the app, calculate the next state. This is known as the update функція
+нехай update (PushInput input) (InputStack xs)  =
+    якщо input = Clear тоді InputStack []
+    інакше
+    співстав xs із
     | [] ->
-        match input with
+        співстав input із
         | Minus -> InputStack [Minus]
         | Operation op -> InputStack [ ]
         | Equals -> InputStack []
         | _ -> InputStack [input]
     | [Minus] ->
-        match input with
+        співстав input із
         | Const x -> InputStack [ Const (-x) ]
         | _ -> InputStack xs
     | [Const x] ->
-        match input with
+        співстав input із
         | Const y -> InputStack [Const (concatInts x y)]
         | Operation op -> InputStack [Const x; op]
         | _ -> InputStack xs
     | [Const x; Operation op] ->
-        match input with
+        співстав input із
         | Const y -> InputStack [Const x; op; Const y] // push Const y to stack
         | Minus when op = Minus -> InputStack [Const x; Plus] // Minus Minus = Plus
         | Minus -> InputStack [Const x; op; Minus]
-        | Operation otherOp -> InputStack [Const x; otherOp] // replace op with otherOp
-        | _ -> InputStack xs // do nothing
+        | Operation otherOp -> InputStack [Const x; otherOp] // replace op із otherOp
+        | _ -> InputStack xs // зробити nothing
     | [Const x; Operation op; Minus] ->
-        match input with
+        співстав input із
         | Const y -> InputStack [Const x; op; Const (-y)]
         | _ -> InputStack xs
     | [Const x; Operation op; Const y] ->
-        match input with
+        співстав input із
         | Const y' -> InputStack [Const x; op; Const (concatInts y y')]
         | Equals ->
-            match solve xs with
+            співстав solve xs із
             | Some answer -> InputStack [Const answer]
             | None -> InputStack xs
         | Operation op ->
-            match solve xs with
+            співстав solve xs із
             | Some answer -> InputStack [Const answer; op]
             | None -> InputStack xs
         | _ -> InputStack xs
     | _ -> InputStack xs
 
 // View
-let inputToString = function
+нехай inputToString = функція
     | Plus -> "+"
     | Minus -> "-"
     | Times -> "*"
@@ -110,28 +110,28 @@ let inputToString = function
     | Clear -> "CE"
     | Const n -> string n
 
-let modelToString (InputStack xs) =
+нехай modelToString (InputStack xs) =
     xs
     |> Seq.map inputToString
     |> String.concat " "
 
-let digitBtn n dispatch =
-    let message = PushInput (Const n)
+нехай digitBtn n dispatch =
+    нехай message = PushInput (Const n)
     div
-      [ Class "calculator-button is-digit"; OnClick (fun _ -> dispatch message) ]
+      [ Class "calculator-button is-digit"; OnClick (фун _ -> dispatch message) ]
       [ str (string n) ]
 
-let operationBtn input dispatch =
-    let message = PushInput input
+нехай operationBtn input dispatch =
+    нехай message = PushInput input
     div
-        [ Class "calculator-button is-op"; OnClick (fun _ -> dispatch message) ]
+        [ Class "calculator-button is-op"; OnClick (фун _ -> dispatch message) ]
         [ str (inputToString input) ]
 
-let tableRow xs = tr [] [ for x in xs -> td [] [x] ]
+нехай tableRow xs = tr [] [ для x у xs -> td [] [x] ]
 
-let view model dispatch =
-    let digit n = digitBtn n dispatch
-    let opBtn op = operationBtn op dispatch
+нехай view model dispatch =
+    нехай digit n = digitBtn n dispatch
+    нехай opBtn op = operationBtn op dispatch
     div
       [ Class "calculator" ]
       [ h2

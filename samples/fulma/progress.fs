@@ -1,11 +1,11 @@
 // More info about Fulma at https://mangelmaxime.github.io/Fulma/
-module Fulma.Progress
+модуль Fulma.Progress
 
-open Fable.React
-open Fable.React.Props
-open Fulma
+відкрити Fable.React
+відкрити Fable.React.Props
+відкрити Fulma
 
-let colorInteractive () =
+нехай colorInteractive () =
     div [ Class "block" ]
         [ Progress.progress
             [ Progress.Value 15
@@ -31,7 +31,7 @@ let colorInteractive () =
               Progress.Value 90
               Progress.Max 100 ] [ str "90%" ] ]
 
-let sizeInteractive () =
+нехай sizeInteractive () =
     div [ Class "block" ]
         [ Progress.progress
             [ Progress.Size IsSmall

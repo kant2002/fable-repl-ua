@@ -1,16 +1,16 @@
 // More info about Fulma at https://mangelmaxime.github.io/Fulma/
-module Fulma.Menu
+модуль Fulma.Menu
 
-open Fable.React
-open Fulma
+відкрити Fable.React
+відкрити Fulma
 
-let basic () =
+нехай basic () =
     // Helper to generate a menu item
-    let menuItem label isActive =
+    нехай menuItem label isActive =
         Menu.Item.li [ Menu.Item.IsActive isActive ]
            [ str label ]
     // Helper to generate a sub menu
-    let subMenu label isActive children =
+    нехай subMenu label isActive children =
         li [ ]
            [ Menu.Item.a [ Menu.Item.IsActive isActive ]
                 [ str label ]
@@ -27,7 +27,7 @@ let basic () =
               subMenu "Manage your Team" true
                     [ menuItem "Members" false
                       menuItem "Plugins" false
-                      menuItem "Add a member" false ] ]
+                      menuItem "Add a член" false ] ]
           Menu.label [ ] [ str "Transactions" ]
           Menu.list [ ]
             [ menuItem "Payments" false

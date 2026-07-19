@@ -1,11 +1,11 @@
 // More info about Fulma at https://mangelmaxime.github.io/Fulma/
-module Fulma.Breadcrumb
+модуль Fulma.Breadcrumb
 
-open Fable.React
-open Fable.React.Props
-open Fulma
+відкрити Fable.React
+відкрити Fable.React.Props
+відкрити Fulma
 
-let basic () =
+нехай basic () =
     Breadcrumb.breadcrumb [ ]
         [ Breadcrumb.item [ ]
             [ a [ ] [ str "F#" ] ]
@@ -14,7 +14,7 @@ let basic () =
           Breadcrumb.item [ Breadcrumb.Item.IsActive true ]
             [ a [ ] [ str "Fable.React" ] ] ]
 
-let alignmentCenter () =
+нехай alignmentCenter () =
     Breadcrumb.breadcrumb [ Breadcrumb.IsCentered ]
         [ Breadcrumb.item [ ]
             [ a [ ] [ str "F#" ] ]
@@ -23,7 +23,7 @@ let alignmentCenter () =
           Breadcrumb.item [ Breadcrumb.Item.IsActive true ]
             [ a [ ] [ str "Elmish" ] ] ]
 
-let icons () =
+нехай icons () =
     Breadcrumb.breadcrumb [ ]
         [ Breadcrumb.item [ ]
             [ a [ ]
@@ -41,7 +41,7 @@ let icons () =
                     [ i [ Class "fa fa-thumbs-up" ] [ ] ]
                   str "Elmish" ] ] ]
 
-let size () =
+нехай size () =
     Breadcrumb.breadcrumb [ Breadcrumb.Size IsLarge ]
         [ Breadcrumb.item [ ]
             [ a [ ] [ str "F#" ] ]
@@ -50,7 +50,7 @@ let size () =
           Breadcrumb.item [ Breadcrumb.Item.IsActive true ]
             [ a [ ] [ str "Elmish" ] ] ]
 
-let separator () =
+нехай separator () =
     Breadcrumb.breadcrumb [ Breadcrumb.HasSucceedsSeparator ]
         [ Breadcrumb.item [ ]
             [ a [ ] [ str "F#" ] ]

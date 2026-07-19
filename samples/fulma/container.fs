@@ -1,13 +1,13 @@
 // More info about Fulma at https://mangelmaxime.github.io/Fulma/
-module Fulma.Container
+модуль Fulma.Container
 
-open Fable.Core
-open Fable.Core.JsInterop
-open Fable.React
-open Fable.React.Props
-open Fulma
+відкрити Fable.Core
+відкрити Fable.Core.JsInterop
+відкрити Fable.React
+відкрити Fable.React.Props
+відкрити Fulma
 
-let basic () =
+нехай basic () =
     Container.container [ Container.IsFluid ]
         [ Content.content [ ]
             [ h1 [ ] [str "Hello World"]

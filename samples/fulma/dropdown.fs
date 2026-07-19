@@ -1,11 +1,11 @@
 // More info about Fulma at https://mangelmaxime.github.io/Fulma/
-module Fulma.Dropdown
+модуль Fulma.Dropdown
 
-open Fable.React
-open Fable.React.Props
-open Fulma
+відкрити Fable.React
+відкрити Fable.React.Props
+відкрити Fulma
 
-let basic () =
+нехай basic () =
     Dropdown.dropdown [ Dropdown.IsHoverable ]
         [ div [ ]
             [ Button.button [ ]

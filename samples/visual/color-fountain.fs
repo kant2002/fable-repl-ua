@@ -1,22 +1,22 @@
-module Color.Fountain
+модуль Color.Fountain
 
 // Color Fountain by Erik Novales: https://github.com/enovales
 
-open Fable.Core
-open Fable.Core.JsInterop
-open Browser.Types
-open Browser
+відкрити Fable.Core
+відкрити Fable.Core.JsInterop
+відкрити Browser.Types
+відкрити Browser
 
-let канва = document.getElementsByTagName("canvas").[0] :?> HTMLCanvasElement
+нехай канва = document.getElementsByTagName("canvas").[0] :?> HTMLCanvasElement
 канва.width <- 1000.
 канва.height <- 800.
-let кткст = канва.getContext_2d()
+нехай кткст = канва.getContext_2d()
 
-let гвч (): float = JS.Math.random()
+нехай гвч (): float = JS.Math.random()
 
-let обмеженняЧастинок = 200
+нехай обмеженняЧастинок = 200
 
-type Частинка = {
+тип Частинка = {
     x: double
     y: double
     xшивд: double
@@ -25,37 +25,37 @@ type Частинка = {
     оберт: double
     обертШвид: double
 }
-with
+із
     override this.ToString() =
-        let (r,g,b) = this.к
+        нехай (r,g,b) = this.к
         sprintf "Частинка(x = %O, y = %O, xшивд = %O, yшивд = %O, c = (%O, %O, %O))"
             this.x this.y this.xшивд this.yшивд r g b
 
 
-let оновитиЧастинку(dt: double)(ч: Частинка) =
+нехай оновитиЧастинку(dt: double)(ч: Частинка) =
     {
-        ч with
+        ч із
             x = ч.x + ч.xшивд * dt
             y = ч.y + ч.yшивд * dt
             yшивд = ч.yшивд + 1. * dt
             оберт = (ч.оберт + ч.обертШвид * dt) % (2. * 3.14159)
     }
 
-let заповнитиЧастинки(ч: Частинка array, dt: double) =
-    let щеДійсні =
-        ч |> Array.filter(fun pt -> (pt.y < 1000.))
+нехай заповнитиЧастинки(ч: Частинка array, dt: double) =
+    нехай щеДійсні =
+        ч |> Array.filter(фун pt -> (pt.y < 1000.))
     //System.Console.WriteLine("stillValid.Length = " + stillValid.Length.ToString())
-    let оновитиПоз =
+    нехай оновитиПоз =
         щеДійсні
         |> Array.map(оновитиЧастинку(dt))
 
-    //System.Console.WriteLine("updatedPos = " + updatedPos |> Array.map(fun p -> p.ToString()).ToString())
-    let дляСтворення = обмеженняЧастинок - щеДійсні.Length
+    //System.Console.WriteLine("updatedPos = " + updatedPos |> Array.map(фун p -> p.ToString()).ToString())
+    нехай дляСтворення = обмеженняЧастинок - щеДійсні.Length
     //System.Console.WriteLine("going to create " + toCreate.ToString() + " particles")
-    let новіЧасинки =
+    нехай новіЧасинки =
         seq {
-            for i in 0..дляСтворення do
-                yield {
+            для i у 0..дляСтворення зробити
+                поступатися {
                     Частинка.x = 200.
                     y = 300.
                     xшивд = (гвч() - 0.5) * (гвч() * 30.)
@@ -69,30 +69,30 @@ let заповнитиЧастинки(ч: Частинка array, dt: double) =
 
     оновитиПоз |> Array.append(новіЧасинки)
 
-let mutable частинки = [||]
-let крокчасу = 0.8
+нехай змінливий частинки = [||]
+нехай крокчасу = 0.8
 
-let rec цикл останній t =
+нехай rec цикл останній t =
     // Comment out this line to make sure the animation runs
-    // with same speed on different frame rates
-    // let timestep = (t - last) / 20.
+    // із same speed on different frame rates
+    // нехай timestep = (t - last) / 20.
     частинки <- заповнитиЧастинки(частинки, крокчасу)
 
     кткст.clearRect(0., 0., 10000., 10000.)
-    let намалюватиЧастинку(p: Частинка) =
-        let (r,g,b) = p.к
-        let fs = "rgb(" + r.ToString() + ", " + g.ToString() + ", " + b.ToString() + ")"
+    нехай намалюватиЧастинку(p: Частинка) =
+        нехай (r,g,b) = p.к
+        нехай fs = "rgb(" + r.ToString() + ", " + g.ToString() + ", " + b.ToString() + ")"
         кткст.fillStyle <- !^fs
 
-        let x1 = (p.x - 5.)
-        let x2 = (p.x + 5.)
-        let y1 = (p.y - 5.)
-        let y2 = (p.y + 5.)
+        нехай x1 = (p.x - 5.)
+        нехай x2 = (p.x + 5.)
+        нехай y1 = (p.y - 5.)
+        нехай y2 = (p.y + 5.)
 
-        // let x1 = (p.x - (10. * System.Math.Cos(p.rot)))
-        // let x2 = (p.x + (10. * System.Math.Cos(p.rot)))
-        // let y1 = (p.y - (10. * System.Math.Sin(p.rot)))
-        // let y2 = (p.y + (10. * System.Math.Sin(p.rot)))
+        // нехай x1 = (p.x - (10. * System.Math.Cos(p.rot)))
+        // нехай x2 = (p.x + (10. * System.Math.Cos(p.rot)))
+        // нехай y1 = (p.y - (10. * System.Math.Sin(p.rot)))
+        // нехай y2 = (p.y + (10. * System.Math.Sin(p.rot)))
 
         // ctx.fillRect(x1, y1, 10., 10.)
         кткст.beginPath()

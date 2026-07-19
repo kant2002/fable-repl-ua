@@ -1,13 +1,13 @@
 // More info about Fulma at https://mangelmaxime.github.io/Fulma/
-module Fulma.Modal
+модуль Fulma.Modal
 
-open Fable.React
-open Fable.React.Props
-open Fulma
-open Fable.Core
-open Fable.Import
+відкрити Fable.React
+відкрити Fable.React.Props
+відкрити Fulma
+відкрити Fable.Core
+відкрити Fable.Import
 
-let content =
+нехай content =
     Content.content [ ]
         [ h1 [ ] [str "Hello World"]
           p [ ]
@@ -25,14 +25,14 @@ let content =
                   Donec at dignissim dui. Ut et neque nisl." ]
           ul [ ]
              [ li [ ] [str "In fermentum leo eu lectus mollis, quis dictum mi aliquet." ]
-               li [ ] [str "Morbi eu nulla lobortis, lobortis est in, fringilla felis." ]
-               li [ ] [str "Aliquam nec felis in sapien venenatis viverra fermentum nec lectus." ]
+               li [ ] [str "Morbi eu nulla lobortis, lobortis est у, fringilla felis." ]
+               li [ ] [str "Aliquam nec felis у sapien venenatis viverra fermentum nec lectus." ]
                li [ ] [str "Ut non enim metus."] ]
           p [ ] [str "Sed sagittis enim ac tortor maximus rutrum.
-                     Nulla facilisi. Donec mattis vulputate risus in luctus.
+                     Nulla facilisi. Donec mattis vulputate risus у luctus.
                      Maecenas vestibulum interdum commodo." ] ]
 
-let basicModal isActive closeDisplay =
+нехай basicModal isActive closeDisplay =
     Modal.modal [ Modal.IsActive isActive ]
         [ Modal.background [ Props [ OnClick closeDisplay ] ] [ ]
           Modal.content [ ]
@@ -41,9 +41,9 @@ let basicModal isActive closeDisplay =
           Modal.close [ Modal.Close.Size IsLarge
                         Modal.Close.OnClick closeDisplay ] [ ] ]
 
-let closeDisplay = ignore
+нехай closeDisplay = ignore
 
-let basicModalCode () =
+нехай basicModalCode () =
     Modal.modal [ Modal.IsActive true ]
         [ Modal.background [ Props [ OnClick closeDisplay ] ] [ ]
           Modal.content [ ]
@@ -52,7 +52,7 @@ let basicModalCode () =
           Modal.close [ Modal.Close.Size IsLarge
                         Modal.Close.OnClick closeDisplay ] [ ] ]
 
-let cardModal isActive closeDisplay =
+нехай cardModal isActive closeDisplay =
     Modal.modal [ Modal.IsActive isActive ]
         [ Modal.background [ Props [ OnClick closeDisplay ] ] [ ]
           Modal.Card.card [ ]
@@ -68,7 +68,7 @@ let cardModal isActive closeDisplay =
                   Button.button [ ]
                     [ str "Cancel" ] ] ] ]
 
-let cardModalCode () =
+нехай cardModalCode () =
     Modal.modal [ Modal.IsActive true ]
         [ Modal.background [ Props [ OnClick closeDisplay ] ] [ ]
           Modal.Card.card [ ]

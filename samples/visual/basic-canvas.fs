@@ -1,15 +1,15 @@
-module BasicCanvas
+модуль BasicCanvas
 
-open Fable.Core
-open Fable.Core.JsInterop
-open Browser.Types
-open Browser
+відкрити Fable.Core
+відкрити Fable.Core.JsInterop
+відкрити Browser.Types
+відкрити Browser
 
-let ініц() =
-    let канва = document.querySelector(".view") :?> HTMLCanvasElement
+нехай ініц() =
+    нехай канва = document.querySelector(".view") :?> HTMLCanvasElement
 
-    let кткст = канва.getContext_2d()
-    // The (!^) operator checks and casts a value to an Erased Union type
+    нехай кткст = канва.getContext_2d()
+    // The (!^) operator checks and casts a value to an Erased Union тип
     // See http://fable.io/docs/interacting.html#Erase-attribute
     кткст.fillStyle <- !^"rgb(200,0,0)"
     кткст.fillRect (10., 10., 55., 50.)

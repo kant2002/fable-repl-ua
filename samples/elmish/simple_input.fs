@@ -1,40 +1,40 @@
-module Elmish.SimpleInput
+модуль Elmish.SimpleInput
 
 (**
 Minimal application showing how to use Elmish
 You can find more info about Emish architecture and samples at https://elmish.github.io/
 *)
 
-open Fable.Core.JsInterop
-open Fable.React
-open Fable.React.Props
-open Elmish
-open Elmish.React
+відкрити Fable.Core.JsInterop
+відкрити Fable.React
+відкрити Fable.React.Props
+відкрити Elmish
+відкрити Elmish.React
 
 // MODEL
 
-type Model =
+тип Model =
     { Value : string }
 
-type Msg =
-    | ChangeValue of string
+тип Msg =
+    | ChangeValue з string
 
-let init () = { Value = "" }, Cmd.none
+нехай init () = { Value = "" }, Cmd.none
 
 // UPDATE
 
-let update (msg:Msg) (model:Model) =
-    match msg with
+нехай update (msg:Msg) (model:Model) =
+    співстав msg із
     | ChangeValue newValue ->
-        { model with Value = newValue }, Cmd.none
+        { model із Value = newValue }, Cmd.none
 
-// VIEW (rendered with React)
+// VIEW (rendered із React)
 
-let view model dispatch =
+нехай view model dispatch =
     div [ Class "main-container" ]
         [ input [ Class "input"
                   Value model.Value
-                  OnChange (fun ev -> ev.target?value |> string |> ChangeValue |> dispatch) ]
+                  OnChange (фун ev -> ev.target?value |> string |> ChangeValue |> dispatch) ]
           span [ ]
             [ str "Hello, "
               str model.Value

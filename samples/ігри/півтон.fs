@@ -3,15 +3,15 @@
 // Inspired by Overtone / Sonic-PI
 // By Robert Pickering
 
-module Undertone
+модуль Undertone
 
-open System
-open Fable.Core
-open Fable.Core.JsInterop
-open Browser.Types
-open Browser
+відкрити System
+відкрити Fable.Core
+відкрити Fable.Core.JsInterop
+відкрити Browser.Types
+відкрити Browser
 
-type Нота =
+тип Нота =
     | ДоБемоль   = -1
     | До         = 0
     | ДоДієз     = 1
@@ -34,22 +34,22 @@ type Нота =
     | Сі         = 11
     | СіДієз     = 12
 
-module РізніКонст =
+модуль РізніКонст =
 
     /// стандартна частота діскретізації
     /// Дивиться: http://en.wikipedia.org/wiki/44,100_Hz
-    let ЧастотаДіскретізації = 44100
+    нехай ЧастотаДіскретізації = 44100
 
     /// "Standard Pitch" noted as A440. The a note that is above middle c
     /// See: http://en.wikipedia.org/wiki/A440_(pitch_standard)
-    let A440 = 440.
+    нехай A440 = 440.
 
-module Хвилі =
-    open System
+модуль Хвилі =
+    відкрити System
 
     /// The ratio require to move from one semi-tone to the next
     /// See: http://en.wikipedia.org/wiki/Semitone
-    let private півтон =
+    нехай приватний півтон =
         Math.Pow(2., 1. / 12.)
 
     /// Since our Note enum is relative to c, we need to find middle c.
@@ -58,309 +58,309 @@ module Хвилі =
     /// half the result to get middle c.
     /// Middle c is around 261.626 Hz, and this approximately the value we get
     /// See: http://en.wikipedia.org/wiki/C_(musical_note)
-    let private середнеДо =
+    нехай приватний середнеДо =
         РізніКонст.A440 * Math.Pow(півтон, 3.) / 2.
 
     /// Converts from our note enum to the notes frequency
-    let частотаНоти (нота: Нота) октава =
+    нехай частотаНоти (нота: Нота) октава =
         середнеДо *
         // calculate the ratio need to move to the note's semitone
         Math.Pow(півтон, double (int нота)) *
         // calculate the ratio need to move to the note's octave
         Math.Pow(2., double (октава - 4))
 
-    /// calculates the distance you need to move in each sample
-    let інкрементФазовогоКутаДляЧастоти частота =
+    /// calculates the distance you need to move у each sample
+    нехай інкрементФазовогоКутаДляЧастоти частота =
         частота / double РізніКонст.ЧастотаДіскретізації
 
-/// functions an constants for manipulating musical time
-module Час =
-    /// this hard codes our module to the lower "4" in 4/4 time
-    let beatsPerSemibreve = 4.
+/// functions an constants для manipulating musical time
+модуль Час =
+    /// this hard codes our модуль to the lower "4" у 4/4 time
+    нехай beatsPerSemibreve = 4.
     /// number bars
-    let private ударівВСекунду bmp =  60. / bmp
-    /// number of samples required to make a bar of m- usic
-    let private samplesPerBar bmp = (float РізніКонст.ЧастотаДіскретізації * ударівВСекунду bmp * beatsPerSemibreve)
+    нехай приватний ударівВСекунду bmp =  60. / bmp
+    /// number з samples required to make a bar з m- usic
+    нехай приватний samplesPerBar bmp = (float РізніКонст.ЧастотаДіскретізації * ударівВСекунду bmp * beatsPerSemibreve)
 
     /// longa - either twice or three times as long as a breve (we choose twice)
-    /// it is no longer used in modern music notation
-    let longa = 4.
+    /// it is no longer used у modern music notation
+    нехай longa = 4.
     /// double whole note -  twice as long as semibreve
-    let бревіс = 2.
-    /// whole note -  its length is equal to four beats in 4/4 time
-    /// most other notes are fractions of the whole note
-    let ціла = 1.
+    нехай бревіс = 2.
+    /// whole note -  its length is equal to four beats у 4/4 time
+    /// most other notes are fractions з the whole note
+    нехай ціла = 1.
     /// half note
-    let половинка = 1. / 2.
+    нехай половинка = 1. / 2.
     /// quarter note
-    let чвертка = 1. / 4.
+    нехай чвертка = 1. / 4.
     /// eighth note
-    let вісімка = 1. / 8.
+    нехай вісімка = 1. / 8.
     /// sixteenth note
-    let шістнадцятка = 1. / 16.
+    нехай шістнадцятка = 1. / 16.
     /// thirty-second note
-    let тридцятьДруга = 1. / 32.
+    нехай тридцятьДруга = 1. / 32.
 
-    /// caculates a note's length in samples
-    let noteValue bmp нота =
+    /// caculates a note's length у samples
+    нехай noteValue bmp нота =
         samplesPerBar bmp * нота |> int
 
-/// Functions for creating waves
-module Створення =
+/// Functions для creating waves
+модуль Створення =
 
-    /// make a period of silence
-    let зробитиТишу довжина =
-        Seq.init довжина (fun _ -> 0.)
+    /// make a period з silence
+    нехай зробитиТишу довжина =
+        Seq.init довжина (фун _ -> 0.)
 
-    /// make a wave using the given function, length and frequency
-    let зробитиХвилю хвильоваФунк довжина частота =
-        let інкрементФазовогоКута = Хвилі.інкрементФазовогоКутаДляЧастоти частота
-        Seq.init довжина (fun x ->
-            let фазовийКут = інкрементФазовогоКута * (float x)
-            let x = Math.Floor(фазовийКут)
+    /// make a wave using the given функція, length and frequency
+    нехай зробитиХвилю хвильоваФунк довжина частота =
+        нехай інкрементФазовогоКута = Хвилі.інкрементФазовогоКутаДляЧастоти частота
+        Seq.init довжина (фун x ->
+            нехай фазовийКут = інкрементФазовогоКута * (float x)
+            нехай x = Math.Floor(фазовийКут)
             хвильоваФунк (фазовийКут - x))  
 
-    /// make a wave using the given function, length note and octave
-    let зробитиНоту хвильоваФунк довжина нота октава =
-        let частота = Хвилі.частотаНоти нота октава
+    /// make a wave using the given функція, length note and octave
+    нехай зробитиНоту хвильоваФунк довжина нота октава =
+        нехай частота = Хвилі.частотаНоти нота октава
         зробитиХвилю хвильоваФунк довжина частота
 
-    /// function for making a sine wave
-    let сінусоїда фазовийКут =
+    /// функція для making a sine wave
+    нехай сінусоїда фазовийКут =
         Math.Sin(2. * Math.PI * фазовийКут)
 
-    /// function for making a square wave
-    let квадрат фазовийКут =
-        if фазовийКут < 0.5 then -1.0 else 1.0
+    /// функція для making a square wave
+    нехай квадрат фазовийКут =
+        якщо фазовийКут < 0.5 тоді -1.0 інакше 1.0
 
-    /// function for making triangular waves
-    let трикутник фазовийКут =
-        if фазовийКут < 0.5 then
+    /// функція для making triangular waves
+    нехай трикутник фазовийКут =
+        якщо фазовийКут < 0.5 тоді
             2. * фазовийКут
-        else
+        інакше
             1. - (2. * фазовийКут)
 
-    // function for making making "saw tooth" wave
-    let пила фазовийКут =
+    // функція для making making "saw tooth" wave
+    нехай пила фазовийКут =
         -1. + фазовийКут
 
-    // function for combining several waves into a cord combines
-    let makeCord (waveDefs: seq<seq<float>>) =
-        let wavesMatrix = waveDefs |> Seq.map (Seq.toArray) |> Seq.toArray
-        let waveScaleFactor = 1. / float wavesMatrix.Length
-        let maxLength = wavesMatrix |> Seq.maxBy (fun x -> x.Length)
-        let getValues i =
-            seq { for x in 0 .. wavesMatrix.Length - 1 do
-                    yield if i > wavesMatrix.[x].Length then 0. else wavesMatrix.[x].[i] }
-        seq { for x in 0 .. maxLength.Length - 1 do yield (getValues x |> Seq.sum) * waveScaleFactor }
+    // функція для combining several waves into a cord combines
+    нехай makeCord (waveDefs: seq<seq<float>>) =
+        нехай wavesMatrix = waveDefs |> Seq.map (Seq.toArray) |> Seq.toArray
+        нехай waveScaleFactor = 1. / float wavesMatrix.Length
+        нехай maxLength = wavesMatrix |> Seq.maxBy (фун x -> x.Length)
+        нехай getValues i =
+            seq { для x у 0 .. wavesMatrix.Length - 1 зробити
+                    поступатися якщо i > wavesMatrix.[x].Length тоді 0. інакше wavesMatrix.[x].[i] }
+        seq { для x у 0 .. maxLength.Length - 1 зробити поступатися (getValues x |> Seq.sum) * waveScaleFactor }
 
     // same as makeCord but does use arrays so can handle long or even infinite sequences.
-    let combine (waveDefs: seq<seq<float>>) =
-        let enumerators = waveDefs |> Seq.map (fun x -> x.GetEnumerator()) |> Seq.cache
-        let loop () =
-            let значення =
+    нехай combine (waveDefs: seq<seq<float>>) =
+        нехай enumerators = waveDefs |> Seq.map (фун x -> x.GetEnumerator()) |> Seq.cache
+        нехай loop () =
+            нехай значення =
                 enumerators
                 |> Seq.choose
-                    (fun x -> if x.MoveNext() then Some x.Current else None)
+                    (фун x -> якщо x.MoveNext() тоді Some x.Current інакше None)
                 |> Seq.toList
-            match значення with
+            співстав значення із
             | [] -> None
             | x -> Some ((x |> Seq.sum), ())
         Seq.unfold loop ()
 
-/// functions for transforming waves
-module Трансформації =
+/// functions для transforming waves
+модуль Трансформації =
     /// makes the waves amplitude large or small by scaling by the given multiplier
-    let scaleHeight multiplier (waveDef: seq<float>) =
-        waveDef |> Seq.map (fun x -> x * multiplier)
+    нехай scaleHeight multiplier (waveDef: seq<float>) =
+        waveDef |> Seq.map (фун x -> x * multiplier)
 
-    let private rnd = new Random()
+    нехай приватний rnd = новий Random()
 
     /// Adds some noise to the wave (not recommended)
-    let додатиШум multiplier (waveDef: seq<float>) =
+    нехай додатиШум multiplier (waveDef: seq<float>) =
         waveDef
-        |> Seq.map (fun x ->
-                        let rndValue = 0.5 - rnd.NextDouble()
+        |> Seq.map (фун x ->
+                        нехай rndValue = 0.5 - rnd.NextDouble()
                         x +  (rndValue * multiplier))
 
     /// flattens the wave at the given limit to give an overdrive effect
-    let flatten limit (waveDef: seq<float>) =
+    нехай flatten limit (waveDef: seq<float>) =
         waveDef
-        |> Seq.map (fun x -> max -limit (min x limit))
+        |> Seq.map (фун x -> max -limit (min x limit))
 
     /// provides a way to linearly tapper a wave, the startMultiplier is
-    /// applied to the first value of the a wave, and endMultiplier is
+    /// applied to the first value з the a wave, and endMultiplier is
     /// applied to the last value, the other values have value that is linearly
     /// interpolated between the two values
-    let tapper startMultiplier endMultiplier (waveDef: seq<float>) =
-        let waveVector = waveDef |> Seq.toArray
-        let step = (endMultiplier - startMultiplier) / float waveVector.Length
+    нехай tapper startMultiplier endMultiplier (waveDef: seq<float>) =
+        нехай waveVector = waveDef |> Seq.toArray
+        нехай step = (endMultiplier - startMultiplier) / float waveVector.Length
         waveVector
-        |> Seq.mapi (fun i x -> x * (startMultiplier + (step * float i)))
+        |> Seq.mapi (фун i x -> x * (startMultiplier + (step * float i)))
 
     /// gets a point on the gaussian distribution
-    let private gaussian a b c x  = Math.Pow((a * Math.E), -(Math.Pow(x - b, 2.) / Math.Pow(c * 2., 2.)))
+    нехай приватний gaussian a b c x  = Math.Pow((a * Math.E), -(Math.Pow(x - b, 2.) / Math.Pow(c * 2., 2.)))
 
-    /// applies a gaussian tapper to the front of a wave
-    let gaussianTapper length (waveDef: seq<float>) =
-        let waveVector = waveDef |> Seq.toArray
-        let step = 1. / float waveVector.Length
+    /// applies a gaussian tapper to the front з a wave
+    нехай gaussianTapper length (waveDef: seq<float>) =
+        нехай waveVector = waveDef |> Seq.toArray
+        нехай step = 1. / float waveVector.Length
         waveVector
-        |> Seq.mapi (fun i x -> x * gaussian 1. 0. length (step * float i))
+        |> Seq.mapi (фун i x -> x * gaussian 1. 0. length (step * float i))
 
-    /// applies a gaussian tapper to the back of a wave
-    let revGaussianTapper length (waveDef: seq<float>) =
-        let waveVector = waveDef |> Seq.toArray
-        let len = float waveVector.Length
-        let step = 1. / len
+    /// applies a gaussian tapper to the back з a wave
+    нехай revGaussianTapper length (waveDef: seq<float>) =
+        нехай waveVector = waveDef |> Seq.toArray
+        нехай len = float waveVector.Length
+        нехай step = 1. / len
         waveVector
-        |> Seq.mapi (fun i x -> x * gaussian 1. 0. length (step * (len - float i)))
+        |> Seq.mapi (фун i x -> x * gaussian 1. 0. length (step * (len - float i)))
 
-    /// applies a gaussian tapper to the front and back of a wave
-    let doubleGaussianTapper startLength endLength (waveDef: seq<float>) =
-        let waveVector = waveDef |> Seq.toArray
-        let len = float waveVector.Length
-        let step = 1. / len
+    /// applies a gaussian tapper to the front and back з a wave
+    нехай doubleGaussianTapper startLength endLength (waveDef: seq<float>) =
+        нехай waveVector = waveDef |> Seq.toArray
+        нехай len = float waveVector.Length
+        нехай step = 1. / len
         waveVector
-        |> Seq.mapi (fun i x -> x *
+        |> Seq.mapi (фун i x -> x *
                                 (gaussian 1. 0. startLength (step * (len - float i))) *
                                 (gaussian 1. 0. endLength (step * float i)))
 
-/// Functions to turn a list of chords into a playable sound wave
-module NoteSequencer =
-    type Chord = seq<Нота*int>
+/// Functions to turn a list з chords into a playable sound wave
+модуль NoteSequencer =
+    тип Chord = seq<Нота*int>
 
-    /// version of Seq.take that doesn't though exceptions if you reach the end of the sequence
-    let private safeTake wanted (source : seq<'T>) =
-        (* Note: don't create or dispose any IEnumerable if n = 0 *)
-        if wanted = 0 then Seq.empty else
+    /// version з Seq.take that doesn't though exceptions якщо you reach the end з the sequence
+    нехай приватний safeTake wanted (source : seq<'T>) =
+        (* Note: don't create or dispose any IEnumerable якщо n = 0 *)
+        якщо wanted = 0 тоді Seq.empty інакше
         seq { use e = source.GetEnumerator()
-              let count = ref 0
-              while e.MoveNext() && count.Value < wanted do
+              нехай count = ref 0
+              while e.MoveNext() && count.Value < wanted зробити
                 count.Value <- count.Value + 1
-                yield e.Current }
+                поступатися e.Current }
 
-    // function that does a function the describes how a note should be played and list of chords
+    // функція that does a функція the describes how a note should be played and list з chords
     // and generates a sound wave from them
-    let sequence (noteTable: Нота -> int -> seq<float>) (notes: seq<#Chord*int>) =
-        seq { for cordNotes, length in notes do
-                let notes = cordNotes |> Seq.map (fun (note, octave) -> noteTable note octave)
+    нехай sequence (noteTable: Нота -> int -> seq<float>) (notes: seq<#Chord*int>) =
+        seq { для cordNotes, length у notes зробити
+                нехай notes = cordNotes |> Seq.map (фун (note, octave) -> noteTable note octave)
                 yield! Створення.combine notes |> safeTake length }
 
-module WaveFormat =
-    let sampleRate = 44100
-    let канали = 1
+модуль WaveFormat =
+    нехай sampleRate = 44100
+    нехай канали = 1
 
-    let байтиЦіл16 i =
+    нехай байтиЦіл16 i =
         [ 0; 8; ]
-        |> List.map (fun зсув -> (i >>> зсув) &&& 0x00ffs |> byte)
+        |> List.map (фун зсув -> (i >>> зсув) &&& 0x00ffs |> byte)
 
-    let байтиЦіл i =
+    нехай байтиЦіл i =
         [ 0; 8; 16; 24 ]
-        |> List.map (fun зсув -> (i >>> зсув) &&& 0x000000ff |> byte)
+        |> List.map (фун зсув -> (i >>> зсув) &&& 0x000000ff |> byte)
 
-    let wavOfBuffer (буфер: float[]) =
-        let sixteenBitLength = 2 * буфер.Length
+    нехай wavOfBuffer (буфер: float[]) =
+        нехай sixteenBitLength = 2 * буфер.Length
 
         [| yield! "RIFF" |> Seq.map byte
            yield! байтиЦіл (sixteenBitLength + 15)
            yield! "WAVE" |> Seq.map byte
            yield! "fmt " |> Seq.map byte
-           yield 0x12uy // fmt chunksize: 18
-           yield 0x00uy
-           yield 0x00uy //
-           yield 0x00uy
-           yield 0x01uy // format tag : 1
-           yield 0x00uy
-           yield канали |> byte // channels
-           yield 0x00uy
+           поступатися 0x12uy // fmt chunksize: 18
+           поступатися 0x00uy
+           поступатися 0x00uy //
+           поступатися 0x00uy
+           поступатися 0x01uy // format tag : 1
+           поступатися 0x00uy
+           поступатися канали |> byte // channels
+           поступатися 0x00uy
            yield! байтиЦіл (sampleRate)
            yield! байтиЦіл (2*канали*sampleRate)
-           yield 0x04uy // block align
-           yield 0x00uy
-           yield 0x10uy // bit per sample
-           yield 0x00uy
-           yield 0x00uy // cb size
-           yield 0x00uy
+           поступатися 0x04uy // block align
+           поступатися 0x00uy
+           поступатися 0x10uy // bit per sample
+           поступатися 0x00uy
+           поступатися 0x00uy // cb size
+           поступатися 0x00uy
            yield! "data" |> Seq.map byte
            yield! байтиЦіл sixteenBitLength
-           for i in [ 0 .. буфер.Length - 1 ] do
-                let тимч = буфер.[i]
-                if (тимч >= 1.) then
-                    yield 0xFFuy
-                    yield 0xFFuy
-                elif (тимч <= -1.) then
-                    yield 0x00uy
-                    yield 0x00uy
-                else
+           для i у [ 0 .. буфер.Length - 1 ] зробити
+                нехай тимч = буфер.[i]
+                якщо (тимч >= 1.) тоді
+                    поступатися 0xFFuy
+                    поступатися 0xFFuy
+                інякщо (тимч <= -1.) тоді
+                    поступатися 0x00uy
+                    поступатися 0x00uy
+                інакше
                     yield! Math.Round(тимч * float (Int16.MaxValue)) |> int16 |> байтиЦіл16 |]
 
-module Svg =
-    let svg = document.getElementById("svg")
+модуль Svg =
+    нехай svg = document.getElementById("svg")
 
-    let displayWave (points: float[]) =
-        let margin = 10.
-        let lineSpacing = 1.
-        let lineWidth = 1.
+    нехай displayWave (points: float[]) =
+        нехай margin = 10.
+        нехай lineSpacing = 1.
+        нехай lineWidth = 1.
 
-        let довжина = (svg.clientWidth / lineSpacing) |> int
-        let midPoint = svg.clientHeight / 2.
-        let maxLine = midPoint - margin
+        нехай довжина = (svg.clientWidth / lineSpacing) |> int
+        нехай midPoint = svg.clientHeight / 2.
+        нехай maxLine = midPoint - margin
 
-        let rnd = new Random()
+        нехай rnd = новий Random()
 
-        let chunkSize = points.Length / довжина
+        нехай chunkSize = points.Length / довжина
 
-        let samples =
+        нехай samples =
             points
-            |> Seq.map (fun x -> Math.Abs(x))
+            |> Seq.map (фун x -> Math.Abs(x))
             |> Seq.chunkBySize chunkSize
             |> Seq.map Array.average
             |> Seq.toArray
 
-        let svgns = "http://www.w3.org/2000/svg";
-        for i in 1 .. довжина do
-            let розмір = samples.[i] * maxLine
-            let y1 = midPoint - розмір
-            let y2 = midPoint + розмір
-            let лінія = document.createElementNS(svgns, "line");
-            let x = float i * lineSpacing
+        нехай svgns = "http://www.w3.org/2000/svg";
+        для i у 1 .. довжина зробити
+            нехай розмір = samples.[i] * maxLine
+            нехай y1 = midPoint - розмір
+            нехай y2 = midPoint + розмір
+            нехай лінія = document.createElementNS(svgns, "line");
+            нехай x = float i * lineSpacing
 
-            лінія.setAttributeNS(null, "x1", string x);
-            лінія.setAttributeNS(null, "y1", string y1);
-            лінія.setAttributeNS(null, "x2", string x);
-            лінія.setAttributeNS(null, "y2", string y2);
-            лінія.setAttributeNS(null, "stroke-width", string lineWidth);
-            лінія.setAttributeNS(null, "stroke", "#000000");
+            лінія.setAttributeNS(нуль, "x1", string x);
+            лінія.setAttributeNS(нуль, "y1", string y1);
+            лінія.setAttributeNS(нуль, "x2", string x);
+            лінія.setAttributeNS(нуль, "y2", string y2);
+            лінія.setAttributeNS(нуль, "stroke-width", string lineWidth);
+            лінія.setAttributeNS(нуль, "stroke", "#000000");
 
             document.getElementById("svg").appendChild(лінія) |> ignore
 
-module Html =
-    let audio = document.getElementsByTagName("audio").[0] :?> HTMLAudioElement
+модуль Html =
+    нехай audio = document.getElementsByTagName("audio").[0] :?> HTMLAudioElement
 
-    let завантажитиЗвук (soundSequence: seq<float>) =
-        let getBaseWav64 sound =
-            let wav = WaveFormat.wavOfBuffer (sound |> Seq.toArray)
+    нехай завантажитиЗвук (soundSequence: seq<float>) =
+        нехай getBaseWav64 sound =
+            нехай wav = WaveFormat.wavOfBuffer (sound |> Seq.toArray)
             Convert.ToBase64String(wav)
 
-        let звуковийБуфер = soundSequence |> Seq.toArray
+        нехай звуковийБуфер = soundSequence |> Seq.toArray
 
-        let wavBase64 = getBaseWav64 звуковийБуфер
+        нехай wavBase64 = getBaseWav64 звуковийБуфер
         audio.src <- "data:audio/wav;base64," + wavBase64
 
         Svg.displayWave звуковийБуфер
 
 
-let bpm = 90.
-let половинка = Час.noteValue bpm Час.половинка
-let чвертка = Час.noteValue bpm Час.чвертка
-let вісімка = Час.noteValue bpm Час.вісімка
+нехай bpm = 90.
+нехай половинка = Час.noteValue bpm Час.половинка
+нехай чвертка = Час.noteValue bpm Час.чвертка
+нехай вісімка = Час.noteValue bpm Час.вісімка
 
-let створитиНоту час нота =
+нехай створитиНоту час нота =
     Створення.зробитиНоту Створення.сінусоїда час нота 4
     |> Трансформації.gaussianTapper 0.1
 
-let baaBaaBlackSheepChorus =
+нехай baaBaaBlackSheepChorus =
     seq {
           //C C G G A A AA G
           //Baa baa black sheep have you any wool?
@@ -386,7 +386,7 @@ let baaBaaBlackSheepChorus =
           yield! створитиНоту половинка Нота.До
           
           //F F E E D D C
-          //One for the master, one for the dame
+          //One для the master, one для the dame
           yield! створитиНоту чвертка Нота.Ля
           yield! створитиНоту вісімка Нота.Ля
           yield! створитиНоту вісімка Нота.Ля
@@ -400,7 +400,7 @@ let baaBaaBlackSheepChorus =
 
           yield! створитиНоту половинка Нота.Ре
 
-          //One for the little boy, who lives down the lane
+          //One для the little boy, who lives down the lane
           yield! створитиНоту чвертка Нота.Ля
           yield! створитиНоту вісімка Нота.Ля
           yield! створитиНоту вісімка Нота.Ля

@@ -1,4 +1,4 @@
-module Thoth.RandomUser
+модуль Thoth.RandomUser
 
 (**
 Small application showing how to use:
@@ -6,30 +6,30 @@ Small application showing how to use:
 - Promise and Fetch APIs
 *)
 
-open System
-open Fable.Core
-open Fable.React
-open Fable.React.Props
-open Elmish
-open Elmish.React
-open Thoth.Json
+відкрити System
+відкрити Fable.Core
+відкрити Fable.React
+відкрити Fable.React.Props
+відкрити Elmish
+відкрити Elmish.React
+відкрити Thoth.Json
 
 // MODEL
-type Gender =
+тип Gender =
     | Male
     | Female
 
-    static member Decoder =
+    статичний член Decoder =
         Decode.string
         |> Decode.andThen (
-            function
+            функція
             | "male" -> Decode.succeed Male
             | "female" -> Decode.succeed Female
-            | invalid -> "`" + invalid + "` isn't a valid value for Gender"
+            | invalid -> "`" + invalid + "` isn't a valid value для Gender"
                             |> Decode.fail
         )
 
-type User =
+тип User =
     { Gender : Gender
       FullName : string
       Email : string
@@ -39,16 +39,16 @@ type User =
       Birthday : DateTime
       Picture : string }
 
-    static member Decoder =
-        // When using Thoth.Json, you are not forced to do a 1 to 1
+    статичний член Decoder =
+        // When using Thoth.Json, you are not forced to зробити a 1 to 1
         // mapping between the JSON format and your types
-        // For example, in the next decoder we will access deep information
-        // and store it at the "root" of our type
-        Decode.object (fun get ->
+        // For example, у the next decoder we will access deep information
+        // and store it at the "root" з our тип
+        Decode.object (фун get ->
             // In object decoder, we can execute any F#
-            // So for example, we can use temporary variables
-            let firstname = get.Required.At [ "name"; "first" ] Decode.string
-            let lastname = get.Required.At [ "name"; "last" ] Decode.string
+            // So для example, we can use temporary variables
+            нехай firstname = get.Required.At [ "name"; "first" ] Decode.string
+            нехай lastname = get.Required.At [ "name"; "last" ] Decode.string
 
             { Gender = get.Required.Field "gender" Gender.Decoder
               FullName = firstname + " " + lastname
@@ -60,40 +60,40 @@ type User =
               Picture = get.Required.At [ "picture"; "large" ] Decode.string }
         )
 
-type Model =
+тип Model =
     /// Loading state
-    /// If user is None, then it's the initial loading
-    | Loading of User option
+    /// If user is None, тоді it's the initial loading
+    | Loading з User option
     /// Loaded state
-    | Loaded of User
-    /// If last request results in an error
+    | Loaded з User
+    /// If last request results у an error
     | Errored
 
-type Msg =
+тип Msg =
     | FetchRandomUser
-    | FetchResponse of Result<User, string>
-    | FetchError of exn
+    | FetchResponse з Result<User, string>
+    | FetchError з exn
 
 /// At first, we have no user to display
-let init () = Loading None, Cmd.ofMsg FetchRandomUser
+нехай init () = Loading None, Cmd.ofMsg FetchRandomUser
 
 // UPDATE
 
-let private getRandomUser () = promise {
-    // We add a delay of 300ms so the button animation is more visible
+нехай приватний getRandomUser () = promise {
+    // We add a delay з 300ms so the button animation is more visible
     do! Promise.sleep 300
-    let! response = Fetch.fetch "https://randomuser.me/api/" []
-    let! responseText = response.text()
-    let resultDecoder = Decode.field "results" (Decode.index 0 User.Decoder)
-    return Decode.fromString resultDecoder responseText
+    нехай! response = Fetch.fetch "https://randomuser.me/api/" []
+    нехай! responseText = response.text()
+    нехай resultDecoder = Decode.field "results" (Decode.index 0 User.Decoder)
+    повернути Decode.fromString resultDecoder responseText
 }
-let update (msg:Msg) (model:Model) =
-    match msg with
+нехай update (msg:Msg) (model:Model) =
+    співстав msg із
     | FetchRandomUser ->
-        let newModel =
-            match model with
+        нехай newModel =
+            співстав model із
             // If we have a current user
-            // we keep it while waiting the new user
+            // we keep it while waiting the новий user
             | Loaded user ->
                 Loading (Some user)
             | _ -> Loading None
@@ -109,15 +109,15 @@ let update (msg:Msg) (model:Model) =
         JS.console.error msg
         Errored, Cmd.none
 
-    // An error occured, when fetching the new user
+    // An error occured, when fetching the новий user
     | FetchError error ->
         JS.console.error error.Message
         Errored, Cmd.none
 
-// VIEW (rendered with React)
+// VIEW (rendered із React)
 
-let inline private renderInfo iconClass value =
-    let iconClass = "fa " + iconClass
+нехай інлайн приватний renderInfo iconClass value =
+    нехай iconClass = "fa " + iconClass
     div [ ]
         [ span [ Class "icon" ]
             [ i [ Class iconClass ]
@@ -125,19 +125,19 @@ let inline private renderInfo iconClass value =
           str " "
           str value ]
 
-let inline private viewMessage color msg =
+нехай інлайн приватний viewMessage color msg =
     div [ Class ("message " + color) ]
         [ div [ Class "message-body" ]
             [ str msg ] ]
 
-let private viewLoading =
+нехай приватний viewLoading =
     viewMessage "is-info" "Waiting the server response..."
 
-let private viewErrored =
-    viewMessage "is-danger" "An error occured, please check the console for more information."
+нехай приватний viewErrored =
+    viewMessage "is-danger" "An error occured, please check the console для more information."
 
-let private viewUser (user : User) =
-    let birthday =
+нехай приватний viewUser (user : User) =
+    нехай birthday =
         user.Birthday.ToShortDateString()
 
     div [ Class "card is-avatar" ]
@@ -156,30 +156,30 @@ let private viewUser (user : User) =
                   renderInfo "fa-phone" user.OfficePhone
                   renderInfo "fa-envelope" user.Email ] ] ]
 
-let private viewGenerateButton isLoading dispatch =
-    let buttonClass =
-        if isLoading then
+нехай приватний viewGenerateButton isLoading dispatch =
+    нехай buttonClass =
+        якщо isLoading тоді
             " is-loading"
-        else
+        інакше
             ""
         |> (+) "button is-primary "
 
     div [ Class "has-text-centered" ]
         [ div [ Class buttonClass
-                OnClick (fun _ ->
+                OnClick (фун _ ->
                     dispatch FetchRandomUser
                 ) ]
-            [ str "Generate a new user" ] ]
+            [ str "Generate a новий user" ] ]
 
-let private center child =
+нехай приватний center child =
     div [ Class "columns is-mobile" ]
         [ div [ Class "column is-3" ] [ ]
           div [ Class "column" ] [ child ]
           div [ Class "column is-3" ] [ ] ]
 
-let view model dispatch =
-    let (isLoading, content) =
-        match model with
+нехай view model dispatch =
+    нехай (isLoading, content) =
+        співстав model із
         | Loading None ->
             true, viewLoading
         | Loading (Some user) ->
